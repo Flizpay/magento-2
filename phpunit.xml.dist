@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<phpunit colors="true" cacheDirectory=".phpunit.cache">
+    <testsuites>
+        <testsuite name="FlizPay Payment Unit Tests">
+            <directory>Test/Unit</directory>
+        </testsuite>
+    </testsuites>
+</phpunit>

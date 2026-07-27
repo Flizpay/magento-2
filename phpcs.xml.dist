@@ -1,0 +1,13 @@
+<?xml version="1.0" ?>
+<ruleset name="FlizPay Magento Payment">
+    <description
+    >Magento coding standard for the FlizPay payment module.</description>
+
+    <file>registration.php</file>
+    <file>Test</file>
+
+    <arg name="extensions" value="php,phtml" />
+    <arg name="colors" />
+
+    <rule ref="Magento2" />
+</ruleset>
