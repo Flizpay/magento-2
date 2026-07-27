@@ -1,0 +1,25 @@
+{
+  "languages": {
+    "PHP": {
+      "language_servers": [
+        "intelephense",
+        "!phpactor",
+        "!phpantom",
+        "!phptools",
+        "...",
+      ],
+    },
+  },
+  "lsp": {
+    "intelephense": {
+      "settings": {
+        "environment": {
+          "includePaths": [
+            "../magento-store/src/vendor",
+            "../magento-store/src/generated/code",
+          ],
+        },
+      },
+    },
+  },
+}
