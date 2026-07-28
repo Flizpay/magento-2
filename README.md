@@ -20,7 +20,7 @@ Start the shop and install the module from `magento-store`:
 ```bash
 bin/start
 bin/composer require flizpay/magento2:@dev
-bin/magento module:enable FlizPay_Payment
+bin/magento module:enable Flizpay_Payment
 bin/magento setup:upgrade
 bin/magento setup:di:compile
 bin/magento cache:flush
@@ -28,6 +28,25 @@ bin/magento cache:flush
 
 Composer installs the package with a symlink, so module changes are available in
 the Magento container without reinstalling the package.
+
+## Current Payment Behavior
+
+FlizPay is disabled by default. Configure it under **Stores > Configuration >
+Sales > Payment Methods > FlizPay**. The method is available only when:
+
+- It is enabled for the current website.
+- The global API key is configured.
+- The store's secure base URL uses HTTPS.
+
+The API key uses Magento's encrypted configuration backend. It is never included
+in checkout configuration.
+
+Order placement persists guest and authenticated orders in `pending_payment`.
+The initializer does not contact FlizPay, authorize or capture payment, or create
+an invoice. Checkout then submits a form POST to `/flizpay/payment/start`.
+
+Provider transaction creation is added in Phase 3. Until then, the start action
+continues to Magento's order-success page without changing payment state.
 
 ## Development Checks
 
@@ -41,6 +60,7 @@ make analyse
 make test-unit
 make test-integration
 make phpcs
+make format
 make compile
 ```
 
@@ -51,12 +71,13 @@ infrastructure must be initialized before running `make test-integration`.
 ## Lifecycle Smoke Test
 
 ```bash
-../magento-store/bin/magento module:disable FlizPay_Payment
+../magento-store/bin/magento module:disable Flizpay_Payment
 ../magento-store/bin/composer remove flizpay/magento2
 ../magento-store/bin/composer require flizpay/magento2:@dev
-../magento-store/bin/magento module:enable FlizPay_Payment
+../magento-store/bin/magento module:enable Flizpay_Payment
 ../magento-store/bin/magento setup:upgrade
 ```
 
-Uninstalling the module with data removal is added after the module owns
-declarative-schema data in a later implementation phase.
+The module currently owns the `flizpay_payment_attempt` and
+`flizpay_webhook_event` declarative-schema tables. Full uninstall and data
+retention verification is scheduled for the release lifecycle phase.

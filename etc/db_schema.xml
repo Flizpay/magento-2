@@ -1,0 +1,358 @@
+<?xml version="1.0" ?>
+<!--
+/**
+ * FLIZpay Magento 2
+ *
+ * This Magento 2 extension enables to process payments with FLIZpay (https://flizpay.de).
+ *
+ * @package Flizpay_Payment
+ * @author  FLIZpay GmbH (https://flizpay.de)
+ * @license https://www.gnu.org/licenses/gpl-2.0.txt GPLv2 or later
+ * @link    https://flizpay.de
+ */
+ -->
+<schema
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd"
+>
+    <table
+        name="flizpay_payment_attempt"
+        resource="default"
+        engine="innodb"
+        comment="FlizPay Payment Attempts"
+    >
+        <column
+            xsi:type="int"
+            name="entity_id"
+            unsigned="true"
+            nullable="false"
+            identity="true"
+            comment="Entity ID"
+        />
+        <column
+            xsi:type="varchar"
+            name="attempt_id"
+            nullable="false"
+            length="64"
+            comment="Attempt ID"
+        />
+        <column
+            xsi:type="int"
+            name="order_id"
+            unsigned="true"
+            nullable="false"
+            comment="Order ID"
+        />
+        <column
+            xsi:type="varchar"
+            name="order_increment_id"
+            nullable="false"
+            length="32"
+            comment="Order Increment ID"
+        />
+        <column
+            xsi:type="int"
+            name="quote_id"
+            unsigned="true"
+            nullable="true"
+            comment="Quote ID"
+        />
+        <column
+            xsi:type="smallint"
+            name="store_id"
+            unsigned="true"
+            nullable="false"
+            comment="Store ID"
+        />
+        <column
+            xsi:type="varchar"
+            name="provider_transaction_id"
+            nullable="true"
+            length="255"
+            comment="Provider Transaction ID"
+        />
+        <column
+            xsi:type="varchar"
+            name="provider_reference"
+            nullable="true"
+            length="255"
+            comment="Provider Reference"
+        />
+        <column
+            xsi:type="bigint"
+            name="expected_amount_minor"
+            unsigned="true"
+            nullable="false"
+            comment="Expected Amount in Minor Units"
+        />
+        <column
+            xsi:type="varchar"
+            name="currency"
+            nullable="false"
+            length="3"
+            comment="Currency"
+        />
+        <column
+            xsi:type="varchar"
+            name="provider_status"
+            nullable="true"
+            length="32"
+            comment="Provider Status"
+        />
+        <column
+            xsi:type="varchar"
+            name="creation_state"
+            nullable="false"
+            length="16"
+            default="new"
+            comment="Creation State"
+        />
+        <column
+            xsi:type="text"
+            name="encrypted_redirect_url"
+            nullable="true"
+            comment="Encrypted Redirect URL"
+        />
+        <column
+            xsi:type="char"
+            name="return_token_hash"
+            nullable="false"
+            length="64"
+            comment="Return Token Hash"
+        />
+        <column
+            xsi:type="timestamp"
+            name="expires_at"
+            nullable="true"
+            on_update="false"
+            comment="Expires At"
+        />
+        <column
+            xsi:type="timestamp"
+            name="last_reconciled_at"
+            nullable="true"
+            on_update="false"
+            comment="Last Reconciled At"
+        />
+        <column
+            xsi:type="timestamp"
+            name="created_at"
+            nullable="false"
+            default="CURRENT_TIMESTAMP"
+            on_update="false"
+            comment="Created At"
+        />
+        <column
+            xsi:type="timestamp"
+            name="updated_at"
+            nullable="false"
+            default="CURRENT_TIMESTAMP"
+            on_update="true"
+            comment="Updated At"
+        />
+
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="entity_id" />
+        </constraint>
+        <constraint
+            xsi:type="foreign"
+            referenceId="FLIZPAY_PAYMENT_ATTEMPT_ORDER_ID_SALES_ORDER_ENTITY_ID"
+            table="flizpay_payment_attempt"
+            column="order_id"
+            referenceTable="sales_order"
+            referenceColumn="entity_id"
+            onDelete="CASCADE"
+        />
+        <constraint
+            xsi:type="foreign"
+            referenceId="FLIZPAY_PAYMENT_ATTEMPT_STORE_ID_STORE_STORE_ID"
+            table="flizpay_payment_attempt"
+            column="store_id"
+            referenceTable="store"
+            referenceColumn="store_id"
+            onDelete="CASCADE"
+        />
+        <constraint
+            xsi:type="unique"
+            referenceId="FLIZPAY_PAYMENT_ATTEMPT_ORDER_ID"
+        >
+            <column name="order_id" />
+        </constraint>
+        <constraint
+            xsi:type="unique"
+            referenceId="FLIZPAY_PAYMENT_ATTEMPT_ATTEMPT_ID"
+        >
+            <column name="attempt_id" />
+        </constraint>
+        <constraint
+            xsi:type="unique"
+            referenceId="FLIZPAY_PAYMENT_ATTEMPT_PROVIDER_TRANSACTION_ID"
+        >
+            <column name="provider_transaction_id" />
+        </constraint>
+        <constraint
+            xsi:type="unique"
+            referenceId="FLIZPAY_PAYMENT_ATTEMPT_PROVIDER_REFERENCE"
+        >
+            <column name="provider_reference" />
+        </constraint>
+        <index
+            referenceId="FLIZPAY_PAYMENT_ATTEMPT_CREATION_STATE"
+            indexType="btree"
+        >
+            <column name="creation_state" />
+        </index>
+        <index
+            referenceId="FLIZPAY_PAYMENT_ATTEMPT_LAST_RECONCILED_AT"
+            indexType="btree"
+        >
+            <column name="last_reconciled_at" />
+        </index>
+    </table>
+
+    <table
+        name="flizpay_webhook_event"
+        resource="default"
+        engine="innodb"
+        comment="FlizPay Webhook Events"
+    >
+        <column
+            xsi:type="int"
+            name="entity_id"
+            unsigned="true"
+            nullable="false"
+            identity="true"
+            comment="Entity ID"
+        />
+        <column
+            xsi:type="char"
+            name="payload_fingerprint"
+            nullable="false"
+            length="64"
+            comment="Payload Fingerprint"
+        />
+        <column
+            xsi:type="varchar"
+            name="provider_transaction_id"
+            nullable="true"
+            length="255"
+            comment="Provider Transaction ID"
+        />
+        <column
+            xsi:type="varchar"
+            name="provider_status"
+            nullable="false"
+            length="32"
+            comment="Provider Status"
+        />
+        <column
+            xsi:type="varchar"
+            name="external_order_id"
+            nullable="true"
+            length="64"
+            comment="External Order ID"
+        />
+        <column
+            xsi:type="bigint"
+            name="amount_minor"
+            unsigned="true"
+            nullable="true"
+            comment="Amount in Minor Units"
+        />
+        <column
+            xsi:type="bigint"
+            name="original_amount_minor"
+            unsigned="true"
+            nullable="true"
+            comment="Original Amount in Minor Units"
+        />
+        <column
+            xsi:type="varchar"
+            name="currency"
+            nullable="true"
+            length="3"
+            comment="Currency"
+        />
+        <column
+            xsi:type="timestamp"
+            name="provider_timestamp"
+            nullable="true"
+            on_update="false"
+            comment="Provider Timestamp"
+        />
+        <column
+            xsi:type="varchar"
+            name="processing_status"
+            nullable="false"
+            length="16"
+            default="received"
+            comment="Processing Status"
+        />
+        <column
+            xsi:type="int"
+            name="processing_attempts"
+            unsigned="true"
+            nullable="false"
+            default="0"
+            comment="Processing Attempts"
+        />
+        <column
+            xsi:type="timestamp"
+            name="received_at"
+            nullable="false"
+            default="CURRENT_TIMESTAMP"
+            on_update="false"
+            comment="Received At"
+        />
+        <column
+            xsi:type="timestamp"
+            name="last_attempt_at"
+            nullable="true"
+            on_update="false"
+            comment="Last Attempt At"
+        />
+        <column
+            xsi:type="timestamp"
+            name="processed_at"
+            nullable="true"
+            on_update="false"
+            comment="Processed At"
+        />
+        <column
+            xsi:type="varchar"
+            name="safe_error_code"
+            nullable="true"
+            length="64"
+            comment="Safe Error Code"
+        />
+
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="entity_id" />
+        </constraint>
+        <constraint
+            xsi:type="unique"
+            referenceId="FLIZPAY_WEBHOOK_EVENT_PAYLOAD_FINGERPRINT"
+        >
+            <column name="payload_fingerprint" />
+        </constraint>
+        <constraint
+            xsi:type="unique"
+            referenceId="FLIZPAY_WEBHOOK_EVENT_TRANSACTION_STATUS"
+        >
+            <column name="provider_transaction_id" />
+            <column name="provider_status" />
+        </constraint>
+        <index
+            referenceId="FLIZPAY_WEBHOOK_EVENT_PROCESSING_STATUS"
+            indexType="btree"
+        >
+            <column name="processing_status" />
+        </index>
+        <index
+            referenceId="FLIZPAY_WEBHOOK_EVENT_RECEIVED_AT"
+            indexType="btree"
+        >
+            <column name="received_at" />
+        </index>
+    </table>
+</schema>

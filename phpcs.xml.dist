@@ -4,6 +4,12 @@
     >Magento coding standard for the FlizPay payment module.</description>
 
     <file>registration.php</file>
+    <file>Api</file>
+    <file>Block</file>
+    <file>Controller</file>
+    <file>Gateway</file>
+    <file>Model</file>
+    <file>Service</file>
     <file>Test</file>
 
     <arg name="extensions" value="php,phtml" />

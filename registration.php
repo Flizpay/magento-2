@@ -6,6 +6,6 @@ use Magento\Framework\Component\ComponentRegistrar;
 
 ComponentRegistrar::register(
     ComponentRegistrar::MODULE,
-    "FlizPay_Payment",
+    "Flizpay_Payment",
     __DIR__,
 );

@@ -1,0 +1,96 @@
+<?xml version="1.0" ?>
+<!--
+/**
+ * FLIZpay Magento 2
+ *
+ * This Magento 2 extension enables to process payments with FLIZpay (https://flizpay.de).
+ *
+ * @package Flizpay_Payment
+ * @author  FLIZpay GmbH (https://flizpay.de)
+ * @license https://www.gnu.org/licenses/gpl-2.0.txt GPLv2 or later
+ * @link    https://flizpay.de
+ */
+ -->
+<config
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd"
+>
+    <preference
+        for="FlizPay\Payment\Api\ConfigInterface"
+        type="FlizPay\Payment\Model\Config"
+    />
+
+    <virtualType
+        name="FlizPayPaymentGatewayConfig"
+        type="Magento\Payment\Gateway\Config\Config"
+    >
+        <arguments>
+            <argument name="methodCode" xsi:type="string">flizpay</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType
+        name="FlizPayPaymentConfigValueHandler"
+        type="Magento\Payment\Gateway\Config\ConfigValueHandler"
+    >
+        <arguments>
+            <argument
+                name="configInterface"
+                xsi:type="object"
+            >FlizPayPaymentGatewayConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType
+        name="FlizPayPaymentValueHandlerPool"
+        type="Magento\Payment\Gateway\Config\ValueHandlerPool"
+    >
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item
+                    name="default"
+                    xsi:type="string"
+                >FlizPayPaymentConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType
+        name="FlizPayPaymentCommandPool"
+        type="Magento\Payment\Gateway\Command\CommandPool"
+    >
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item
+                    name="initialize"
+                    xsi:type="string"
+                >FlizPay\Payment\Gateway\Command\InitializeCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType
+        name="FlizPayPaymentFacade"
+        type="FlizPay\Payment\Model\Method\Adapter"
+    >
+        <arguments>
+            <argument name="code" xsi:type="string">flizpay</argument>
+            <argument
+                name="formBlockType"
+                xsi:type="string"
+            >Magento\Payment\Block\Form</argument>
+            <argument
+                name="infoBlockType"
+                xsi:type="string"
+            >Magento\Payment\Block\Info</argument>
+            <argument
+                name="valueHandlerPool"
+                xsi:type="object"
+            >FlizPayPaymentValueHandlerPool</argument>
+            <argument
+                name="commandPool"
+                xsi:type="object"
+            >FlizPayPaymentCommandPool</argument>
+        </arguments>
+    </virtualType>
+</config>

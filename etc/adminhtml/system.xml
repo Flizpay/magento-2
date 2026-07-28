@@ -1,0 +1,96 @@
+<?xml version="1.0" ?>
+<!--
+/**
+ * FLIZpay Magento 2
+ *
+ * This Magento 2 extension enables to process payments with FLIZpay (https://flizpay.de).
+ *
+ * @package Flizpay_Payment
+ * @author  FLIZpay GmbH (https://flizpay.de)
+ * @license https://www.gnu.org/licenses/gpl-2.0.txt GPLv2 or later
+ * @link    https://flizpay.de
+ */
+ -->
+<config
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd"
+>
+    <system>
+        <section id="payment">
+            <group
+                id="flizpay"
+                translate="label"
+                type="text"
+                sortOrder="10"
+                showInDefault="1"
+                showInWebsite="1"
+                showInStore="0"
+            >
+                <label>FLIZpay</label>
+
+                <field
+                    id="active"
+                    translate="label"
+                    type="select"
+                    sortOrder="10"
+                    showInDefault="1"
+                    showInWebsite="1"
+                    canRestore="1"
+                >
+                    <label>Enabled</label>
+                    <source_model
+                    >Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field
+                    id="api_key"
+                    translate="label comment"
+                    type="obscure"
+                    sortOrder="20"
+                    showInDefault="1"
+                    showInWebsite="0"
+                >
+                    <label>API Key</label>
+                    <comment
+                    >Stored encrypted in Magento configuration.</comment>
+                    <backend_model
+                    >Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                </field>
+                <field
+                    id="connection_status"
+                    translate="label"
+                    type="text"
+                    sortOrder="30"
+                    showInDefault="1"
+                    showInWebsite="0"
+                >
+                    <label>Connection Status</label>
+                    <frontend_model
+                    >FlizPay\Payment\Block\Adminhtml\System\Config\ReadOnlyField</frontend_model>
+                </field>
+                <field
+                    id="sort_order"
+                    translate="label"
+                    type="text"
+                    sortOrder="40"
+                    showInDefault="1"
+                    showInWebsite="1"
+                >
+                    <label>Sort Order</label>
+                    <validate>validate-number</validate>
+                </field>
+                <field
+                    id="logging_enabled"
+                    translate="label"
+                    type="select"
+                    sortOrder="50"
+                    showInDefault="1"
+                    showInWebsite="1"
+                >
+                    <label>Logging Enabled</label>
+                    <source_model
+                    >Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

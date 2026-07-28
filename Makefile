@@ -3,7 +3,7 @@ MAGENTO_PACKAGE_PATH := vendor/flizpay/magento2
 
 .DEFAULT_GOAL := help
 
-.PHONY: help validate lint analyse test-unit test-integration phpcs compile
+.PHONY: help validate lint analyse test-unit test-integration phpcs format compile
 
 help:
 	@printf '%s\n' \
@@ -14,6 +14,7 @@ help:
 		'  make test-unit         Run unit tests' \
 		'  make test-integration  Run Magento integration tests' \
 		'  make phpcs             Run Magento coding standards' \
+		'  make format            Format PHP with Magento PHPCBF' \
 		'  make compile           Compile Magento dependency injection'
 
 validate:
@@ -24,8 +25,14 @@ lint:
 
 analyse:
 	cd $(MAGENTO_STORE_ROOT) && ./bin/clinotty vendor/bin/phpstan analyse \
-		/var/www/flizpay-magento/registration.php \
+		/var/www/flizpay-magento/Api \
+		/var/www/flizpay-magento/Block \
+		/var/www/flizpay-magento/Controller \
+		/var/www/flizpay-magento/Gateway \
+		/var/www/flizpay-magento/Model \
+		/var/www/flizpay-magento/Service \
 		/var/www/flizpay-magento/Test/Unit \
+		/var/www/flizpay-magento/registration.php \
 		--level=6 --no-progress
 
 test-unit:
@@ -38,6 +45,9 @@ test-integration:
 
 phpcs:
 	cd $(MAGENTO_STORE_ROOT) && ./bin/phpcs $(MAGENTO_PACKAGE_PATH)
+
+format:
+	cd $(MAGENTO_STORE_ROOT) && ./bin/phpcbf $(MAGENTO_PACKAGE_PATH)
 
 compile:
 	cd $(MAGENTO_STORE_ROOT) && ./bin/magento setup:di:compile

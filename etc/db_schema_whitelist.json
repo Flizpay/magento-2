@@ -1,0 +1,65 @@
+{
+  "flizpay_payment_attempt": {
+    "column": {
+      "entity_id": true,
+      "attempt_id": true,
+      "order_id": true,
+      "order_increment_id": true,
+      "quote_id": true,
+      "store_id": true,
+      "provider_transaction_id": true,
+      "provider_reference": true,
+      "expected_amount_minor": true,
+      "currency": true,
+      "provider_status": true,
+      "creation_state": true,
+      "encrypted_redirect_url": true,
+      "return_token_hash": true,
+      "expires_at": true,
+      "last_reconciled_at": true,
+      "created_at": true,
+      "updated_at": true
+    },
+    "index": {
+      "FLIZPAY_PAYMENT_ATTEMPT_CREATION_STATE": true,
+      "FLIZPAY_PAYMENT_ATTEMPT_LAST_RECONCILED_AT": true
+    },
+    "constraint": {
+      "PRIMARY": true,
+      "FLIZPAY_PAYMENT_ATTEMPT_ORDER_ID_SALES_ORDER_ENTITY_ID": true,
+      "FLIZPAY_PAYMENT_ATTEMPT_STORE_ID_STORE_STORE_ID": true,
+      "FLIZPAY_PAYMENT_ATTEMPT_ORDER_ID": true,
+      "FLIZPAY_PAYMENT_ATTEMPT_ATTEMPT_ID": true,
+      "FLIZPAY_PAYMENT_ATTEMPT_PROVIDER_TRANSACTION_ID": true,
+      "FLIZPAY_PAYMENT_ATTEMPT_PROVIDER_REFERENCE": true
+    }
+  },
+  "flizpay_webhook_event": {
+    "column": {
+      "entity_id": true,
+      "payload_fingerprint": true,
+      "provider_transaction_id": true,
+      "provider_status": true,
+      "external_order_id": true,
+      "amount_minor": true,
+      "original_amount_minor": true,
+      "currency": true,
+      "provider_timestamp": true,
+      "processing_status": true,
+      "processing_attempts": true,
+      "received_at": true,
+      "last_attempt_at": true,
+      "processed_at": true,
+      "safe_error_code": true
+    },
+    "index": {
+      "FLIZPAY_WEBHOOK_EVENT_PROCESSING_STATUS": true,
+      "FLIZPAY_WEBHOOK_EVENT_RECEIVED_AT": true
+    },
+    "constraint": {
+      "PRIMARY": true,
+      "FLIZPAY_WEBHOOK_EVENT_PAYLOAD_FINGERPRINT": true,
+      "FLIZPAY_WEBHOOK_EVENT_PROVIDER_TRANSACTION_ID_PROVIDER_STATUS": true
+    }
+  }
+}

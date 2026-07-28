@@ -3,7 +3,10 @@
   "description": "FlizPay payment integration for Magento Open Source and Adobe Commerce",
   "type": "magento2-module",
   "version": "0.1.0",
-  "license": "proprietary",
+  "license": [
+    "OSL-3.0",
+    "AFL-3.0"
+  ],
   "require": {
     "php": "~8.2.0 || ~8.3.0 || ~8.4.0 || ~8.5.0",
     "magento/framework": "103.0.*",

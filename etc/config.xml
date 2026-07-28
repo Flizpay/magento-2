@@ -1,0 +1,44 @@
+<?xml version="1.0" ?>
+<!--
+/**
+ * FLIZpay Magento 2
+ *
+ * This Magento 2 extension enables to process payments with FLIZpay (https://flizpay.de).
+ *
+ * @package Flizpay_Payment
+ * @author  FLIZpay GmbH (https://flizpay.de)
+ * @license https://www.gnu.org/licenses/gpl-2.0.txt GPLv2 or later
+ * @link    https://flizpay.de
+ */
+ -->
+<config
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd"
+>
+    <default>
+        <payment>
+            <flizpay>
+                <active>0</active>
+                <model>FlizPayPaymentFacade</model>
+                <title>FLIZpay</title>
+                <payment_action>authorize</payment_action>
+                <order_status>pending_payment</order_status>
+                <can_initialize>1</can_initialize>
+                <is_gateway>1</is_gateway>
+                <is_offline>0</is_offline>
+                <can_use_checkout>1</can_use_checkout>
+                <can_use_internal>0</can_use_internal>
+                <can_authorize>0</can_authorize>
+                <can_capture>0</can_capture>
+                <can_refund>0</can_refund>
+                <can_void>0</can_void>
+                <sort_order>10</sort_order>
+                <logging_enabled>0</logging_enabled>
+                <connection_status>not_connected</connection_status>
+                <api_key
+                    backend_model="Magento\Config\Model\Config\Backend\Encrypted"
+                />
+            </flizpay>
+        </payment>
+    </default>
+</config>
