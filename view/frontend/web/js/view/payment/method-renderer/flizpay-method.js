@@ -3,7 +3,7 @@ define(["Magento_Checkout/js/view/payment/default"], function (Component) {
 
   return Component.extend({
     defaults: {
-      template: "Flizpay_Payment/payment/flizpay",
+      template: "FlizPay_Payment/payment/flizpay",
     },
 
     redirectAfterPlaceOrder: false,

@@ -20,7 +20,7 @@ Start the shop and install the module from `magento-store`:
 ```bash
 bin/start
 bin/composer require flizpay/magento2:@dev
-bin/magento module:enable Flizpay_Payment
+bin/magento module:enable FlizPay_Payment
 bin/magento setup:upgrade
 bin/magento setup:di:compile
 bin/magento cache:flush
@@ -71,10 +71,10 @@ infrastructure must be initialized before running `make test-integration`.
 ## Lifecycle Smoke Test
 
 ```bash
-../magento-store/bin/magento module:disable Flizpay_Payment
+../magento-store/bin/magento module:disable FlizPay_Payment
 ../magento-store/bin/composer remove flizpay/magento2
 ../magento-store/bin/composer require flizpay/magento2:@dev
-../magento-store/bin/magento module:enable Flizpay_Payment
+../magento-store/bin/magento module:enable FlizPay_Payment
 ../magento-store/bin/magento setup:upgrade
 ```
 

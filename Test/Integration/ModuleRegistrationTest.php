@@ -17,13 +17,13 @@ class ModuleRegistrationTest extends TestCase
         $moduleList = $objectManager->get(ModuleListInterface::class);
         $componentRegistrar = $objectManager->get(ComponentRegistrar::class);
 
-        self::assertNotNull($moduleList->getOne("Flizpay_Payment"));
+        self::assertNotNull($moduleList->getOne("FlizPay_Payment"));
         self::assertSame(
             realpath(dirname(__DIR__, 2)),
             realpath(
                 (string) $componentRegistrar->getPath(
                     ComponentRegistrar::MODULE,
-                    "Flizpay_Payment",
+                    "FlizPay_Payment",
                 ),
             ),
         );
