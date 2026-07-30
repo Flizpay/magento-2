@@ -32,7 +32,10 @@ class ConfigTest extends TestCase
                 ],
             ]);
 
-        self::assertTrue((new Config($this->scopeConfig))->hasApiKey());
+        $config = new Config($this->scopeConfig);
+
+        self::assertTrue($config->hasApiKey());
+        self::assertSame("api-key", $config->getApiKey());
     }
 
     public function testMissingApiKeyIsNotConfigured(): void
@@ -49,5 +52,41 @@ class ConfigTest extends TestCase
             ]);
 
         self::assertFalse((new Config($this->scopeConfig))->hasApiKey());
+    }
+
+    public function testWebhookSecretIsReadFromProcessedConfig(): void
+    {
+        $this->scopeConfig
+            ->method("getValue")
+            ->willReturn("webhook-secret");
+
+        self::assertSame(
+            "webhook-secret",
+            (new Config($this->scopeConfig))->getWebhookSecret(),
+        );
+    }
+
+    public function testConnectedRequiresStatusAndWebhookSecret(): void
+    {
+        $this->scopeConfig
+            ->method("getValue")
+            ->willReturnMap([
+                [
+                    "payment/flizpay/connection_status",
+                    ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
+                    null,
+                    "connected",
+                ],
+                [
+                    "payment/flizpay/webhook_secret",
+                    ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
+                    null,
+                    "secret",
+                ],
+            ]);
+
+        self::assertTrue(
+            (new Config($this->scopeConfig))->isConnected(),
+        );
     }
 }

@@ -65,7 +65,7 @@
                 >
                     <label>Connection Status</label>
                     <frontend_model
-                    >FlizPay\Payment\Block\Adminhtml\System\Config\ReadOnlyField</frontend_model>
+                    >FlizPay\Payment\Block\Adminhtml\System\Config\ConnectionStatus</frontend_model>
                 </field>
                 <field
                     id="sort_order"

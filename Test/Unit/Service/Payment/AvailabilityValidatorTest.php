@@ -44,6 +44,15 @@ class AvailabilityValidatorTest extends TestCase
         );
     }
 
+    public function testUnverifiedConnectionMakesMethodUnavailable(): void
+    {
+        $this->config = $this->createConfig(connected: false);
+
+        self::assertFalse(
+            $this->validator()->isAvailable($this->createQuote()),
+        );
+    }
+
     public function testNonHttpsStoreIsUnavailable(): void
     {
         self::assertFalse(
@@ -64,10 +73,12 @@ class AvailabilityValidatorTest extends TestCase
     private function createConfig(
         bool $active = true,
         bool $hasApiKey = true,
+        bool $connected = true,
     ): ConfigInterface {
         $config = $this->createStub(ConfigInterface::class);
         $config->method("isActive")->willReturn($active);
         $config->method("hasApiKey")->willReturn($hasApiKey);
+        $config->method("isConnected")->willReturn($connected);
 
         return $config;
     }

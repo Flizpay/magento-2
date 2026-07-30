@@ -36,17 +36,24 @@ Sales > Payment Methods > FlizPay**. The method is available only when:
 
 - It is enabled for the current website.
 - The global API key is configured.
+- The merchant connection has passed a signed webhook test.
 - The store's secure base URL uses HTTPS.
 
-The API key uses Magento's encrypted configuration backend. It is never included
-in checkout configuration.
+The API key and webhook secret use Magento's encrypted configuration backend.
+Neither credential is included in checkout configuration.
+
+Saving an API key automatically registers the secure `/flizpay/webhook` URL with
+FlizPay and stores the generated webhook secret encrypted. FlizPay then sends a
+signed test callback. Magento answers with `data.alive: true`, records the
+verification time, and updates the connection status in Admin.
 
 Order placement persists guest and authenticated orders in `pending_payment`.
 The initializer does not contact FlizPay, authorize or capture payment, or create
 an invoice. Checkout then submits a form POST to `/flizpay/payment/start`.
 
-Provider transaction creation is added in Phase 3. Until then, the start action
-continues to Magento's order-success page without changing payment state.
+Provider transaction creation and payment-completion handling are added in
+Phase 3. Until then, the start action continues to Magento's order-success page
+without changing payment state.
 
 ## Development Checks
 

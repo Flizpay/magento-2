@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ES5",
+    "module": "AMD",
+    "lib": ["DOM", "ES2015"],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/adminhtml/*"]
+    },
+    "rootDir": "src/adminhtml",
+    "outDir": "view/adminhtml/web/js",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "skipLibCheck": true
+  },
+  "include": ["src/adminhtml/**/*.ts"]
+}

@@ -43,7 +43,11 @@ class AvailabilityValidator
         $store = $quote->getStore();
         $storeId = (int) $store->getId();
 
-        if (!$this->config->isActive($storeId) || !$this->config->hasApiKey()) {
+        $configured =
+            $this->config->isActive($storeId) &&
+            $this->config->hasApiKey() &&
+            $this->config->isConnected();
+        if (!$configured) {
             return false;
         }
 

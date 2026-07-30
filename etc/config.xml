@@ -35,7 +35,13 @@
                 <sort_order>10</sort_order>
                 <logging_enabled>0</logging_enabled>
                 <connection_status>not_connected</connection_status>
+                <webhook_url />
+                <connection_api_key_hash />
+                <connection_verified_at />
                 <api_key
+                    backend_model="Magento\Config\Model\Config\Backend\Encrypted"
+                />
+                <webhook_secret
                     backend_model="Magento\Config\Model\Config\Backend\Encrypted"
                 />
             </flizpay>

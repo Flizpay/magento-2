@@ -49,7 +49,73 @@ class Config implements ConfigInterface
      */
     public function hasApiKey(): bool
     {
-        return $this->getGlobalValue("api_key") !== "";
+        return $this->getApiKey() !== "";
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getApiKey(): string
+    {
+        return $this->getGlobalValue("api_key");
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getWebhookSecret(): string
+    {
+        return $this->getGlobalValue("webhook_secret");
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function hasWebhookSecret(): bool
+    {
+        return $this->getWebhookSecret() !== "";
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getConnectionStatus(): string
+    {
+        return $this->getGlobalValue("connection_status") ?:
+            self::CONNECTION_NOT_CONNECTED;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isConnected(): bool
+    {
+        return $this->getConnectionStatus() === self::CONNECTION_CONNECTED &&
+            $this->hasWebhookSecret();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getWebhookUrl(): string
+    {
+        return $this->getGlobalValue("webhook_url");
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getConnectionApiKeyHash(): string
+    {
+        return $this->getGlobalValue("connection_api_key_hash");
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getConnectionVerifiedAt(): string
+    {
+        return $this->getGlobalValue("connection_verified_at");
     }
 
     /**

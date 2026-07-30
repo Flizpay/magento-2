@@ -18,6 +18,7 @@
     <module name="FlizPay_Payment">
         <sequence>
             <module name="Magento_Store" />
+            <module name="Magento_Backend" />
             <module name="Magento_Config" />
             <module name="Magento_Quote" />
             <module name="Magento_Sales" />
