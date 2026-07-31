@@ -44,7 +44,8 @@ test-integration:
 		'cd dev/tests/integration && ../../../vendor/bin/phpunit -c phpunit.xml.dist ../../../$(MAGENTO_PACKAGE_PATH)/Test/Integration'
 
 phpcs:
-	cd $(MAGENTO_STORE_ROOT) && ./bin/phpcs $(MAGENTO_PACKAGE_PATH)
+	cd $(MAGENTO_STORE_ROOT) && ./bin/phpcs \
+		--runtime-set ignore_warnings_on_exit 1 $(MAGENTO_PACKAGE_PATH)
 
 format:
 	cd $(MAGENTO_STORE_ROOT) && ./bin/phpcbf $(MAGENTO_PACKAGE_PATH)

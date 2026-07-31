@@ -6,6 +6,8 @@ namespace FlizPay\Payment\Controller\Webhook;
 
 use FlizPay\Payment\Service\Connection\ConnectionManager;
 use FlizPay\Payment\Service\Webhook\WebhookAuthenticator;
+use FlizPay\Payment\Service\Webhook\WebhookPayload;
+use FlizPay\Payment\Service\Webhook\WebhookProcessor;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\App\CsrfAwareActionInterface;
 use Magento\Framework\App\Request\Http;
@@ -33,6 +35,7 @@ class Index implements HttpPostActionInterface, CsrfAwareActionInterface
         private readonly JsonSerializer $jsonSerializer,
         private readonly WebhookAuthenticator $authenticator,
         private readonly ConnectionManager $connectionManager,
+        private readonly WebhookProcessor $webhookProcessor,
     ) {}
 
     /**
@@ -54,15 +57,28 @@ class Index implements HttpPostActionInterface, CsrfAwareActionInterface
 
         try {
             $payload = $this->jsonSerializer->unserialize($rawBody);
-            if (!is_array($payload) || ($payload["test"] ?? null) !== true) {
+
+            if (!is_array($payload)) {
                 return $result
                     ->setHttpResponseCode(400)
-                    ->setData(["error" => "Unsupported webhook"]);
+                    ->setData(["error" => "Invalid webhook"]);
             }
 
-            $this->connectionManager->confirmWebhookConnection();
+            if (($payload["test"] ?? null) === true) {
+                $this->connectionManager->confirmWebhookConnection();
 
-            return $result->setData(["data" => ["alive" => true]]);
+                return $result->setData(["data" => ["alive" => true]]);
+            }
+
+            $this->webhookProcessor->process(
+                WebhookPayload::fromArray($payload),
+            );
+
+            return $result->setData(["data" => ["received" => true]]);
+        } catch (\InvalidArgumentException) {
+            return $result
+                ->setHttpResponseCode(400)
+                ->setData(["error" => "Unsupported webhook"]);
         } catch (\Throwable) {
             return $result
                 ->setHttpResponseCode(500)

@@ -7,6 +7,7 @@ namespace FlizPay\Payment\Test\Unit\Controller\Webhook;
 use FlizPay\Payment\Controller\Webhook\Index;
 use FlizPay\Payment\Service\Connection\ConnectionManager;
 use FlizPay\Payment\Service\Webhook\WebhookAuthenticator;
+use FlizPay\Payment\Service\Webhook\WebhookProcessor;
 use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\App\Request\Http;
@@ -57,6 +58,58 @@ class IndexTest extends TestCase
                 $serializer,
                 $authenticator,
                 $connectionManager,
+                $this->createStub(WebhookProcessor::class),
+            ))->execute(),
+        );
+    }
+
+    public function testSignedCompletedCallbackIsProcessed(): void
+    {
+        $rawBody = '{"transactionId":"provider-123","status":"completed"}';
+        $request = $this->createStub(Http::class);
+        $request->method("getContent")->willReturn($rawBody);
+        $request->method("getHeader")->willReturn("signature");
+
+        $result = $this->createMock(Json::class);
+        $result
+            ->expects(self::once())
+            ->method("setData")
+            ->with(["data" => ["received" => true]])
+            ->willReturnSelf();
+        $jsonFactory = $this->createStub(JsonFactory::class);
+        $jsonFactory->method("create")->willReturn($result);
+
+        $serializer = $this->createStub(JsonSerializer::class);
+        $serializer->method("unserialize")->willReturn([
+            "transactionId" => "provider-123",
+            "status" => "completed",
+        ]);
+        $authenticator = $this->createStub(WebhookAuthenticator::class);
+        $authenticator->method("authenticate")->willReturn(true);
+
+        $connectionManager = $this->createMock(ConnectionManager::class);
+        $connectionManager
+            ->expects(self::never())
+            ->method("confirmWebhookConnection");
+        $processor = $this->createMock(WebhookProcessor::class);
+        $processor
+            ->expects(self::once())
+            ->method("process")
+            ->with(self::callback(
+                static fn($payload): bool =>
+                    $payload->getTransactionId() === "provider-123" &&
+                    $payload->getStatus() === "completed",
+            ));
+
+        self::assertSame(
+            $result,
+            (new Index(
+                $request,
+                $jsonFactory,
+                $serializer,
+                $authenticator,
+                $connectionManager,
+                $processor,
             ))->execute(),
         );
     }

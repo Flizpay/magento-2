@@ -17,25 +17,79 @@ use Magento\Framework\Serialize\Serializer\Json;
 use Psr\Log\LoggerInterface;
 
 /**
- * Minimal client for FLIZpay merchant connection setup.
+ * Minimal client for authenticated FLIZpay API requests.
  */
 class FlizPayApiClient
 {
-    private const API_BASE_URL = "https://olegs-macbook-pro-1.tail9450f2.ts.net:4440";
+    private const API_BASE_URL = "https://api.flizpay.de";
+    private const REDIRECT_HOST = "secure.flizpay.de";
     private const REQUEST_TIMEOUT_SECONDS = 30;
+
+    private readonly string $baseUrl;
+
+    /** @var list<string> */
+    private readonly array $redirectHosts;
 
     /**
      * @param Curl $httpClient
      * @param Json $json
      * @param ConfigInterface $config
      * @param LoggerInterface $logger
+     * @param string $baseUrl
+     * @param list<string> $redirectHosts
      */
     public function __construct(
         private readonly Curl $httpClient,
         private readonly Json $json,
         private readonly ConfigInterface $config,
         private readonly LoggerInterface $logger,
-    ) {}
+        string $baseUrl = self::API_BASE_URL,
+        array $redirectHosts = [self::REDIRECT_HOST],
+    ) {
+        $baseUrl = rtrim($baseUrl, "/");
+        $parts = parse_url($baseUrl);
+        if (
+            !is_array($parts) ||
+            strtolower((string) ($parts["scheme"] ?? "")) !== "https" ||
+            empty($parts["host"]) ||
+            isset($parts["user"]) ||
+            isset($parts["pass"]) ||
+            isset($parts["query"]) ||
+            isset($parts["fragment"])
+        ) {
+            throw new \InvalidArgumentException(
+                "FLIZpay API base URL must be an absolute HTTPS URL.",
+            );
+        }
+
+        $redirectHosts = array_values(
+            array_unique(
+                array_map(
+                    static fn(string $host): string => strtolower(trim($host)),
+                    $redirectHosts,
+                ),
+            ),
+        );
+        if (
+            $redirectHosts === [] ||
+            array_filter(
+                $redirectHosts,
+                static fn(string $host): bool => $host === "" ||
+                    filter_var(
+                        $host,
+                        FILTER_VALIDATE_DOMAIN,
+                        FILTER_FLAG_HOSTNAME,
+                    ) === false,
+            ) !== []
+        ) {
+            throw new \InvalidArgumentException(
+                "FLIZpay redirect hosts must be valid hostnames.",
+            );
+        }
+
+        $this->baseUrl = $baseUrl;
+        $this->redirectHosts = $redirectHosts;
+    }
 
     /**
      * Register the Magento webhook URL for the merchant.
@@ -77,6 +131,35 @@ class FlizPayApiClient
     }
 
     /**
+     * Create one FLIZpay transaction without automatic retries.
+     *
+     * @param array<string, mixed> $request
+     * @return CreatedTransaction
+     * @throws LocalizedException
+     */
+    public function createTransaction(array $request): CreatedTransaction
+    {
+        $data = $this->request("POST", "/transactions", $request);
+
+        try {
+            return CreatedTransaction::fromResponse(
+                $data,
+                $this->redirectHosts,
+            );
+        } catch (\Throwable $exception) {
+            $this->logFailure(
+                "/transactions",
+                $this->httpClient->getStatus(),
+                $exception,
+            );
+
+            throw new LocalizedException(
+                __("Unable to connect Magento to FLIZpay."),
+            );
+        }
+    }
+
+    /**
      * Execute one authenticated FLIZpay API request.
      *
      * @param string $method
@@ -97,6 +180,8 @@ class FlizPayApiClient
             throw new LocalizedException(__("FLIZpay API key is missing."));
         }
 
+        $status = null;
+
         try {
             $this->httpClient->setTimeout(self::REQUEST_TIMEOUT_SECONDS);
             $this->httpClient->setHeaders([
@@ -106,7 +191,7 @@ class FlizPayApiClient
                 "x-api-key" => $apiKey,
             ]);
 
-            $url = self::API_BASE_URL . $path;
+            $url = $this->baseUrl . $path;
 
             if ($method === "POST") {
                 $this->httpClient->post(
@@ -120,19 +205,6 @@ class FlizPayApiClient
             $status = $this->httpClient->getStatus();
 
             if ($status < 200 || $status >= 300) {
-                $this->logger->warning("FLIZpay API request rejected", [
-                    "method" => $method,
-                    "path" => $path,
-                    "status" => $status,
-                    "contentType" =>
-                        $this->httpClient->getHeaders()["Content-Type"] ?? "",
-                    "bodyPreview" => substr(
-                        (string) $this->httpClient->getBody(),
-                        0,
-                        500,
-                    ),
-                ]);
-
                 throw new \RuntimeException("Unexpected HTTP status");
             }
 
@@ -152,16 +224,31 @@ class FlizPayApiClient
 
             return $data;
         } catch (\Throwable $exception) {
-            $this->logger->warning("FLIZpay API request failed", [
-                "method" => $method,
-                "path" => $path,
-                "exception" => get_class($exception),
-                "reason" => $exception->getMessage(),
-            ]);
+            $this->logFailure($path, $status, $exception);
 
             throw new LocalizedException(
                 __("Unable to connect Magento to FLIZpay."),
             );
         }
+    }
+
+    /**
+     * Record diagnostics that cannot expose request or response content.
+     *
+     * @param string $path
+     * @param int|null $status
+     * @param \Throwable $exception
+     * @return void
+     */
+    private function logFailure(
+        string $path,
+        ?int $status,
+        \Throwable $exception,
+    ): void {
+        $this->logger->warning("FLIZpay API request failed", [
+            "path" => $path,
+            "status" => $status,
+            "exception" => get_class($exception),
+        ]);
     }
 }

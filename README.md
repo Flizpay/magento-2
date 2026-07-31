@@ -51,9 +51,15 @@ Order placement persists guest and authenticated orders in `pending_payment`.
 The initializer does not contact FlizPay, authorize or capture payment, or create
 an invoice. Checkout then submits a form POST to `/flizpay/payment/start`.
 
-Provider transaction creation and payment-completion handling are added in
-Phase 3. Until then, the start action continues to Magento's order-success page
-without changing payment state.
+Phase 3 creates one provider transaction from the persisted order and redirects
+the customer to the hosted checkout with an HTTP 303 response. A valid signed
+`completed` webhook registers the capture, creates a paid invoice, and moves the
+order to `processing`. Browser success and failure returns are informational and
+never settle an order.
+
+The current provider API does not implement transaction-creation idempotency.
+The module therefore makes one creation call without automatic retries. Safe
+retry, repeated-start, and concurrent-webhook behavior remain post-MVP work.
 
 ## Development Checks
 

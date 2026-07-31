@@ -10,6 +10,7 @@ use Magento\Config\Model\Config\Structure;
 use Magento\Config\Model\Config\Structure\Element\Field;
 use FlizPay\Payment\Service\Connection\ConnectionConfigWriter;
 use Magento\Framework\App\ResourceConnection;
+use Magento\Framework\App\Config\ReinitableConfigInterface;
 use Magento\Framework\Encryption\EncryptorInterface;
 use Magento\TestFramework\Helper\Bootstrap;
 use PHPUnit\Framework\TestCase;
@@ -40,6 +41,7 @@ class ConfigEncryptionTest extends TestCase
             "value" => "integration-api-key",
         ]);
         $backend->save();
+        $objectManager->get(ReinitableConfigInterface::class)->reinit();
 
         $resource = $objectManager->get(ResourceConnection::class);
         $connection = $resource->getConnection();
@@ -65,6 +67,7 @@ class ConfigEncryptionTest extends TestCase
         );
 
         $backend->delete();
+        $objectManager->get(ReinitableConfigInterface::class)->reinit();
     }
 
     /**
