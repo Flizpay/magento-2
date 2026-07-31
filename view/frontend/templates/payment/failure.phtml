@@ -1,0 +1,11 @@
+<?php
+/** @var \Magento\Framework\View\Element\Template $block */
+?>
+<div class="flizpay-payment-failure">
+    <h1><?= $block->escapeHtml(__("Payment not completed")) ?></h1>
+    <p>
+        <?= $block->escapeHtml(
+            __("Your FLIZpay payment was not completed. Your order has not been marked as paid."),
+        ) ?>
+    </p>
+</div>

@@ -43,6 +43,8 @@ class FlizPayApiClientTest extends TestCase
             $json,
             $config,
             $this->createStub(LoggerInterface::class),
+            "https://api.flizpay.de",
+            ["secure.flizpay.de"],
         ))->registerWebhook(
             "https://shop.test/flizpay/webhook",
         );
@@ -73,6 +75,8 @@ class FlizPayApiClientTest extends TestCase
                 $json,
                 $config,
                 $this->createStub(LoggerInterface::class),
+                "https://api.flizpay.de",
+                ["secure.flizpay.de"],
             ))
                 ->generateWebhookSecret(),
         );

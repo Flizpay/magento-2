@@ -1,5 +1,5 @@
 MAGENTO_STORE_ROOT ?= ../magento-store
-MAGENTO_PACKAGE_PATH := vendor/flizpay/magento2
+MAGENTO_PACKAGE_PATH := app/code/FlizPay/Payment
 
 .DEFAULT_GOAL := help
 
@@ -25,14 +25,14 @@ lint:
 
 analyse:
 	cd $(MAGENTO_STORE_ROOT) && ./bin/clinotty vendor/bin/phpstan analyse \
-		/var/www/flizpay-magento/Api \
-		/var/www/flizpay-magento/Block \
-		/var/www/flizpay-magento/Controller \
-		/var/www/flizpay-magento/Gateway \
-		/var/www/flizpay-magento/Model \
-		/var/www/flizpay-magento/Service \
-		/var/www/flizpay-magento/Test/Unit \
-		/var/www/flizpay-magento/registration.php \
+		/var/www/html/$(MAGENTO_PACKAGE_PATH)/Api \
+		/var/www/html/$(MAGENTO_PACKAGE_PATH)/Block \
+		/var/www/html/$(MAGENTO_PACKAGE_PATH)/Controller \
+		/var/www/html/$(MAGENTO_PACKAGE_PATH)/Gateway \
+		/var/www/html/$(MAGENTO_PACKAGE_PATH)/Model \
+		/var/www/html/$(MAGENTO_PACKAGE_PATH)/Service \
+		/var/www/html/$(MAGENTO_PACKAGE_PATH)/Test/Unit \
+		/var/www/html/$(MAGENTO_PACKAGE_PATH)/registration.php \
 		--level=6 --no-progress
 
 test-unit:

@@ -1,0 +1,21 @@
+<?php
+/** @var \FlizPay\Payment\Block\Payment\ReturnPage $block */
+?>
+<div class="flizpay-payment-pending" data-mage-init='<?= /* @noEscape */ $block->getPollingConfiguration() ?>'>
+    <h1><?= $block->escapeHtml(__("We are confirming your payment")) ?></h1>
+    <p>
+        <?= $block->escapeHtml(
+            __("Your FLIZpay payment is being confirmed. This usually takes only a few seconds."),
+        ) ?>
+    </p>
+    <p data-role="flizpay-payment-status">
+        <?= $block->escapeHtml(__("Please keep this page open.")) ?>
+    </p>
+    <noscript>
+        <p>
+            <a class="action primary" href="<?= $block->escapeUrl($block->getSuccessUrl()) ?>">
+                <span><?= $block->escapeHtml(__("Check payment status")) ?></span>
+            </a>
+        </p>
+    </noscript>
+</div>
