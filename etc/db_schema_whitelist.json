@@ -13,6 +13,7 @@
       "currency": true,
       "provider_status": true,
       "creation_state": true,
+      "safe_error_code": true,
       "encrypted_redirect_url": true,
       "return_token_hash": true,
       "expires_at": true,

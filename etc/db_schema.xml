@@ -108,6 +108,13 @@
             comment="Creation State"
         />
         <column
+            xsi:type="varchar"
+            name="safe_error_code"
+            nullable="true"
+            length="64"
+            comment="Safe Error Code"
+        />
+        <column
             xsi:type="text"
             name="encrypted_redirect_url"
             nullable="true"

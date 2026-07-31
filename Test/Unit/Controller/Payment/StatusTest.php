@@ -34,23 +34,23 @@ class StatusTest extends TestCase
     }
 
     /**
-     * @return array<string, array{bool, string}>
+     * @return array<string, array{string}>
      */
     public static function settlementStates(): array
     {
         return [
-            "pending" => [false, "pending"],
-            "complete" => [true, "complete"],
+            "pending" => ["pending"],
+            "complete" => ["complete"],
+            "failed" => ["failed"],
         ];
     }
 
     #[DataProvider("settlementStates")]
     public function testStatusExposesOnlyLocalSettlementState(
-        bool $complete,
         string $expected,
     ): void {
         $context = $this->createMock(ReturnContext::class);
-        $context->method("isComplete")->willReturn($complete);
+        $context->method("getPublicStatus")->willReturn($expected);
         $context->expects(self::never())->method("getOrder");
 
         $json = $this->json();

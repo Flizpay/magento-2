@@ -10,6 +10,8 @@ declare(strict_types=1);
 
 namespace FlizPay\Payment\Service\Webhook;
 
+use FlizPay\Payment\Service\Payment\ProviderPaymentState;
+
 /**
  * Validated fields required from a payment webhook.
  */
@@ -35,7 +37,10 @@ class WebhookPayload
             throw new \InvalidArgumentException("Invalid webhook payload.");
         }
 
-        return new self(trim($transactionId), strtolower(trim($status)));
+        return new self(
+            trim($transactionId),
+            ProviderPaymentState::normalize($status),
+        );
     }
 
     public function getTransactionId(): string

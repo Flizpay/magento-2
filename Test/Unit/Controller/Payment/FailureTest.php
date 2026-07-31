@@ -20,6 +20,11 @@ use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Model\StoreManagerInterface;
+use Magento\Checkout\Model\Session as CheckoutSession;
+use Magento\Framework\Message\ManagerInterface;
+use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Quote\Model\Quote;
+use FlizPay\Payment\Model\PaymentAttempt;
 use PHPUnit\Framework\TestCase;
 
 class FailureTest extends TestCase
@@ -40,6 +45,7 @@ class FailureTest extends TestCase
     {
         $context = $this->createMock(ReturnContext::class);
         $context->method("isComplete")->willReturn(false);
+        $context->method("isTerminalFailure")->willReturn(false);
 
         $page = $this->createStub(Page::class);
         $pageFactory = $this->createStub(PageFactory::class);
@@ -75,6 +81,43 @@ class FailureTest extends TestCase
         self::assertSame($redirect, $controller->execute());
     }
 
+    public function testTerminalFailureRestoresQuoteToCheckout(): void
+    {
+        $attempt = $this->createStub(PaymentAttempt::class);
+        $attempt->method("getData")->with("quote_id")->willReturn(11);
+        $context = $this->createMock(ReturnContext::class);
+        $context->method("isComplete")->willReturn(false);
+        $context->method("isTerminalFailure")->willReturn(true);
+        $context->method("getAttempt")->willReturn($attempt);
+
+        $quote = $this->createStub(Quote::class);
+        $quote->method("getIsActive")->willReturn(true);
+        $quoteRepository = $this->createStub(CartRepositoryInterface::class);
+        $quoteRepository->method("get")->with(11)->willReturn($quote);
+        $checkoutSession = $this->createMock(CheckoutSession::class);
+        $checkoutSession->expects(self::once())->method("replaceQuote")->with($quote);
+        $messageManager = $this->createMock(ManagerInterface::class);
+        $messageManager->expects(self::once())->method("addErrorMessage");
+        $redirect = $this->createMock(Redirect::class);
+        $redirect
+            ->expects(self::once())
+            ->method("setPath")
+            ->with("checkout", ["_secure" => true])
+            ->willReturnSelf();
+        $redirectFactory = $this->createStub(RedirectFactory::class);
+        $redirectFactory->method("create")->willReturn($redirect);
+
+        $controller = $this->controller(
+            $context,
+            redirectFactory: $redirectFactory,
+            checkoutSession: $checkoutSession,
+            quoteRepository: $quoteRepository,
+            messageManager: $messageManager,
+        );
+
+        self::assertSame($redirect, $controller->execute());
+    }
+
     public function testInvalidTokenReturnsGenericNotFound(): void
     {
         $raw = $this->createMock(Raw::class);
@@ -97,6 +140,9 @@ class FailureTest extends TestCase
         ?PageFactory $pageFactory = null,
         ?RawFactory $rawFactory = null,
         ?RedirectFactory $redirectFactory = null,
+        ?CheckoutSession $checkoutSession = null,
+        ?CartRepositoryInterface $quoteRepository = null,
+        ?ManagerInterface $messageManager = null,
     ): Failure {
         $request = $this->createMock(RequestInterface::class);
         $request->method("getParam")->with("token")->willReturn(self::TOKEN);
@@ -133,6 +179,9 @@ class FailureTest extends TestCase
             $validator,
             $storeManager,
             $response,
+            $checkoutSession ?? $this->createStub(CheckoutSession::class),
+            $quoteRepository ?? $this->createStub(CartRepositoryInterface::class),
+            $messageManager ?? $this->createStub(ManagerInterface::class),
         );
     }
 }

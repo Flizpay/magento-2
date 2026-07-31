@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace FlizPay\Payment\Test\Unit\Service\Webhook;
 
-use FlizPay\Payment\Service\Payment\CompletedPaymentHandler;
+use FlizPay\Payment\Service\Payment\PaymentStateMapper;
 use FlizPay\Payment\Service\Webhook\WebhookPayload;
 use FlizPay\Payment\Service\Webhook\WebhookProcessor;
 use PHPUnit\Framework\TestCase;
@@ -13,13 +13,13 @@ class WebhookProcessorTest extends TestCase
 {
     public function testCompletedPaymentIsSettled(): void
     {
-        $handler = $this->createMock(CompletedPaymentHandler::class);
-        $handler
+        $mapper = $this->createMock(PaymentStateMapper::class);
+        $mapper
             ->expects(self::once())
-            ->method("execute")
-            ->with("provider-123");
+            ->method("apply")
+            ->with("provider-123", "completed");
 
-        (new WebhookProcessor($handler))->process(
+        (new WebhookProcessor($mapper))->process(
             WebhookPayload::fromArray([
                 "transactionId" => "provider-123",
                 "status" => "completed",
@@ -27,13 +27,15 @@ class WebhookProcessorTest extends TestCase
         );
     }
 
-    public function testUnsupportedStatusDoesNotSettle(): void
+    public function testFailedPaymentIsMapped(): void
     {
-        $handler = $this->createMock(CompletedPaymentHandler::class);
-        $handler->expects(self::never())->method("execute");
-        $this->expectException(\InvalidArgumentException::class);
+        $mapper = $this->createMock(PaymentStateMapper::class);
+        $mapper
+            ->expects(self::once())
+            ->method("apply")
+            ->with("provider-123", "failed");
 
-        (new WebhookProcessor($handler))->process(
+        (new WebhookProcessor($mapper))->process(
             WebhookPayload::fromArray([
                 "transactionId" => "provider-123",
                 "status" => "failed",

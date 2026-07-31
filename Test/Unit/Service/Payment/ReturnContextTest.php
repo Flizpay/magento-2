@@ -44,4 +44,33 @@ class ReturnContextTest extends TestCase
             ))->isComplete(),
         );
     }
+
+    /** @return array<string, array{?string, string}> */
+    public static function publicStates(): array
+    {
+        return [
+            "pending" => ["pending", "pending"],
+            "processing" => ["processing", "pending"],
+            "completed" => ["completed", "complete"],
+            "failed" => ["failed", "failed"],
+            "canceled" => ["canceled", "failed"],
+        ];
+    }
+
+    #[DataProvider("publicStates")]
+    public function testMapsPublicReturnState(
+        ?string $providerStatus,
+        string $expected,
+    ): void {
+        $attempt = $this->createStub(PaymentAttempt::class);
+        $attempt->method("getData")->willReturn($providerStatus);
+
+        self::assertSame(
+            $expected,
+            (new ReturnContext(
+                $attempt,
+                $this->createStub(Order::class),
+            ))->getPublicStatus(),
+        );
+    }
 }

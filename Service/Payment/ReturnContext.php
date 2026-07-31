@@ -38,4 +38,20 @@ class ReturnContext
     {
         return $this->attempt->getData("provider_status") === "completed";
     }
+
+    public function isTerminalFailure(): bool
+    {
+        return ProviderPaymentState::isFailure(
+            (string) $this->attempt->getData("provider_status"),
+        );
+    }
+
+    public function getPublicStatus(): string
+    {
+        if ($this->isComplete()) {
+            return "complete";
+        }
+
+        return $this->isTerminalFailure() ? "failed" : "pending";
+    }
 }

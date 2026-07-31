@@ -6,6 +6,7 @@ namespace FlizPay\Payment\Test\Unit\Service\Api;
 
 use FlizPay\Payment\Api\ConfigInterface;
 use FlizPay\Payment\Service\Api\FlizPayApiClient;
+use FlizPay\Payment\Service\Api\TransactionCreationException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\HTTP\Client\Curl;
 use Magento\Framework\Serialize\Serializer\Json;
@@ -222,6 +223,42 @@ class FlizPayApiClientTest extends TestCase
             $this->createStub(Json::class),
             $logger,
         )->createTransaction(["secret" => "request-body"]);
+    }
+
+    public function testClientErrorIsDefiniteCreationFailure(): void
+    {
+        $httpClient = $this->createStub(Curl::class);
+        $httpClient->method("getStatus")->willReturn(400);
+
+        try {
+            $this->createClient($httpClient, $this->createStub(Json::class))
+                ->createTransaction([]);
+            self::fail("Expected transaction creation to fail.");
+        } catch (TransactionCreationException $exception) {
+            self::assertTrue($exception->isDefinite());
+            self::assertSame(
+                TransactionCreationException::API_REJECTED,
+                $exception->getSafeErrorCode(),
+            );
+        }
+    }
+
+    public function testServerErrorIsAmbiguousCreationFailure(): void
+    {
+        $httpClient = $this->createStub(Curl::class);
+        $httpClient->method("getStatus")->willReturn(500);
+
+        try {
+            $this->createClient($httpClient, $this->createStub(Json::class))
+                ->createTransaction([]);
+            self::fail("Expected transaction creation to fail.");
+        } catch (TransactionCreationException $exception) {
+            self::assertFalse($exception->isDefinite());
+            self::assertSame(
+                TransactionCreationException::API_TRANSPORT_ERROR,
+                $exception->getSafeErrorCode(),
+            );
+        }
     }
 
     /**

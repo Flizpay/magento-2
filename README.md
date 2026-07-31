@@ -51,11 +51,14 @@ Order placement persists guest and authenticated orders in `pending_payment`.
 The initializer does not contact FlizPay, authorize or capture payment, or create
 an invoice. Checkout then submits a form POST to `/flizpay/payment/start`.
 
-Phase 3 creates one provider transaction from the persisted order and redirects
-the customer to the hosted checkout with an HTTP 303 response. A valid signed
+The module creates one provider transaction from the persisted order and redirects
+the customer to the hosted checkout with an HTTP 303 response. Valid signed
+`pending` and `processing` webhooks keep the order awaiting payment. A
 `completed` webhook registers the capture, creates a paid invoice, and moves the
-order to `processing`. Browser success and failure returns are informational and
-never settle an order.
+order to `processing`. Signed `failed` and `canceled` webhooks cancel the order
+and reactivate its quote for a fresh checkout order. Browser returns never
+decide provider state or settle payment; a terminal failure return only restores
+the already-reactivated quote to the checkout session.
 
 The current provider API does not implement transaction-creation idempotency.
 The module therefore makes one creation call without automatic retries. Safe

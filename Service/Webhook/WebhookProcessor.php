@@ -10,7 +10,7 @@ declare(strict_types=1);
 
 namespace FlizPay\Payment\Service\Webhook;
 
-use FlizPay\Payment\Service\Payment\CompletedPaymentHandler;
+use FlizPay\Payment\Service\Payment\PaymentStateMapper;
 
 /**
  * Dispatches supported authenticated payment notifications.
@@ -18,15 +18,14 @@ use FlizPay\Payment\Service\Payment\CompletedPaymentHandler;
 class WebhookProcessor
 {
     public function __construct(
-        private readonly CompletedPaymentHandler $completedPaymentHandler,
+        private readonly PaymentStateMapper $paymentStateMapper,
     ) {}
 
     public function process(WebhookPayload $payload): void
     {
-        if ($payload->getStatus() !== "completed") {
-            throw new \InvalidArgumentException("Unsupported webhook status.");
-        }
-
-        $this->completedPaymentHandler->execute($payload->getTransactionId());
+        $this->paymentStateMapper->apply(
+            $payload->getTransactionId(),
+            $payload->getStatus(),
+        );
     }
 }

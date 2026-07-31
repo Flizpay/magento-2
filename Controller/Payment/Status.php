@@ -35,7 +35,7 @@ class Status implements HttpGetActionInterface
             );
 
             return $result->setData([
-                "status" => $context->isComplete() ? "complete" : "pending",
+                "status" => $context->getPublicStatus(),
             ]);
         } catch (\Throwable) {
             return $result

@@ -13,6 +13,7 @@ namespace FlizPay\Payment\Service\Payment;
 use FlizPay\Payment\Api\ConfigInterface;
 use FlizPay\Payment\Service\Api\FlizPayApiClient;
 use FlizPay\Payment\Service\Api\TransactionRequestBuilder;
+use FlizPay\Payment\Service\Api\TransactionCreationException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\UrlInterface;
 use Magento\Sales\Model\Order;
@@ -28,6 +29,7 @@ class CreateTransactionService
         private readonly TransactionRequestBuilder $requestBuilder,
         private readonly FlizPayApiClient $apiClient,
         private readonly UrlInterface $urlBuilder,
+        private readonly InitiationFailureHandler $failureHandler,
     ) {}
 
     /**
@@ -99,13 +101,31 @@ class CreateTransactionService
 
         $this->attemptRepository->save($attempt);
 
-        $createdTransaction = $this->apiClient->createTransaction($request);
+        try {
+            $createdTransaction = $this->apiClient->createTransaction($request);
+        } catch (TransactionCreationException $exception) {
+            if ($exception->isDefinite()) {
+                $this->failureHandler->handleDefinite(
+                    $attempt,
+                    $order,
+                    $exception->getSafeErrorCode(),
+                );
+            } else {
+                $this->failureHandler->handleAmbiguous(
+                    $attempt,
+                    $exception->getSafeErrorCode(),
+                );
+            }
+
+            throw $exception;
+        }
         $attempt->setData(
             "provider_transaction_id",
             $createdTransaction->getTransactionId(),
         );
         $attempt->setData("provider_status", "pending");
         $attempt->setData("creation_state", "created");
+        $attempt->setData("safe_error_code", null);
         $this->attemptRepository->save($attempt);
 
         return $createdTransaction->getRedirectUrl();

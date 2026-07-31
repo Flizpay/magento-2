@@ -14,6 +14,10 @@ use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\Controller\Result\RedirectFactory;
 use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
+use Magento\Checkout\Model\Session as CheckoutSession;
+use Magento\Framework\Message\ManagerInterface;
+use Magento\Quote\Api\CartRepositoryInterface;
+use Magento\Quote\Model\Quote;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
@@ -29,6 +33,9 @@ class Failure implements HttpGetActionInterface
         private readonly ReturnContextValidator $returnContextValidator,
         private readonly StoreManagerInterface $storeManager,
         private readonly HttpResponse $response,
+        private readonly CheckoutSession $checkoutSession,
+        private readonly CartRepositoryInterface $quoteRepository,
+        private readonly ManagerInterface $messageManager,
     ) {}
 
     public function execute(): Page|Raw|Redirect
@@ -49,6 +56,23 @@ class Failure implements HttpGetActionInterface
                         "token" => $token,
                         "_secure" => true,
                     ]);
+            }
+
+            if ($context->isTerminalFailure()) {
+                $quoteId = $context->getAttempt()->getData("quote_id");
+                if ($quoteId !== null) {
+                    $quote = $this->quoteRepository->get((int) $quoteId);
+                    if ($quote instanceof Quote && $quote->getIsActive()) {
+                        $this->checkoutSession->replaceQuote($quote);
+                    }
+                }
+                $this->messageManager->addErrorMessage(
+                    __("Your FLIZpay payment was not completed. Please try again."),
+                );
+
+                return $this->redirectFactory
+                    ->create()
+                    ->setPath("checkout", ["_secure" => true]);
             }
 
             return $this->pageFactory->create();

@@ -1,45 +1,49 @@
 <?php
-/**
- * FLIZpay Magento 2
- *
- * @package FlizPay_Payment
- * @license https://www.gnu.org/licenses/gpl-2.0.txt GPLv2 or later
- */
 
 declare(strict_types=1);
 
 namespace FlizPay\Payment\Service\Payment;
 
 use FlizPay\Payment\Api\ConfigInterface;
+use FlizPay\Payment\Model\PaymentAttempt;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment;
 
-/**
- * Applies a trusted completed-payment notification to Magento.
- */
-class CompletedPaymentHandler
+class TerminalFailureHandler
 {
     public function __construct(
         private readonly PaymentAttemptRepository $attemptRepository,
         private readonly OrderRepositoryInterface $orderRepository,
+        private readonly QuoteRestorer $quoteRestorer,
         private readonly ResourceConnection $resourceConnection,
     ) {}
 
-    /**
-     * @throws LocalizedException
-     */
-    public function execute(string $providerTransactionId): void
+    public function execute(PaymentAttempt $attempt, string $status): void
     {
+        $status = ProviderPaymentState::normalize($status);
+        if (!ProviderPaymentState::isFailure($status)) {
+            throw new \InvalidArgumentException(
+                "Payment state is not a failure.",
+            );
+        }
+
+        $currentStatus = (string) $attempt->getData("provider_status");
+        if ($currentStatus === $status) {
+            return;
+        }
+        if (ProviderPaymentState::isTerminal($currentStatus)) {
+            throw new LocalizedException(
+                __("FLIZpay payment transition is invalid."),
+            );
+        }
+
         $connection = $this->resourceConnection->getConnection();
         $connection->beginTransaction();
 
         try {
-            $attempt = $this->attemptRepository->getByProviderTransactionId(
-                $providerTransactionId,
-            );
             $order = $this->orderRepository->get(
                 (int) $attempt->getData("order_id"),
             );
@@ -53,42 +57,32 @@ class CompletedPaymentHandler
                     __("FLIZpay payment binding is invalid."),
                 );
             }
-
-            if (
-                ProviderPaymentState::isFailure(
-                    (string) $attempt->getData("provider_status"),
-                )
-            ) {
+            if ($order->getInvoiceCollection()->getSize() !== 0) {
                 throw new LocalizedException(
-                    __("FLIZpay payment transition is invalid."),
+                    __("FLIZpay paid order cannot be canceled."),
                 );
             }
 
-            if ($order->getInvoiceCollection()->getSize() === 0) {
-                if ($order->getState() !== Order::STATE_PENDING_PAYMENT) {
-                    throw new LocalizedException(
-                        __("FLIZpay order is not awaiting payment."),
-                    );
-                }
-
-                $payment->setTransactionId($providerTransactionId);
-                $payment->setData(
-                    "currency_code",
-                    (string) $order->getBaseCurrencyCode(),
-                );
-                $payment->setIsTransactionClosed(true);
-                $order->setState(Order::STATE_PROCESSING);
-                $payment->registerCaptureNotification(
-                    (float) $order->getBaseGrandTotal(),
-                    true,
-                );
+            if ($order->canCancel()) {
+                $order->cancel();
                 $order->addCommentToStatusHistory(
-                    (string) __("FLIZpay payment completed."),
+                    $status === ProviderPaymentState::FAILED
+                        ? (string) __("FLIZpay reported a failed payment.")
+                        : (string) __("FLIZpay reported a canceled payment."),
                 );
                 $this->orderRepository->save($order);
+            } elseif ($order->getState() !== Order::STATE_CANCELED) {
+                throw new LocalizedException(
+                    __("FLIZpay order cannot be canceled."),
+                );
             }
 
-            $attempt->setData("provider_status", "completed");
+            $this->quoteRestorer->restore(
+                $attempt->getData("quote_id") !== null
+                    ? (int) $attempt->getData("quote_id")
+                    : null,
+            );
+            $attempt->setData("provider_status", $status);
             $this->attemptRepository->save($attempt);
             $connection->commit();
         } catch (\Throwable $exception) {

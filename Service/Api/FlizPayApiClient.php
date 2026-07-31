@@ -139,7 +139,20 @@ class FlizPayApiClient
      */
     public function createTransaction(array $request): CreatedTransaction
     {
-        $data = $this->request("POST", "/transactions", $request);
+        try {
+            $data = $this->request("POST", "/transactions", $request);
+        } catch (LocalizedException $exception) {
+            $status = $this->httpClient->getStatus();
+            $definite = $status >= 400 && $status < 500;
+            $code =
+                $status === 401 || $status === 403
+                    ? TransactionCreationException::API_AUTHENTICATION_FAILED
+                    : ($definite
+                        ? TransactionCreationException::API_REJECTED
+                        : TransactionCreationException::API_TRANSPORT_ERROR);
+
+            throw new TransactionCreationException($code, $definite);
+        }
 
         try {
             return CreatedTransaction::fromResponse(
@@ -153,8 +166,9 @@ class FlizPayApiClient
                 $exception,
             );
 
-            throw new LocalizedException(
-                __("Unable to connect Magento to FLIZpay."),
+            throw new TransactionCreationException(
+                TransactionCreationException::API_INVALID_RESPONSE,
+                true,
             );
         }
     }
