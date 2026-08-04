@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace FlizPay\Payment\Model\Ui;
 
 use FlizPay\Payment\Api\ConfigInterface;
+use FlizPay\Payment\Service\Cashback\CashbackDisplayBuilder;
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Framework\Data\Form\FormKey;
 use Magento\Framework\UrlInterface;
@@ -31,6 +32,7 @@ class ConfigProvider implements ConfigProviderInterface
     public function __construct(
         private readonly UrlInterface $urlBuilder,
         private readonly FormKey $formKey,
+        private readonly CashbackDisplayBuilder $cashbackDisplayBuilder,
     ) {}
 
     /**
@@ -47,6 +49,9 @@ class ConfigProvider implements ConfigProviderInterface
                         "flizpay/payment/start",
                     ),
                     "formKey" => $this->formKey->getFormKey(),
+                    "cashback" => $this->cashbackDisplayBuilder
+                        ->build()
+                        ->toArray(),
                 ],
             ],
         ];

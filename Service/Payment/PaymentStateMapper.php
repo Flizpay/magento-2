@@ -14,8 +14,12 @@ class PaymentStateMapper
         private readonly TerminalFailureHandler $terminalFailureHandler,
     ) {}
 
-    public function apply(string $providerTransactionId, string $status): void
-    {
+    public function apply(
+        string $providerTransactionId,
+        string $status,
+        ?int $amountMinor = null,
+        ?int $originalAmountMinor = null,
+    ): void {
         $status = ProviderPaymentState::normalize($status);
 
         $attempt = $this->attemptRepository->getByProviderTransactionId(
@@ -34,7 +38,16 @@ class PaymentStateMapper
         }
 
         if ($status === ProviderPaymentState::COMPLETED) {
-            $this->completedPaymentHandler->execute($providerTransactionId);
+            if ($amountMinor === null || $originalAmountMinor === null) {
+                throw new LocalizedException(
+                    __("FLIZpay completion amounts are missing."),
+                );
+            }
+            $this->completedPaymentHandler->execute(
+                $providerTransactionId,
+                $originalAmountMinor,
+                $amountMinor,
+            );
             return;
         }
 

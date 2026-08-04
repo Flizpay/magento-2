@@ -12,6 +12,7 @@ namespace FlizPay\Payment\Service\Connection;
 
 use FlizPay\Payment\Api\ConfigInterface;
 use FlizPay\Payment\Service\Api\FlizPayApiClient;
+use FlizPay\Payment\Service\Connection\ConnectionConfigWriter;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\UrlInterface;
 use Magento\Store\Model\Store;
@@ -87,6 +88,15 @@ class ConnectionManager
             );
         }
 
+        try {
+            $this->configWriter->replaceCashbackData(
+                $this->apiClient->fetchCashbackData(),
+            );
+        } catch (\Throwable) {
+            // Cashback is optional, but stale provider rates must not be shown.
+            $this->configWriter->replaceCashbackData(null);
+        }
+
         return true;
     }
 
@@ -119,6 +129,7 @@ class ConnectionManager
             (string) $store->getBaseUrl(UrlInterface::URL_TYPE_LINK, true),
             "/",
         );
+
         if (!str_starts_with(strtolower($baseUrl), "https://")) {
             throw new LocalizedException(
                 __("Magento secure base URL must use HTTPS."),

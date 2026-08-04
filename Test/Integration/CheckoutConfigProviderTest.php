@@ -17,11 +17,25 @@ class CheckoutConfigProviderTest extends TestCase
             ->getConfig();
         $paymentConfig = $config["payment"]["flizpay"];
 
-        self::assertSame(["startUrl", "formKey"], array_keys($paymentConfig));
+        self::assertSame(
+            ["startUrl", "formKey", "cashback"],
+            array_keys($paymentConfig),
+        );
         self::assertStringContainsString(
             "flizpay/payment/start",
             $paymentConfig["startUrl"],
         );
         self::assertNotSame("", $paymentConfig["formKey"]);
+        self::assertSame(
+            [
+                "available",
+                "type",
+                "formattedValue",
+                "title",
+                "description",
+                "showLogo",
+            ],
+            array_keys($paymentConfig["cashback"]),
+        );
     }
 }

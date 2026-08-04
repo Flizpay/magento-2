@@ -13,8 +13,24 @@
                           click: selectPaymentMethod,
                           visible: isRadioButtonVisible()"
         />
-        <label data-bind="attr: {'for': getCode()}" class="label">
-            <span data-bind="text: getTitle()"></span>
+        <label
+            data-bind="attr: {'for': getCode()}"
+            class="label flizpay-payment-label"
+        >
+            <span class="flizpay-payment-copy">
+                <strong data-bind="text: getDisplayTitle()"></strong>
+                <span
+                    class="flizpay-payment-description"
+                    data-bind="text: getCashbackDescription(),
+                               visible: shouldShowDescription()"
+                ></span>
+            </span>
+            <img
+                class="flizpay-checkout-logo"
+                data-bind="attr: {src: getLogoUrl()},
+                           visible: shouldShowLogo()"
+                alt="FLIZpay"
+            />
         </label>
     </div>
     <div class="payment-method-content">

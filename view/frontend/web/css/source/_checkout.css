@@ -1,0 +1,35 @@
+.flizpay-payment-label {
+    align-items: flex-start;
+    display: flex;
+    gap: 16px;
+    justify-content: space-between;
+    width: calc(100% - 28px);
+}
+
+.flizpay-payment-copy {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+}
+
+.flizpay-payment-description {
+    color: #12233f;
+    font-size: 1.3rem;
+    line-height: 1.5;
+    margin-top: 6px;
+}
+
+.flizpay-checkout-logo {
+    height: auto;
+    max-width: 96px;
+}
+
+@media (max-width: 640px) {
+    .flizpay-payment-label {
+        flex-wrap: wrap;
+    }
+
+    .flizpay-payment-description {
+        font-size: 1.2rem;
+    }
+}

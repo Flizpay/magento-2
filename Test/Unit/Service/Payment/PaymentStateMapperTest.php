@@ -39,9 +39,16 @@ class PaymentStateMapperTest extends TestCase
         $attempt = $this->attemptWithStatus("pending");
         $repository = $this->repositoryReturning($attempt);
         $completed = $this->createMock(CompletedPaymentHandler::class);
-        $completed->expects(self::once())->method("execute")->with("provider-123");
+        $completed->expects(self::once())
+            ->method("execute")
+            ->with("provider-123", 10000, 9000);
 
-        $this->mapper($repository, $completed)->apply("provider-123", "completed");
+        $this->mapper($repository, $completed)->apply(
+            "provider-123",
+            "completed",
+            9000,
+            10000,
+        );
     }
 
     #[DataProvider("failureStates")]
@@ -66,6 +73,15 @@ class PaymentStateMapperTest extends TestCase
         $this->expectException(LocalizedException::class);
         $this->mapper($this->repositoryReturning($this->attemptWithStatus("failed")))
             ->apply("provider-123", "completed");
+    }
+
+    public function testRejectsCompletionWithoutAmounts(): void
+    {
+        $this->expectException(LocalizedException::class);
+
+        $this->mapper(
+            $this->repositoryReturning($this->attemptWithStatus("pending")),
+        )->apply("provider-123", "completed");
     }
 
     private function mapper(

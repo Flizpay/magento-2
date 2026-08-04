@@ -15,10 +15,14 @@ class WebhookPayloadTest extends TestCase
         $payload = WebhookPayload::fromArray([
             "transactionId" => "provider-123",
             "status" => "COMPLETED",
+            "amount" => "90.00",
+            "originalAmount" => "100.00",
         ]);
 
         self::assertSame("provider-123", $payload->getTransactionId());
         self::assertSame("completed", $payload->getStatus());
+        self::assertSame(9000, $payload->getAmountMinor());
+        self::assertSame(10000, $payload->getOriginalAmountMinor());
     }
 
     /** @param array<string, mixed> $payload */

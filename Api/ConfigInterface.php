@@ -104,4 +104,35 @@ interface ConfigInterface
      * @return string
      */
     public function getConnectionVerifiedAt(): string;
+
+    /**
+     * Return normalized provider cashback percentages.
+     *
+     * @return array{first_purchase_amount: float, standard_amount: float}|null
+     */
+    public function getCashbackData(): ?array;
+
+    /**
+     * Check whether cashback should be included in the payment title.
+     *
+     * @param int|null $storeId
+     * @return bool
+     */
+    public function isCashbackInTitleEnabled(?int $storeId = null): bool;
+
+    /**
+     * Check whether the FLIZpay checkout logo should be displayed.
+     *
+     * @param int|null $storeId
+     * @return bool
+     */
+    public function isCheckoutLogoEnabled(?int $storeId = null): bool;
+
+    /**
+     * Check whether the FLIZpay checkout subtitle should be displayed.
+     *
+     * @param int|null $storeId
+     * @return bool
+     */
+    public function isCheckoutSubtitleEnabled(?int $storeId = null): bool;
 }

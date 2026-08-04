@@ -83,6 +83,51 @@ class FlizPayApiClientTest extends TestCase
         );
     }
 
+    public function testFetchesNormalizedCashbackData(): void
+    {
+        $httpClient = $this->createMock(Curl::class);
+        $httpClient
+            ->expects(self::once())
+            ->method("get")
+            ->with("https://api.flizpay.de/business/cashback");
+        $httpClient->method("getStatus")->willReturn(200);
+        $httpClient->method("getBody")->willReturn("response");
+
+        $json = $this->createStub(Json::class);
+        $json->method("unserialize")->willReturn([
+            "data" => [
+                "first_purchase_amount" => 5,
+                "standard_amount" => "2.5",
+            ],
+        ]);
+
+        self::assertSame(
+            ["first_purchase_amount" => 5.0, "standard_amount" => 2.5],
+            $this->createClient($httpClient, $json)->fetchCashbackData(),
+        );
+    }
+
+    public function testRejectsInvalidCashbackData(): void
+    {
+        $httpClient = $this->createStub(Curl::class);
+        $httpClient->method("getStatus")->willReturn(200);
+        $httpClient->method("getBody")->willReturn("response");
+        $json = $this->createStub(Json::class);
+        $json->method("unserialize")->willReturn([
+            "data" => [
+                "first_purchase_amount" => -1,
+                "standard_amount" => 2,
+            ],
+        ]);
+
+        $this->expectException(LocalizedException::class);
+        $this->expectExceptionMessage(
+            "FLIZpay returned invalid cashback configuration.",
+        );
+
+        $this->createClient($httpClient, $json)->fetchCashbackData();
+    }
+
     public function testCreatesTransactionWithOnePost(): void
     {
         $request = ["amount" => "10.00", "currency" => "EUR"];

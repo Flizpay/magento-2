@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace FlizPay\Payment\Controller\Webhook;
 
 use FlizPay\Payment\Service\Connection\ConnectionManager;
+use FlizPay\Payment\Service\Connection\ConnectionConfigWriter;
 use FlizPay\Payment\Service\Webhook\WebhookAuthenticator;
 use FlizPay\Payment\Service\Webhook\WebhookPayload;
 use FlizPay\Payment\Service\Webhook\WebhookProcessor;
@@ -28,6 +29,8 @@ class Index implements HttpPostActionInterface, CsrfAwareActionInterface
      * @param JsonSerializer $jsonSerializer
      * @param WebhookAuthenticator $authenticator
      * @param ConnectionManager $connectionManager
+     * @param ConnectionConfigWriter $connectionConfigWriter
+     * @param WebhookProcessor $webhookProcessor
      */
     public function __construct(
         private readonly Http $request,
@@ -35,6 +38,7 @@ class Index implements HttpPostActionInterface, CsrfAwareActionInterface
         private readonly JsonSerializer $jsonSerializer,
         private readonly WebhookAuthenticator $authenticator,
         private readonly ConnectionManager $connectionManager,
+        private readonly ConnectionConfigWriter $connectionConfigWriter,
         private readonly WebhookProcessor $webhookProcessor,
     ) {}
 
@@ -68,6 +72,19 @@ class Index implements HttpPostActionInterface, CsrfAwareActionInterface
                 $this->connectionManager->confirmWebhookConnection();
 
                 return $result->setData(["data" => ["alive" => true]]);
+            }
+
+            if (isset($payload["updateCashbackInfo"])) {
+                $this->connectionConfigWriter->replaceCashbackData([
+                    "first_purchase_amount" =>
+                        (float) ($payload["firstPurchaseAmount"] ?? 0),
+                    "standard_amount" => (float) ($payload["amount"] ?? 0),
+                ]);
+
+                return $result->setData([
+                    "success" => true,
+                    "message" => "Cashback information updated",
+                ]);
             }
 
             $this->webhookProcessor->process(

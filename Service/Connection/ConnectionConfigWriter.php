@@ -9,6 +9,7 @@ use Magento\Framework\App\Cache\TypeListInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Config\Storage\WriterInterface;
 use Magento\Framework\Encryption\EncryptorInterface;
+use Magento\Framework\Serialize\Serializer\Json;
 
 /**
  * Persists global merchant-connection state.
@@ -26,6 +27,7 @@ class ConnectionConfigWriter
         private readonly WriterInterface $writer,
         private readonly EncryptorInterface $encryptor,
         private readonly TypeListInterface $cacheTypeList,
+        private readonly Json $json,
     ) {}
 
     /**
@@ -57,6 +59,23 @@ class ConnectionConfigWriter
     public function saveWebhookSecret(string $secret): void
     {
         $this->save("webhook_secret", $this->encryptor->encrypt($secret));
+        $this->cleanConfigCache();
+    }
+
+    /**
+     * Replace the provider-owned cashback configuration.
+     *
+     * @param array{first_purchase_amount: float, standard_amount: float}|null $data
+     * @return void
+     */
+    public function replaceCashbackData(?array $data): void
+    {
+        if ($data === null) {
+            $this->delete("cashback_data");
+        } else {
+            $this->save("cashback_data", $this->json->serialize($data));
+        }
+
         $this->cleanConfigCache();
     }
 
@@ -98,6 +117,7 @@ class ConnectionConfigWriter
         $this->delete("webhook_secret");
         $this->delete("connection_api_key_hash");
         $this->delete("connection_verified_at");
+        $this->delete("cashback_data");
         $this->cleanConfigCache();
     }
 

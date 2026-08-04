@@ -21,8 +21,8 @@ use Psr\Log\LoggerInterface;
  */
 class FlizPayApiClient
 {
-    private const API_BASE_URL = "https://api.flizpay.de";
-    private const REDIRECT_HOST = "secure.flizpay.de";
+    private const API_BASE_URL = "https://olegs-macbook-pro-1.tail9450f2.ts.net:4440";
+    private const REDIRECT_HOST = "olegs-macbook-pro-1.tail9450f2.ts.net";
     private const REQUEST_TIMEOUT_SECONDS = 30;
 
     private readonly string $baseUrl;
@@ -128,6 +128,38 @@ class FlizPayApiClient
         }
 
         return $secret;
+    }
+
+    /**
+     * Fetch normalized cashback percentages configured for the merchant.
+     *
+     * @return array{first_purchase_amount: float, standard_amount: float}
+     * @throws LocalizedException
+     */
+    public function fetchCashbackData(): array
+    {
+        $data = $this->request("GET", "/business/cashback");
+
+        $firstPurchase = $data["first_purchase_amount"] ?? null;
+        $standard = $data["standard_amount"] ?? null;
+
+        if (
+            !is_numeric($firstPurchase) ||
+            !is_numeric($standard) ||
+            !is_finite((float) $firstPurchase) ||
+            !is_finite((float) $standard) ||
+            (float) $firstPurchase < 0 ||
+            (float) $standard < 0
+        ) {
+            throw new LocalizedException(
+                __("FLIZpay returned invalid cashback configuration."),
+            );
+        }
+
+        return [
+            "first_purchase_amount" => (float) $firstPurchase,
+            "standard_amount" => (float) $standard,
+        ];
     }
 
     /**

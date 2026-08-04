@@ -32,6 +32,7 @@ class WebhookAuthenticator
     public function authenticate(string $rawBody, string $signature): bool
     {
         $secret = $this->config->getWebhookSecret();
+
         if ($secret === "" || $signature === "") {
             return false;
         }

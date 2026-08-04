@@ -26,13 +26,17 @@ class CompletedPaymentHandler
         private readonly PaymentAttemptRepository $attemptRepository,
         private readonly OrderRepositoryInterface $orderRepository,
         private readonly ResourceConnection $resourceConnection,
+        private readonly CashbackAdjustmentService $cashbackAdjustmentService,
     ) {}
 
     /**
      * @throws LocalizedException
      */
-    public function execute(string $providerTransactionId): void
-    {
+    public function execute(
+        string $providerTransactionId,
+        int $originalAmountMinor,
+        int $finalAmountMinor,
+    ): void {
         $connection = $this->resourceConnection->getConnection();
         $connection->beginTransaction();
 
@@ -44,6 +48,7 @@ class CompletedPaymentHandler
                 (int) $attempt->getData("order_id"),
             );
             $payment = $order instanceof Order ? $order->getPayment() : null;
+
             if (
                 !$order instanceof Order ||
                 !$payment instanceof Payment ||
@@ -77,6 +82,11 @@ class CompletedPaymentHandler
                     (string) $order->getBaseCurrencyCode(),
                 );
                 $payment->setIsTransactionClosed(true);
+                $this->cashbackAdjustmentService->apply(
+                    $order,
+                    $originalAmountMinor,
+                    $finalAmountMinor,
+                );
                 $order->setState(Order::STATE_PROCESSING);
                 $payment->registerCaptureNotification(
                     (float) $order->getBaseGrandTotal(),

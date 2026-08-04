@@ -16,6 +16,7 @@ namespace FlizPay\Payment\Model;
 
 use FlizPay\Payment\Api\ConfigInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Store\Model\ScopeInterface;
 
 /**
@@ -30,6 +31,7 @@ class Config implements ConfigInterface
      */
     public function __construct(
         private readonly ScopeConfigInterface $scopeConfig,
+        private readonly Json $json,
     ) {}
 
     /**
@@ -119,6 +121,72 @@ class Config implements ConfigInterface
     }
 
     /**
+     * @inheritdoc
+     */
+    public function getCashbackData(): ?array
+    {
+        $value = $this->getGlobalValue("cashback_data");
+        $data = null;
+
+        if ($value === "") {
+            return null;
+        }
+
+        try {
+            $data = $this->json->unserialize($value);
+        } catch (\Throwable) {
+            return null;
+        }
+
+        if (!is_array($data)) {
+            return null;
+        }
+
+        $firstPurchase = $data["first_purchase_amount"] ?? null;
+        $standard = $data["standard_amount"] ?? null;
+
+        if (
+            !is_numeric($firstPurchase) ||
+            !is_numeric($standard) ||
+            !is_finite((float) $firstPurchase) ||
+            !is_finite((float) $standard) ||
+            (float) $firstPurchase < 0 ||
+            (float) $standard < 0
+        ) {
+            return null;
+        }
+
+        return [
+            "first_purchase_amount" => (float) $firstPurchase,
+            "standard_amount" => (float) $standard,
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isCashbackInTitleEnabled(?int $storeId = null): bool
+    {
+        return $this->getStoreFlag("display_cashback_in_title", $storeId);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isCheckoutLogoEnabled(?int $storeId = null): bool
+    {
+        return $this->getStoreFlag("show_checkout_logo", $storeId);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isCheckoutSubtitleEnabled(?int $storeId = null): bool
+    {
+        return $this->getStoreFlag("show_checkout_subtitle", $storeId);
+    }
+
+    /**
      * Read a global credential value.
      *
      * @param string $field
@@ -131,6 +199,22 @@ class Config implements ConfigInterface
                 self::PATH_PREFIX . $field,
                 ScopeConfigInterface::SCOPE_TYPE_DEFAULT,
             ),
+        );
+    }
+
+    /**
+     * Read one store-scoped display flag.
+     *
+     * @param string $field
+     * @param int|null $storeId
+     * @return bool
+     */
+    private function getStoreFlag(string $field, ?int $storeId): bool
+    {
+        return $this->scopeConfig->isSetFlag(
+            self::PATH_PREFIX . $field,
+            ScopeInterface::SCOPE_STORE,
+            $storeId,
         );
     }
 }

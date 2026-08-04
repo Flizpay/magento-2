@@ -26,6 +26,8 @@ class WebhookProcessor
         $this->paymentStateMapper->apply(
             $payload->getTransactionId(),
             $payload->getStatus(),
+            $payload->getAmountMinor(),
+            $payload->getOriginalAmountMinor(),
         );
     }
 }

@@ -47,6 +47,7 @@ class AvailabilityValidator
             $this->config->isActive($storeId) &&
             $this->config->hasApiKey() &&
             $this->config->isConnected();
+
         if (!$configured) {
             return false;
         }

@@ -34,10 +34,14 @@
                 <can_void>0</can_void>
                 <sort_order>10</sort_order>
                 <logging_enabled>0</logging_enabled>
+                <display_cashback_in_title>1</display_cashback_in_title>
+                <show_checkout_logo>1</show_checkout_logo>
+                <show_checkout_subtitle>1</show_checkout_subtitle>
                 <connection_status>not_connected</connection_status>
                 <webhook_url />
                 <connection_api_key_hash />
                 <connection_verified_at />
+                <cashback_data />
                 <api_key
                     backend_model="Magento\Config\Model\Config\Backend\Encrypted"
                 />

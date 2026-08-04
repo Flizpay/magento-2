@@ -79,10 +79,50 @@
                     <validate>validate-number</validate>
                 </field>
                 <field
+                    id="display_cashback_in_title"
+                    translate="label comment"
+                    type="select"
+                    sortOrder="50"
+                    showInDefault="1"
+                    showInWebsite="1"
+                    canRestore="1"
+                >
+                    <label>Display Cashback in Payment Title</label>
+                    <comment>Shows the provider-configured maximum cashback percentage during checkout.</comment>
+                    <source_model
+                    >Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field
+                    id="show_checkout_logo"
+                    translate="label"
+                    type="select"
+                    sortOrder="60"
+                    showInDefault="1"
+                    showInWebsite="1"
+                    canRestore="1"
+                >
+                    <label>Show Logo in Checkout</label>
+                    <source_model
+                    >Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field
+                    id="show_checkout_subtitle"
+                    translate="label"
+                    type="select"
+                    sortOrder="70"
+                    showInDefault="1"
+                    showInWebsite="1"
+                    canRestore="1"
+                >
+                    <label>Show Checkout Description</label>
+                    <source_model
+                    >Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field
                     id="logging_enabled"
                     translate="label"
                     type="select"
-                    sortOrder="50"
+                    sortOrder="80"
                     showInDefault="1"
                     showInWebsite="1"
                 >

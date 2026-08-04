@@ -8,6 +8,33 @@ define(["Magento_Checkout/js/view/payment/default"], function (Component) {
 
     redirectAfterPlaceOrder: false,
 
+    getCashbackConfig: function () {
+      return window.checkoutConfig.payment.flizpay.cashback || {};
+    },
+
+    getDisplayTitle: function () {
+      return this.getCashbackConfig().title || this.getTitle();
+    },
+
+    getCashbackDescription: function () {
+      return this.getCashbackConfig().description || "";
+    },
+
+    shouldShowDescription: function () {
+      return (
+        this.isChecked() === this.getCode() &&
+        this.getCashbackDescription() !== ""
+      );
+    },
+
+    shouldShowLogo: function () {
+      return this.getCashbackConfig().showLogo === true;
+    },
+
+    getLogoUrl: function () {
+      return require.toUrl("FlizPay_Payment/images/fliz-checkout-logo.svg");
+    },
+
     afterPlaceOrder: function () {
       var config = window.checkoutConfig.payment.flizpay,
         form = document.createElement("form"),
