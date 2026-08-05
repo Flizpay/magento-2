@@ -30,7 +30,10 @@
                 <can_use_internal>0</can_use_internal>
                 <can_authorize>0</can_authorize>
                 <can_capture>0</can_capture>
+                <can_capture_partial>0</can_capture_partial>
                 <can_refund>0</can_refund>
+                <can_refund_partial_per_invoice
+                >0</can_refund_partial_per_invoice>
                 <can_void>0</can_void>
                 <sort_order>10</sort_order>
                 <logging_enabled>0</logging_enabled>

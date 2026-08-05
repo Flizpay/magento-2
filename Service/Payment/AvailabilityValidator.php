@@ -52,6 +52,13 @@ class AvailabilityValidator
             return false;
         }
 
+        if (
+            strtoupper((string) $quote->getData("quote_currency_code")) !==
+            "EUR"
+        ) {
+            return false;
+        }
+
         $secureBaseUrl = (string) $store->getBaseUrl(
             UrlInterface::URL_TYPE_LINK,
             true,

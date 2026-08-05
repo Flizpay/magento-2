@@ -17,12 +17,16 @@ class WebhookPayloadTest extends TestCase
             "status" => "COMPLETED",
             "amount" => "90.00",
             "originalAmount" => "100.00",
+            "currency" => "EUR",
+            "metadata" => ["orderId" => "100000001"],
         ]);
 
         self::assertSame("provider-123", $payload->getTransactionId());
         self::assertSame("completed", $payload->getStatus());
         self::assertSame(9000, $payload->getAmountMinor());
         self::assertSame(10000, $payload->getOriginalAmountMinor());
+        self::assertSame("EUR", $payload->getCurrency());
+        self::assertSame("100000001", $payload->getExternalOrderId());
     }
 
     /** @param array<string, mixed> $payload */
@@ -43,6 +47,20 @@ class WebhookPayloadTest extends TestCase
             "non-string transaction" => [[
                 "transactionId" => 123,
                 "status" => "completed",
+            ]],
+            "completed without currency" => [[
+                "transactionId" => "provider-123",
+                "status" => "completed",
+                "amount" => "90.00",
+                "originalAmount" => "100.00",
+                "metadata" => ["orderId" => "100000001"],
+            ]],
+            "completed without order binding" => [[
+                "transactionId" => "provider-123",
+                "status" => "completed",
+                "amount" => "90.00",
+                "originalAmount" => "100.00",
+                "currency" => "EUR",
             ]],
         ];
     }

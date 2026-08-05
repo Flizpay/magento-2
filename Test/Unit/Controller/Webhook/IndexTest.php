@@ -87,6 +87,8 @@ class IndexTest extends TestCase
             "status" => "completed",
             "amount" => "90.00",
             "originalAmount" => "100.00",
+            "currency" => "EUR",
+            "metadata" => ["orderId" => "100000001"],
         ]);
         $authenticator = $this->createStub(WebhookAuthenticator::class);
         $authenticator->method("authenticate")->willReturn(true);
@@ -104,7 +106,9 @@ class IndexTest extends TestCase
                      $payload->getTransactionId() === "provider-123" &&
                      $payload->getStatus() === "completed" &&
                      $payload->getAmountMinor() === 9000 &&
-                     $payload->getOriginalAmountMinor() === 10000,
+                     $payload->getOriginalAmountMinor() === 10000 &&
+                     $payload->getCurrency() === "EUR" &&
+                     $payload->getExternalOrderId() === "100000001",
             ));
 
         self::assertSame(

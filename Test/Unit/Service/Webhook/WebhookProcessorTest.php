@@ -17,7 +17,14 @@ class WebhookProcessorTest extends TestCase
         $mapper
             ->expects(self::once())
             ->method("apply")
-            ->with("provider-123", "completed", 9000, 10000);
+            ->with(
+                "provider-123",
+                "completed",
+                9000,
+                10000,
+                "EUR",
+                "100000001",
+            );
 
         (new WebhookProcessor($mapper))->process(
             WebhookPayload::fromArray([
@@ -25,6 +32,8 @@ class WebhookProcessorTest extends TestCase
                 "status" => "completed",
                 "amount" => "90.00",
                 "originalAmount" => "100.00",
+                "currency" => "EUR",
+                "metadata" => ["orderId" => "100000001"],
             ]),
         );
     }
@@ -35,7 +44,7 @@ class WebhookProcessorTest extends TestCase
         $mapper
             ->expects(self::once())
             ->method("apply")
-            ->with("provider-123", "failed", null, null);
+            ->with("provider-123", "failed", null, null, null, null);
 
         (new WebhookProcessor($mapper))->process(
             WebhookPayload::fromArray([

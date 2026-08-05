@@ -5,17 +5,17 @@
       "base_flizpay_cashback_amount": true,
       "flizpay_original_grand_total": true,
       "base_flizpay_original_grand_total": true,
-      "flizpay_cashback_refunded": true,
-      "base_flizpay_cashback_refunded": true
+      "flizpay_shipping_cashback_amount": true,
+      "base_flizpay_shipping_cashback_amount": true
     }
   },
-  "sales_invoice": {
+  "sales_order_item": {
     "column": {
       "flizpay_cashback_amount": true,
       "base_flizpay_cashback_amount": true
     }
   },
-  "sales_creditmemo": {
+  "sales_invoice": {
     "column": {
       "flizpay_cashback_amount": true,
       "base_flizpay_cashback_amount": true

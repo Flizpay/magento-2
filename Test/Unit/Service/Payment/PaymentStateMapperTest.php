@@ -41,13 +41,15 @@ class PaymentStateMapperTest extends TestCase
         $completed = $this->createMock(CompletedPaymentHandler::class);
         $completed->expects(self::once())
             ->method("execute")
-            ->with("provider-123", 10000, 9000);
+            ->with("provider-123", 10000, 9000, "EUR", "100000001");
 
         $this->mapper($repository, $completed)->apply(
             "provider-123",
             "completed",
             9000,
             10000,
+            "EUR",
+            "100000001",
         );
     }
 

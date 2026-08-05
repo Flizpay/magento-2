@@ -19,6 +19,8 @@ class PaymentStateMapper
         string $status,
         ?int $amountMinor = null,
         ?int $originalAmountMinor = null,
+        ?string $currency = null,
+        ?string $externalOrderId = null,
     ): void {
         $status = ProviderPaymentState::normalize($status);
 
@@ -38,7 +40,12 @@ class PaymentStateMapper
         }
 
         if ($status === ProviderPaymentState::COMPLETED) {
-            if ($amountMinor === null || $originalAmountMinor === null) {
+            if (
+                $amountMinor === null ||
+                $originalAmountMinor === null ||
+                $currency === null ||
+                $externalOrderId === null
+            ) {
                 throw new LocalizedException(
                     __("FLIZpay completion amounts are missing."),
                 );
@@ -47,6 +54,8 @@ class PaymentStateMapper
                 $providerTransactionId,
                 $originalAmountMinor,
                 $amountMinor,
+                $currency,
+                $externalOrderId,
             );
             return;
         }

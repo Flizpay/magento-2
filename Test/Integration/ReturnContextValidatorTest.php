@@ -38,7 +38,13 @@ class ReturnContextValidatorTest extends TestCase
 
         $objectManager
             ->get(CompletedPaymentHandler::class)
-            ->execute("provider-return-123");
+            ->execute(
+                "provider-return-123",
+                (int) round((float) $order->getGrandTotal() * 100),
+                (int) round((float) $order->getGrandTotal() * 100),
+                "EUR",
+                (string) $order->getIncrementId(),
+            );
 
         self::assertTrue(
             $validator->validate(self::TOKEN, $storeId)->isComplete(),
@@ -82,6 +88,9 @@ class ReturnContextValidatorTest extends TestCase
 
         $order->setState(Order::STATE_PENDING_PAYMENT);
         $order->setStatus(Order::STATE_PENDING_PAYMENT);
+        $order->setOrderCurrencyCode("EUR");
+        $order->setBaseCurrencyCode("EUR");
+        $order->setBaseToOrderRate(1.0);
         $order->getPayment()->setMethod("flizpay");
         $objectManager->get(OrderRepositoryInterface::class)->save($order);
 

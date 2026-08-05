@@ -62,6 +62,15 @@ class AvailabilityValidatorTest extends TestCase
         );
     }
 
+    public function testNonEuroQuoteIsUnavailable(): void
+    {
+        self::assertFalse(
+            $this->validator()->isAvailable(
+                $this->createQuote(currency: "USD"),
+            ),
+        );
+    }
+
     private function validator(): AvailabilityValidator
     {
         return new AvailabilityValidator($this->config);
@@ -85,6 +94,7 @@ class AvailabilityValidatorTest extends TestCase
 
     private function createQuote(
         string $secureBaseUrl = "https://magento.test/",
+        string $currency = "EUR",
     ): Quote {
         $store = $this->createStub(Store::class);
         $store->method("getId")->willReturn(1);
@@ -92,6 +102,9 @@ class AvailabilityValidatorTest extends TestCase
 
         $quote = $this->createStub(Quote::class);
         $quote->method("getStore")->willReturn($store);
+        $quote->method("getData")
+            ->with("quote_currency_code")
+            ->willReturn($currency);
 
         return $quote;
     }

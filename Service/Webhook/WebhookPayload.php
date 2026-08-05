@@ -22,6 +22,8 @@ class WebhookPayload
         private readonly string $status,
         private readonly ?int $amountMinor,
         private readonly ?int $originalAmountMinor,
+        private readonly ?string $currency,
+        private readonly ?string $externalOrderId,
     ) {}
 
     /** @param array<string, mixed> $payload */
@@ -42,12 +44,28 @@ class WebhookPayload
         $status = ProviderPaymentState::normalize($status);
         $amountMinor = null;
         $originalAmountMinor = null;
+        $currency = null;
+        $externalOrderId = null;
 
         if ($status === ProviderPaymentState::COMPLETED) {
             $amountMinor = self::toMinorUnits($payload["amount"] ?? null);
             $originalAmountMinor = self::toMinorUnits(
                 $payload["originalAmount"] ?? null,
             );
+            $currency = $payload["currency"] ?? null;
+            $externalOrderId = $payload["metadata"]["orderId"] ?? null;
+
+            if (
+                !is_string($currency) ||
+                strtoupper(trim($currency)) !== "EUR" ||
+                (!is_string($externalOrderId) && !is_int($externalOrderId)) ||
+                trim((string) $externalOrderId) === ""
+            ) {
+                throw new \InvalidArgumentException("Invalid webhook binding.");
+            }
+
+            $currency = "EUR";
+            $externalOrderId = trim((string) $externalOrderId);
         }
 
         return new self(
@@ -55,6 +73,8 @@ class WebhookPayload
             $status,
             $amountMinor,
             $originalAmountMinor,
+            $currency,
+            $externalOrderId,
         );
     }
 
@@ -76,6 +96,16 @@ class WebhookPayload
     public function getOriginalAmountMinor(): ?int
     {
         return $this->originalAmountMinor;
+    }
+
+    public function getCurrency(): ?string
+    {
+        return $this->currency;
+    }
+
+    public function getExternalOrderId(): ?string
+    {
+        return $this->externalOrderId;
     }
 
     private static function toMinorUnits(mixed $amount): int

@@ -21,7 +21,9 @@ validate:
 	composer validate --no-check-publish
 
 lint:
-	@git ls-files -co --exclude-standard '*.php' | xargs -n1 php -l
+	@git ls-files -co --exclude-standard --deduplicate '*.php' | while read file; do \
+		[ ! -f "$$file" ] || php -l "$$file"; \
+	done
 
 analyse:
 	cd $(MAGENTO_STORE_ROOT) && ./bin/clinotty vendor/bin/phpstan analyse \

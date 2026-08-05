@@ -28,6 +28,8 @@ class WebhookProcessor
             $payload->getStatus(),
             $payload->getAmountMinor(),
             $payload->getOriginalAmountMinor(),
+            $payload->getCurrency(),
+            $payload->getExternalOrderId(),
         );
     }
 }

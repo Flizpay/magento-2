@@ -61,11 +61,25 @@ class PaymentStateMapperTest extends TestCase
     #[DataProvider("terminalFailureStates")]
     public function testTerminalFailureCancelsAndRestoresQuote(string $status): void
     {
-        [$order] = $this->prepareOrder("provider-$status");
+        [$order, $attempt] = $this->prepareOrder("provider-$status");
         $quoteId = (int) $order->getQuoteId();
         $objectManager = Bootstrap::getObjectManager();
         $quoteRepository = $objectManager->get(CartRepositoryInterface::class);
-        $quote = $quoteRepository->get($quoteId);
+        if ($quoteId === 0) {
+            $quote = $objectManager->create(\Magento\Quote\Model\Quote::class);
+            $quote->setStoreId((int) $order->getStoreId());
+            $quote->setIsActive(false);
+            $quoteRepository->save($quote);
+            $quoteId = (int) $quote->getId();
+            $order->setQuoteId($quoteId);
+            $objectManager->get(OrderRepositoryInterface::class)->save($order);
+            $attempt->setData("quote_id", $quoteId);
+            $objectManager
+                ->get(PaymentAttemptRepository::class)
+                ->save($attempt);
+        } else {
+            $quote = $quoteRepository->get($quoteId);
+        }
         $quote->setIsActive(false);
         $quoteRepository->save($quote);
 
@@ -76,7 +90,7 @@ class PaymentStateMapperTest extends TestCase
         $order = $objectManager->create(Order::class)->load($order->getId());
         self::assertSame(Order::STATE_CANCELED, $order->getState());
         self::assertSame(0, $order->getInvoiceCollection()->getSize());
-        self::assertTrue($quoteRepository->get($quoteId)->getIsActive());
+        self::assertTrue((bool) $quoteRepository->get($quoteId)->getIsActive());
         self::assertSame(
             $status,
             $objectManager

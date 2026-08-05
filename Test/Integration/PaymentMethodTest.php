@@ -41,5 +41,10 @@ class PaymentMethodTest extends TestCase
         self::assertFalse($stateObject->getData("is_notified"));
         self::assertFalse($payment->getIsTransactionPending());
         self::assertSame(0, $order->getInvoiceCollection()->getSize());
+        self::assertFalse($method->canCapture());
+        self::assertFalse($method->canCapturePartial());
+        self::assertFalse($method->canRefund());
+        self::assertFalse($method->canRefundPartialPerInvoice());
+        self::assertFalse($method->canVoid());
     }
 }

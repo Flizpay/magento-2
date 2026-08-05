@@ -5,9 +5,4 @@
             <item name="flizpay_cashback" instance="FlizPay\Payment\Model\Order\Invoice\Total\Cashback" sort_order="110" />
         </group>
     </section>
-    <section name="order_creditmemo">
-        <group name="totals">
-            <item name="flizpay_cashback" instance="FlizPay\Payment\Model\Order\Creditmemo\Total\Cashback" sort_order="160" />
-        </group>
-    </section>
 </config>
