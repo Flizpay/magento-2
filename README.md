@@ -113,7 +113,7 @@ GitHub Actions runs on every push to `main` and every pull request targeting
   every pull request, including forks.
 - **Unit tests** — installs the module with its Magento dependencies from
   `repo.magento.com` into a Composer sandbox and runs the full `Test/Unit`
-  suite on PHP 8.2–8.4 via `make test-unit`.
+  suite on PHP 8.3 via `make test-unit`.
 - **Integration tests** — provisions Magento Open Source with MySQL,
   OpenSearch, and RabbitMQ service containers, links this module under
   `app/code/FlizPay/Payment`, and runs `Test/Integration` via
