@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace FlizPay\Payment\Service\Cashback;
 
 use FlizPay\Payment\Api\ConfigInterface;
-use Magento\Framework\Locale\ResolverInterface;
-use NumberFormatter;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
@@ -16,7 +14,7 @@ class CashbackDisplayBuilder
 {
     public function __construct(
         private readonly ConfigInterface $config,
-        private readonly ResolverInterface $localeResolver,
+        private readonly PercentageFormatter $percentageFormatter,
         private readonly StoreManagerInterface $storeManager,
     ) {}
 
@@ -57,7 +55,7 @@ class CashbackDisplayBuilder
                     ? "first"
                     : "standard");
 
-        $formattedValue = $this->formatPercentage(
+        $formattedValue = $this->percentageFormatter->format(
             max($firstPurchase, $standard),
         );
 
@@ -79,26 +77,13 @@ class CashbackDisplayBuilder
         );
     }
 
-    private function formatPercentage(float $value): string
-    {
-        $formatter = new NumberFormatter(
-            $this->localeResolver->getLocale(),
-            NumberFormatter::DECIMAL,
-        );
-        $formatter->setAttribute(NumberFormatter::MIN_FRACTION_DIGITS, 0);
-        $formatter->setAttribute(NumberFormatter::MAX_FRACTION_DIGITS, 1);
-        $formattedValue = $formatter->format($value);
-
-        return is_string($formattedValue) ? $formattedValue : (string) $value;
-    }
-
     private function buildDescription(
         string $type,
         float $standard,
         ?int $storeId,
     ): string {
         $shopName = (string) $this->storeManager->getStore($storeId)->getName();
-        $formattedStandard = $this->formatPercentage($standard);
+        $formattedStandard = $this->percentageFormatter->format($standard);
 
         if ($type === "both") {
             return (string) __(

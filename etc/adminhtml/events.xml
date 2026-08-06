@@ -9,4 +9,10 @@
             instance="FlizPay\Payment\Observer\ConnectAfterConfigSave"
         />
     </event>
+    <event name="admin_system_config_changed_section_flizpay">
+        <observer
+            name="flizpay_connect_after_flizpay_section_save"
+            instance="FlizPay\Payment\Observer\ConnectAfterConfigSave"
+        />
+    </event>
 </config>

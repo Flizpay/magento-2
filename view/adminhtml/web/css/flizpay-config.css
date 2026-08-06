@@ -1,0 +1,184 @@
+/**
+ * FLIZpay Magento 2 - Admin configuration styles
+ *
+ * @package FlizPay_Payment
+ * @license https://www.gnu.org/licenses/gpl-2.0.txt GPLv2 or later
+ */
+
+/* Flat section layout: hide the collapsible group header and keep the
+   fieldset permanently expanded so all settings are immediately visible. */
+.entry-edit-head:has(> a#flizpay_settings-head) {
+    display: none;
+}
+
+#flizpay_settings {
+    display: block !important;
+}
+
+/* Sub-section headings act as horizontal separators. */
+#flizpay_settings .system-fieldset-sub-head td {
+    border-top: 1px solid #e3e3e3;
+    padding-top: 28px;
+}
+
+#flizpay_settings .system-fieldset-sub-head h4 {
+    color: #303030;
+    font-size: 1.7rem;
+    margin: 0 0 4px;
+}
+
+.flizpay-full-width-cell {
+    padding-bottom: 16px;
+}
+
+/* Welcome card */
+.flizpay-welcome {
+    background: #fff;
+    border: 1px solid #e3e3e3;
+    border-radius: 8px;
+    margin-bottom: 24px;
+    padding: 24px 28px;
+}
+
+.flizpay-welcome__title {
+    color: #00d094;
+    font-size: 2rem;
+    margin: 0 0 12px;
+}
+
+.flizpay-welcome__instructions-title {
+    font-size: 1.5rem;
+    margin: 0 0 8px;
+}
+
+.flizpay-welcome__notice {
+    margin: 0 0 12px;
+}
+
+.flizpay-welcome__steps {
+    margin: 0 0 16px 20px;
+}
+
+.flizpay-welcome__steps li {
+    margin-bottom: 8px;
+}
+
+.flizpay-welcome__links p {
+    margin: 0 0 4px;
+}
+
+.flizpay-welcome a {
+    color: #007bdb;
+}
+
+/* Checkout preview */
+.flizpay-checkout-preview {
+    max-width: 60rem;
+}
+
+.flizpay-checkout-preview__box {
+    background: #fff;
+    border: 1px solid #d6d6d6;
+    border-radius: 8px;
+    padding: 16px 20px;
+}
+
+.flizpay-checkout-preview__row {
+    align-items: center;
+    display: flex;
+    gap: 10px;
+}
+
+.flizpay-checkout-preview__radio {
+    background: #fff;
+    border: 2px solid #00d094;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 3px #fff;
+    background-color: #00d094;
+    display: inline-block;
+    flex-shrink: 0;
+    height: 16px;
+    width: 16px;
+}
+
+.flizpay-checkout-preview__name {
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+.flizpay-checkout-preview__title {
+    color: #00a878;
+    font-weight: 600;
+}
+
+.flizpay-checkout-preview__logo {
+    margin-left: auto;
+}
+
+.flizpay-checkout-preview__logo img {
+    display: block;
+    height: 24px;
+}
+
+.flizpay-checkout-preview__subtitle {
+    color: #666;
+    font-size: 1.2rem;
+    margin-top: 8px;
+    padding-left: 26px;
+}
+
+.flizpay-checkout-preview__labels {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.flizpay-checkout-preview__label {
+    background: #f1f1f1;
+    border: 1px solid #d6d6d6;
+    border-radius: 12px;
+    color: #333;
+    font-size: 1.1rem;
+    padding: 2px 10px;
+}
+
+.flizpay-checkout-preview__label--title {
+    border-color: #00a878;
+    color: #00a878;
+}
+
+.flizpay-checkout-preview__label--logo {
+    border-color: #007bdb;
+    color: #007bdb;
+}
+
+.flizpay-checkout-preview__label--subtitle {
+    border-color: #eb5202;
+    color: #eb5202;
+}
+
+/* Cashback information */
+.flizpay-cashback-info__box {
+    border-radius: 4px;
+    margin-bottom: 12px;
+    max-width: 60rem;
+    padding: 12px 16px;
+}
+
+.flizpay-cashback-info__box--info {
+    background: #e0f6ef;
+    border: 1px solid #00d094;
+}
+
+.flizpay-cashback-info__box--warning {
+    background: #fdf0d5;
+    border: 1px solid #eb5202;
+}
+
+.flizpay-cashback-info__list {
+    margin: 8px 0 0 20px;
+}
+
+.flizpay-cashback-info__configure {
+    margin: 0;
+}
