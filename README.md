@@ -67,22 +67,76 @@ retry, repeated-start, and concurrent-webhook behavior remain post-MVP work.
 ## Development Checks
 
 Run `make` from this repository to list the available development commands and
-their descriptions. Invoke a command by its target name:
+their descriptions.
+
+Package checks run against this repository alone and need only PHP and
+Composer:
 
 ```bash
-make validate
-make lint
-make analyse
-make test-unit
-make test-integration
-make phpcs
-make format
-make compile
+make validate       # Validate composer.json
+make validate-xml   # Validate every tracked XML file
+make lint           # Check PHP syntax
 ```
 
-The unit, integration, coding-standard, and compilation targets require the
-sibling Magento Docker environment to be running. Magento integration-test
-infrastructure must be initialized before running `make test-integration`.
+Test and quality targets need a Magento installation that contains this module.
+Point `MAGENTO_ROOT` at it (default: `../magento-store`) and `MODULE_PATH` at
+the module location inside it (default: `app/code/FlizPay/Payment`):
+
+```bash
+make test-unit           # Run the unit test suite
+make test-integration    # Run the Magento integration test suite
+make test                # Both suites
+make analyse             # PHPStan
+make phpcs               # Magento coding standards
+make format              # PHPCBF
+make compile             # setup:di:compile
+make check               # validate + validate-xml + lint + test-unit
+```
+
+When `MAGENTO_ROOT` contains the `bin/clinotty` wrapper (the sibling
+`magento-store` Docker environment), commands automatically run inside its PHP
+container; that environment must be running, and the Magento integration-test
+infrastructure must be initialized before `make test-integration`. Against any
+other Magento root, commands run directly on the host:
+
+```bash
+make test-unit MAGENTO_ROOT=/path/to/magento
+```
+
+## Continuous Integration
+
+GitHub Actions runs on every push to `main` and every pull request targeting
+`main` (`.github/workflows/ci.yml`):
+
+- **Package checks** — `make validate`, `make validate-xml`, `make lint`, and a
+  standalone package smoke test on PHP 8.2–8.5. Secret-free, so it runs for
+  every pull request, including forks.
+- **Unit tests** — installs the module with its Magento dependencies from
+  `repo.magento.com` into a Composer sandbox and runs the full `Test/Unit`
+  suite on PHP 8.3 via `make test-unit`.
+- **Integration tests** — provisions Magento Open Source with MySQL,
+  OpenSearch, and RabbitMQ service containers, links this module under
+  `app/code/FlizPay/Payment`, and runs `Test/Integration` via
+  `make test-integration`.
+
+The unit and integration jobs authenticate against `repo.magento.com` with the
+`COMPOSER_AUTH` repository secret. Create a dedicated, revocable Adobe
+Marketplace access key for CI and store it as:
+
+```json
+{
+  "http-basic": {
+    "repo.magento.com": {
+      "username": "<public-key>",
+      "password": "<private-key>"
+    }
+  }
+}
+```
+
+Pull requests from forks receive no secrets, so the unit and integration jobs
+are skipped for them; the package checks still run. For branch protection,
+require the package, unit, and integration jobs as status checks on `main`.
 
 ## Lifecycle Smoke Test
 
