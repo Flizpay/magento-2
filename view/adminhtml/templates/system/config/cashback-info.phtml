@@ -1,0 +1,57 @@
+<?php
+/**
+ * FLIZpay Magento 2
+ *
+ * This Magento 2 extension enables to process payments with FLIZpay (https://flizpay.de).
+ *
+ * @package FlizPay_Payment
+ * @author  FLIZpay GmbH (https://flizpay.de)
+ * @license https://www.gnu.org/licenses/gpl-2.0.txt GPLv2 or later
+ * @link    https://flizpay.de
+ */
+
+/** @var \FlizPay\Payment\Block\Adminhtml\System\Config\CashbackInfo $block */
+/** @var \Magento\Framework\Escaper $escaper */
+
+$firstPurchaseRate = $block->getFirstPurchaseRate();
+$standardRate = $block->getStandardRate();
+?>
+<div class="flizpay-cashback-info">
+    <?php if ($block->hasCashback()): ?>
+        <div class="flizpay-cashback-info__box flizpay-cashback-info__box--info">
+            <strong>
+                <?= $escaper->escapeHtml(__("Current Cashback Rates:")) ?>
+            </strong>
+            <ul class="flizpay-cashback-info__list">
+                <?php if ($firstPurchaseRate !== ""): ?>
+                    <li>
+                        <?= $escaper->escapeHtml(__("First Purchase")) ?>:
+                        <?= $escaper->escapeHtml($firstPurchaseRate) ?>%
+                    </li>
+                <?php endif; ?>
+                <?php if ($standardRate !== ""): ?>
+                    <li>
+                        <?= $escaper->escapeHtml(__("Standard")) ?>:
+                        <?= $escaper->escapeHtml($standardRate) ?>%
+                    </li>
+                <?php endif; ?>
+            </ul>
+        </div>
+    <?php else: ?>
+        <div class="flizpay-cashback-info__box flizpay-cashback-info__box--warning">
+            <?= $escaper->escapeHtml(
+                __(
+                    "No cashback is currently configured. Enable cashback in your FLIZpay dashboard to offer rewards to your customers.",
+                ),
+            ) ?>
+        </div>
+    <?php endif; ?>
+    <p class="flizpay-cashback-info__configure">
+        <?= /* @noEscape */
+            __(
+                "Configure cashback rates in your %1FLIZpay Dashboard%2.",
+                '<a href="https://app.flizpay.de/cashback" target="_blank" rel="noopener">',
+                "</a>",
+            ) ?>
+    </p>
+</div>

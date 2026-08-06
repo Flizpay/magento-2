@@ -1,0 +1,102 @@
+<?php
+/**
+ * FLIZpay Magento 2
+ *
+ * This Magento 2 extension enables to process payments with FLIZpay (https://flizpay.de).
+ *
+ * @package FlizPay_Payment
+ * @author  FLIZpay GmbH (https://flizpay.de)
+ * @license https://www.gnu.org/licenses/gpl-2.0.txt GPLv2 or later
+ * @link    https://flizpay.de
+ */
+
+/** @var \Magento\Backend\Block\Template $block */
+/** @var \Magento\Framework\Escaper $escaper */
+?>
+<div class="flizpay-welcome">
+    <h3 class="flizpay-welcome__title">
+        <?= $escaper->escapeHtml(__("Welcome to FLIZpay!")) ?>
+    </h3>
+    <h4 class="flizpay-welcome__instructions-title">
+        <?= $escaper->escapeHtml(__("Instructions:")) ?>
+    </h4>
+    <p class="flizpay-welcome__notice">
+        <strong>
+            <?= $escaper->escapeHtml(
+                __(
+                    "If you chose automatic installation, you can skip steps 1-5.",
+                ),
+            ) ?>
+        </strong>
+    </p>
+    <ol class="flizpay-welcome__steps">
+        <li>
+            <?= /* @noEscape */
+                __(
+                    "If you don't yet have a FLIZpay business account, please %1click here%2 to create one.",
+                    '<a href="https://app.flizpay.de/auth/signup" target="_blank" rel="noopener"><strong>',
+                    "</strong></a>",
+                ) ?>
+        </li>
+        <li>
+            <?= $escaper->escapeHtml(
+                __(
+                    "Once you have created your account, generate a new API key in your FLIZpay business account and paste it into the \"API Key\" field below. You can find your API keys in the \"Installation\" section of your account.",
+                ),
+            ) ?>
+        </li>
+        <li><?= $escaper->escapeHtml(__("Click \"Save Config\".")) ?></li>
+        <li>
+            <?= $escaper->escapeHtml(
+                __(
+                    "After approximately five seconds, the page will reload automatically.",
+                ),
+            ) ?>
+        </li>
+        <li>
+            <?= $escaper->escapeHtml(
+                __(
+                    "Once the connection status shows \"Connected\", your FLIZpay extension is configured, and you can start accepting secure, bank-account-based payments while reducing your payment costs.",
+                ),
+            ) ?>
+        </li>
+        <li>
+            <?= /* @noEscape */
+                __(
+                    "Add FLIZpay to your online stores and choose where it appears among your payment methods. Go to %1Payment Methods%2 to configure its availability and move FLIZpay higher in the list to make it easier for customers to find.",
+                    '<a href="' .
+                        $escaper->escapeUrl(
+                            (string) $block->getData("payment_methods_url"),
+                        ) .
+                        '"><strong>',
+                    "</strong></a>",
+                ) ?>
+        </li>
+        <li>
+            <?= /* @noEscape */
+                __(
+                    "We also recommend activating cashback for your customers. Cashback can encourage customers to choose FLIZpay and support conversion and loyalty. You can configure cashback offers in your FLIZpay business account. %1Click here.%2",
+                    '<a href="https://app.flizpay.de/cashback" target="_blank" rel="noopener"><strong>',
+                    "</strong></a>",
+                ) ?>
+        </li>
+    </ol>
+    <div class="flizpay-welcome__links">
+        <p>
+            <?= /* @noEscape */
+                __(
+                    "Still have questions? %1Check out our FAQ page%2.",
+                    '<a href="https://flizpay.de/businesses#how-do-i-install-fliz" target="_blank" rel="noopener">',
+                    "</a>",
+                ) ?>
+        </p>
+        <p>
+            <?= /* @noEscape */
+                __(
+                    "Need more details? %1Read our documentation.%2",
+                    '<a href="https://www.docs.flizpay.de/docs/intro" target="_blank" rel="noopener">',
+                    "</a>",
+                ) ?>
+        </p>
+    </div>
+</div>

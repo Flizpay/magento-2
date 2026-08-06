@@ -6,6 +6,7 @@ namespace FlizPay\Payment\Test\Unit\Service\Cashback;
 
 use FlizPay\Payment\Api\ConfigInterface;
 use FlizPay\Payment\Service\Cashback\CashbackDisplayBuilder;
+use FlizPay\Payment\Service\Cashback\PercentageFormatter;
 use Magento\Framework\Locale\ResolverInterface;
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Model\StoreManagerInterface;
@@ -62,7 +63,7 @@ class CashbackDisplayBuilderTest extends TestCase
 
         return new CashbackDisplayBuilder(
             $config,
-            $resolver,
+            new PercentageFormatter($resolver),
             $storeManager,
         );
     }
