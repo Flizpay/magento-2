@@ -96,8 +96,11 @@ class FlizPayApiClientTest extends TestCase
         $json = $this->createStub(Json::class);
         $json->method("unserialize")->willReturn([
             "data" => [
-                "first_purchase_amount" => 5,
-                "standard_amount" => "2.5",
+                "cashback" => [
+                    "firstPurchaseAmount" => 5,
+                    "amount" => "2.5",
+                    "unit" => "percentage",
+                ],
             ],
         ]);
 
@@ -115,8 +118,11 @@ class FlizPayApiClientTest extends TestCase
         $json = $this->createStub(Json::class);
         $json->method("unserialize")->willReturn([
             "data" => [
-                "first_purchase_amount" => -1,
-                "standard_amount" => 2,
+                "cashback" => [
+                    "firstPurchaseAmount" => -1,
+                    "amount" => 2,
+                    "unit" => "percentage",
+                ],
             ],
         ]);
 

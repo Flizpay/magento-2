@@ -140,8 +140,8 @@ class FlizPayApiClient
     {
         $data = $this->request("GET", "/business/cashback");
 
-        $firstPurchase = $data["first_purchase_amount"] ?? null;
-        $standard = $data["standard_amount"] ?? null;
+        $firstPurchase = $data["cashback"]["firstPurchaseAmount"] ?? null;
+        $standard = $data["cashback"]["amount"] ?? null;
 
         if (
             !is_numeric($firstPurchase) ||
