@@ -1,5 +1,4 @@
 /composer.lock
-/node_modules/
 /vendor/
 /.phpunit.cache/
 /.codegraph
