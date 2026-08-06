@@ -15,13 +15,16 @@
     display: block !important;
 }
 
-/* Sub-section headings act as horizontal separators. */
-#flizpay_settings .system-fieldset-sub-head td {
+/* Sub-section headings act as horizontal separators. Attribute selectors
+   match the FLIZpay group in any section, including the Payment Methods
+   section where Magento prefixes ids with the merchant country group
+   (e.g. row_payment_us_flizpay_heading_api). */
+tr.system-fieldset-sub-head[id*="flizpay"][id*="_heading_"] td {
     border-top: 1px solid #e3e3e3;
     padding-top: 28px;
 }
 
-#flizpay_settings .system-fieldset-sub-head h4 {
+tr.system-fieldset-sub-head[id*="flizpay"][id*="_heading_"] h4 {
     color: #303030;
     font-size: 1.7rem;
     margin: 0 0 4px;

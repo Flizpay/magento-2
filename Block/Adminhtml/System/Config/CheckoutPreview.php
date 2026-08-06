@@ -60,6 +60,7 @@ class CheckoutPreview extends Field
     protected function _getElementHtml(AbstractElement $element)
     {
         $this->setTemplate(self::TEMPLATE);
+        $this->setData("field_id_prefix", $this->fieldIdPrefix($element));
 
         return $this->toHtml();
     }
@@ -190,16 +191,39 @@ class CheckoutPreview extends Field
      */
     public function getInitializationJson(): string
     {
+        $prefix = (string) $this->getData("field_id_prefix");
+
         return $this->json->serialize([
             "#flizpay-checkout-preview" => [
                 "FlizPay_Payment/js/checkout-preview" => [
                     "fields" => [
-                        "logo" => "flizpay_settings_show_checkout_logo",
-                        "subtitle" => "flizpay_settings_show_checkout_subtitle",
+                        "logo" => $prefix . "show_checkout_logo",
+                        "subtitle" => $prefix . "show_checkout_subtitle",
                     ],
                 ],
             ],
         ]);
+    }
+
+    /**
+     * Derive the sibling-field element-id prefix from the preview element.
+     *
+     * The preview and its toggle fields share one group, so stripping the
+     * "preview" field id yields the prefix of every sibling element id
+     * (e.g. "flizpay_settings_preview" -> "flizpay_settings_"), letting the
+     * same block work in any section the group is rendered in.
+     *
+     * @param AbstractElement $element
+     * @return string
+     */
+    private function fieldIdPrefix(AbstractElement $element): string
+    {
+        $htmlId = (string) $element->getHtmlId();
+        $suffixPosition = strrpos($htmlId, "preview");
+
+        return $suffixPosition === false
+            ? "flizpay_settings_"
+            : substr($htmlId, 0, $suffixPosition);
     }
 
     /**
