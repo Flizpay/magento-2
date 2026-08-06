@@ -20,14 +20,24 @@ $showSubtitle = $block->isSubtitleEnabled();
 ?>
 <div id="flizpay-checkout-preview" class="flizpay-checkout-preview">
     <div class="flizpay-checkout-preview__box">
+        <input
+            type="radio"
+            class="flizpay-checkout-preview__radio"
+            checked
+            tabindex="-1"
+            aria-hidden="true"
+        />
         <div class="flizpay-checkout-preview__row">
-            <span class="flizpay-checkout-preview__radio"></span>
-            <span class="flizpay-checkout-preview__name">FLIZpay</span>
-            <span
-                class="flizpay-checkout-preview__title"
-                data-role="cashback-title"
-                <?= $showTitle ? "" : 'style="display:none"' ?>
-            ><?= $escaper->escapeHtml($block->getCashbackTitleSuffix()) ?></span>
+            <span class="flizpay-checkout-preview__copy">
+                <strong class="flizpay-checkout-preview__name">FLIZpay</strong>
+                <strong
+                    class="flizpay-checkout-preview__title"
+                    data-role="cashback-title"
+                    <?= $showTitle ? "" : 'style="display:none"' ?>
+                ><?= $escaper->escapeHtml(
+                    $block->getCashbackTitleSuffix(),
+                ) ?></strong>
+            </span>
             <span
                 class="flizpay-checkout-preview__logo"
                 data-role="logo"

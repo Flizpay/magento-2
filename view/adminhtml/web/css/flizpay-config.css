@@ -83,48 +83,45 @@
     padding: 16px 20px;
 }
 
-.flizpay-checkout-preview__row {
-    align-items: center;
-    display: flex;
-    gap: 10px;
-}
-
 .flizpay-checkout-preview__radio {
-    background: #fff;
-    border: 2px solid #00d094;
-    border-radius: 50%;
-    box-shadow: inset 0 0 0 3px #fff;
-    background-color: #00d094;
-    display: inline-block;
-    flex-shrink: 0;
-    height: 16px;
-    width: 16px;
+    display: block;
+    margin: 0 0 8px;
+    pointer-events: none;
 }
 
-.flizpay-checkout-preview__name {
-    font-size: 1.4rem;
+.flizpay-checkout-preview__row {
+    align-items: flex-start;
+    display: flex;
+    gap: 16px;
+    justify-content: space-between;
+}
+
+.flizpay-checkout-preview__copy {
+    flex: 1;
+}
+
+.flizpay-checkout-preview__name,
+.flizpay-checkout-preview__title {
+    color: #333;
+    font-size: 1.6rem;
     font-weight: 700;
 }
 
-.flizpay-checkout-preview__title {
-    color: #00a878;
-    font-weight: 600;
-}
-
 .flizpay-checkout-preview__logo {
-    margin-left: auto;
+    flex-shrink: 0;
 }
 
 .flizpay-checkout-preview__logo img {
     display: block;
-    height: 24px;
+    height: auto;
+    max-width: 96px;
 }
 
 .flizpay-checkout-preview__subtitle {
-    color: #666;
-    font-size: 1.2rem;
-    margin-top: 8px;
-    padding-left: 26px;
+    color: #12233f;
+    font-size: 1.3rem;
+    line-height: 1.5;
+    margin-top: 6px;
 }
 
 .flizpay-checkout-preview__labels {

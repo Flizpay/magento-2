@@ -170,12 +170,16 @@ class CheckoutPreview extends Field
     /**
      * Return the FLIZpay checkout logo URL.
      *
+     * Resolves the same frontend asset the checkout renders so the preview
+     * always matches what customers actually see.
+     *
      * @return string
      */
     public function getLogoUrl(): string
     {
         return $this->getViewFileUrl(
             "FlizPay_Payment::images/fliz-checkout-logo.svg",
+            ["area" => "frontend"],
         );
     }
 
