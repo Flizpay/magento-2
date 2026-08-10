@@ -28,16 +28,19 @@ $showSubtitle = $block->isSubtitleEnabled();
             aria-hidden="true"
         />
         <div class="flizpay-checkout-preview__row">
-            <span class="flizpay-checkout-preview__copy">
-                <strong class="flizpay-checkout-preview__name">FLIZpay</strong>
+            <div
+                class="flizpay-checkout-preview__title"
+                data-role="cashback-title"
+            >
+                <strong>FLIZpay</strong>
                 <strong
-                    class="flizpay-checkout-preview__title"
-                    data-role="cashback-title"
                     <?= $showTitle ? "" : 'style="display:none"' ?>
-                ><?= $escaper->escapeHtml(
-                    $block->getCashbackTitleSuffix(),
-                ) ?></strong>
-            </span>
+                >
+                    <?= $escaper->escapeHtml(
+                        $block->getCashbackTitleSuffix(),
+                    ) ?>
+                </strong>
+            </div>
             <span
                 class="flizpay-checkout-preview__logo"
                 data-role="logo"
@@ -56,11 +59,6 @@ $showSubtitle = $block->isSubtitleEnabled();
         ><?= $escaper->escapeHtml($block->getSubtitle()) ?></div>
     </div>
     <div class="flizpay-checkout-preview__labels">
-        <span
-            class="flizpay-checkout-preview__label flizpay-checkout-preview__label--title"
-            data-role="label-title"
-            <?= $showTitle ? "" : 'style="display:none"' ?>
-        ><?= $escaper->escapeHtml(__("Description in title")) ?></span>
         <span
             class="flizpay-checkout-preview__label flizpay-checkout-preview__label--logo"
             data-role="label-logo"

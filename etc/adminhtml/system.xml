@@ -93,7 +93,7 @@
                 >
                     <label>API Key</label>
                     <comment
-                    >Your FLIZpay API key for authentication. Get this from your FLIZpay merchant dashboard. Stored encrypted in Magento configuration. Note: if you already have a working integration, changing the API key invalidates all current ongoing payment responses.</comment>
+                    >Your FLIZpay API key for authentication. Get this from your FLIZpay merchant dashboard.</comment>
                     <config_path>payment/flizpay/api_key</config_path>
                     <backend_model
                     >Magento\Config\Model\Config\Backend\Encrypted</backend_model>
@@ -110,21 +110,6 @@
                     <config_path>payment/flizpay/connection_status</config_path>
                     <frontend_model
                     >FlizPay\Payment\Block\Adminhtml\System\Config\ConnectionStatus</frontend_model>
-                </field>
-                <field
-                    id="webhook_url"
-                    translate="label comment"
-                    type="text"
-                    sortOrder="50"
-                    showInDefault="1"
-                    showInWebsite="0"
-                >
-                    <label>Webhook URL</label>
-                    <comment
-                    >Automatically configured webhook URL (read-only). FLIZpay must successfully send a test webhook before payments can be processed.</comment>
-                    <config_path>payment/flizpay/webhook_url</config_path>
-                    <frontend_model
-                    >FlizPay\Payment\Block\Adminhtml\System\Config\ReadOnlyField</frontend_model>
                 </field>
 
                 <field
@@ -159,7 +144,7 @@
                     showInWebsite="1"
                     canRestore="1"
                 >
-                    <label>Show Logo in Checkout</label>
+                    <label>Logo</label>
                     <comment>Show FLIZpay logo in checkout.</comment>
                     <config_path
                     >payment/flizpay/show_checkout_logo</config_path>
@@ -175,7 +160,7 @@
                     showInWebsite="1"
                     canRestore="1"
                 >
-                    <label>Show Checkout Description</label>
+                    <label>Subtitle</label>
                     <comment
                     >Show description in subtitle when FLIZpay is selected.</comment>
                     <config_path
@@ -312,7 +297,7 @@
                 >
                     <label>API Key</label>
                     <comment
-                    >Your FLIZpay API key for authentication. Get this from your FLIZpay merchant dashboard. Stored encrypted in Magento configuration. Note: if you already have a working integration, changing the API key invalidates all current ongoing payment responses.</comment>
+                    >Your FLIZpay API key for authentication. Get this from your FLIZpay merchant dashboard.</comment>
                     <config_path>payment/flizpay/api_key</config_path>
                     <backend_model
                     >Magento\Config\Model\Config\Backend\Encrypted</backend_model>
@@ -329,21 +314,6 @@
                     <config_path>payment/flizpay/connection_status</config_path>
                     <frontend_model
                     >FlizPay\Payment\Block\Adminhtml\System\Config\ConnectionStatus</frontend_model>
-                </field>
-                <field
-                    id="webhook_url"
-                    translate="label comment"
-                    type="text"
-                    sortOrder="50"
-                    showInDefault="1"
-                    showInWebsite="0"
-                >
-                    <label>Webhook URL</label>
-                    <comment
-                    >Automatically configured webhook URL (read-only). FLIZpay must successfully send a test webhook before payments can be processed.</comment>
-                    <config_path>payment/flizpay/webhook_url</config_path>
-                    <frontend_model
-                    >FlizPay\Payment\Block\Adminhtml\System\Config\ReadOnlyField</frontend_model>
                 </field>
 
                 <field
@@ -378,7 +348,7 @@
                     showInWebsite="1"
                     canRestore="1"
                 >
-                    <label>Show Logo in Checkout</label>
+                    <label>Logo</label>
                     <comment>Show FLIZpay logo in checkout.</comment>
                     <config_path
                     >payment/flizpay/show_checkout_logo</config_path>
@@ -394,7 +364,7 @@
                     showInWebsite="1"
                     canRestore="1"
                 >
-                    <label>Show Checkout Description</label>
+                    <label>Subtitle</label>
                     <comment
                     >Show description in subtitle when FLIZpay is selected.</comment>
                     <config_path

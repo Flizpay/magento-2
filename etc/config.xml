@@ -18,7 +18,7 @@
     <default>
         <payment>
             <flizpay>
-                <active>0</active>
+                <active>1</active>
                 <model>FlizPayPaymentFacade</model>
                 <title>FLIZpay</title>
                 <payment_action>authorize</payment_action>
