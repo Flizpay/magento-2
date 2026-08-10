@@ -16,13 +16,13 @@
 $firstPurchaseRate = $block->getFirstPurchaseRate();
 $standardRate = $block->getStandardRate();
 ?>
-<div class="flizpay-cashback-info">
+<div class="flizpay-discount-info">
     <?php if ($block->hasCashback()): ?>
-        <div class="flizpay-cashback-info__box flizpay-cashback-info__box--info">
+        <div class="flizpay-discount-info__box flizpay-discount-info__box--info">
             <strong>
                 <?= $escaper->escapeHtml(__("Current Cashback Rates:")) ?>
             </strong>
-            <ul class="flizpay-cashback-info__list">
+            <ul class="flizpay-discount-info__list">
                 <?php if ($firstPurchaseRate !== ""): ?>
                     <li>
                         <?= $escaper->escapeHtml(__("First Purchase")) ?>:
@@ -38,7 +38,7 @@ $standardRate = $block->getStandardRate();
             </ul>
         </div>
     <?php else: ?>
-        <div class="flizpay-cashback-info__box flizpay-cashback-info__box--warning">
+        <div class="flizpay-discount-info__box flizpay-discount-info__box--warning">
             <?= $escaper->escapeHtml(
                 __(
                     "No cashback is currently configured. Enable cashback in your FLIZpay dashboard to offer rewards to your customers.",
@@ -46,11 +46,11 @@ $standardRate = $block->getStandardRate();
             ) ?>
         </div>
     <?php endif; ?>
-    <p class="flizpay-cashback-info__configure">
+    <p class="flizpay-discount-info__configure">
         <?= /* @noEscape */
             __(
                 "Configure cashback rates in your %1FLIZpay Dashboard%2.",
-                '<a href="https://app.flizpay.de/cashback" target="_blank" rel="noopener">',
+                '<a href="https://app.flizpay.de/discount" target="_blank" rel="noopener">',
                 "</a>",
             ) ?>
     </p>

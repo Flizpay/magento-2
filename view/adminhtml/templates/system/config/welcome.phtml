@@ -17,18 +17,10 @@
     <h3 class="flizpay-welcome__title">
         <?= $escaper->escapeHtml(__("Welcome to FLIZpay!")) ?>
     </h3>
+    <hr class="flizpay-separator"/>
     <h4 class="flizpay-welcome__instructions-title">
         <?= $escaper->escapeHtml(__("Instructions:")) ?>
     </h4>
-    <p class="flizpay-welcome__notice">
-        <strong>
-            <?= $escaper->escapeHtml(
-                __(
-                    "If you chose automatic installation, you can skip steps 1-5.",
-                ),
-            ) ?>
-        </strong>
-    </p>
     <ol class="flizpay-welcome__steps">
         <li>
             <?= /* @noEscape */
@@ -76,11 +68,12 @@
             <?= /* @noEscape */
                 __(
                     "We also recommend activating cashback for your customers. Cashback can encourage customers to choose FLIZpay and support conversion and loyalty. You can configure cashback offers in your FLIZpay business account. %1Click here.%2",
-                    '<a href="https://app.flizpay.de/cashback" target="_blank" rel="noopener"><strong>',
+                    '<a href="https://app.flizpay.de/discount" target="_blank" rel="noopener"><strong>',
                     "</strong></a>",
                 ) ?>
         </li>
     </ol>
+    <hr class="flizpay-separator"/>
     <div class="flizpay-welcome__links">
         <p>
             <?= /* @noEscape */
