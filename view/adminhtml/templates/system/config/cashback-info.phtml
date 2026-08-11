@@ -20,7 +20,7 @@ $standardRate = $block->getStandardRate();
     <?php if ($block->hasCashback()): ?>
         <div class="flizpay-discount-info__box flizpay-discount-info__box--info">
             <strong>
-                <?= $escaper->escapeHtml(__("Current Cashback Rates:")) ?>
+                <?= $escaper->escapeHtml(__("Current Discount Rates:")) ?>
             </strong>
             <ul class="flizpay-discount-info__list">
                 <?php if ($firstPurchaseRate !== ""): ?>
@@ -41,7 +41,7 @@ $standardRate = $block->getStandardRate();
         <div class="flizpay-discount-info__box flizpay-discount-info__box--warning">
             <?= $escaper->escapeHtml(
                 __(
-                    "No cashback is currently configured. Enable cashback in your FLIZpay dashboard to offer rewards to your customers.",
+                    "No discount is currently configured. Enable discounts in your FLIZpay dashboard to offer savings to your customers.",
                 ),
             ) ?>
         </div>
@@ -49,7 +49,7 @@ $standardRate = $block->getStandardRate();
     <p class="flizpay-discount-info__configure">
         <?= /* @noEscape */
             __(
-                "Configure cashback rates in your %1FLIZpay Dashboard%2.",
+                "Configure discount rates in your %1FLIZpay Dashboard%2.",
                 '<a href="https://app.flizpay.de/discount" target="_blank" rel="noopener">',
                 "</a>",
             ) ?>

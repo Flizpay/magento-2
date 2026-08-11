@@ -14,13 +14,11 @@ declare(strict_types=1);
 
 namespace FlizPay\Payment\Block\Adminhtml\System\Config;
 
-use FlizPay\Payment\Api\ConfigInterface;
-use FlizPay\Payment\Service\Cashback\PercentageFormatter;
+use FlizPay\Payment\Service\Cashback\CashbackDisplayBuilder;
 use Magento\Backend\Block\Template\Context;
 use Magento\Config\Block\System\Config\Form\Field;
 use Magento\Framework\Data\Form\Element\AbstractElement;
 use Magento\Framework\Serialize\Serializer\Json;
-use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Renders a live checkout preview of the FLIZpay payment method row.
@@ -33,18 +31,14 @@ class CheckoutPreview extends Field
      * Initialize the checkout-preview renderer.
      *
      * @param Context $context
-     * @param ConfigInterface $config
-     * @param StoreManagerInterface $storeManager
-     * @param PercentageFormatter $percentageFormatter
+     * @param CashbackDisplayBuilder $cashbackDisplayBuilder
      * @param Json $json
      * @param array $data
      * @phpstan-param array<string, mixed> $data
      */
     public function __construct(
         Context $context,
-        private readonly ConfigInterface $config,
-        private readonly StoreManagerInterface $storeManager,
-        private readonly PercentageFormatter $percentageFormatter,
+        private readonly CashbackDisplayBuilder $cashbackDisplayBuilder,
         private readonly Json $json,
         array $data = [],
     ) {
@@ -72,11 +66,7 @@ class CheckoutPreview extends Field
      */
     public function hasCashback(): bool
     {
-        $data = $this->config->getCashbackData();
-
-        return $data !== null &&
-            ($data["first_purchase_amount"] > 0 ||
-                $data["standard_amount"] > 0);
+        return (bool) $this->getCheckoutPresentation()["available"];
     }
 
     /**
@@ -86,17 +76,11 @@ class CheckoutPreview extends Field
      */
     public function getCashbackTitleSuffix(): string
     {
-        if (!$this->hasCashback()) {
-            return "";
-        }
+        $title = (string) $this->getCheckoutPresentation()["title"];
 
-        $data = $this->config->getCashbackData();
-        $max = max($data["first_purchase_amount"], $data["standard_amount"]);
-
-        return (string) __(
-            "- Up to %1% Cashback",
-            $this->percentageFormatter->format($max),
-        );
+        return $title === "FLIZpay"
+            ? ""
+            : substr($title, strlen("FLIZpay"));
     }
 
     /**
@@ -106,46 +90,7 @@ class CheckoutPreview extends Field
      */
     public function getSubtitle(): string
     {
-        $data = $this->config->getCashbackData();
-
-        if (
-            $data === null ||
-            ($data["first_purchase_amount"] <= 0 &&
-                $data["standard_amount"] <= 0)
-        ) {
-            return (string) __(
-                "Secure payments in direct collaboration with your bank. We support small businesses and keep your data private, stored securely in Germany.",
-            );
-        }
-
-        $shopName = $this->getShopName();
-        $formattedStandard = $this->percentageFormatter->format(
-            $data["standard_amount"],
-        );
-
-        if (
-            $data["first_purchase_amount"] > 0 &&
-            $data["standard_amount"] > 0
-        ) {
-            return (string) __(
-                "Secure payments in direct collaboration with your bank. After your first FLIZpay payment at %1, you will continue to receive %2% cashback.",
-                $shopName,
-                $formattedStandard,
-            );
-        }
-
-        if ($data["first_purchase_amount"] > 0) {
-            return (string) __(
-                "Secure payments in direct collaboration with your bank. No additional cashback after your first FLIZpay payment at %1.",
-                $shopName,
-            );
-        }
-
-        return (string) __(
-            "Secure payments in direct collaboration with your bank. Receive %1% cashback for every FLIZpay payment at %2.",
-            $formattedStandard,
-            $shopName,
-        );
+        return (string) ($this->getCheckoutPresentation()["description"] ?? "");
     }
 
     /**
@@ -155,7 +100,7 @@ class CheckoutPreview extends Field
      */
     public function isLogoEnabled(): bool
     {
-        return $this->config->isCheckoutLogoEnabled();
+        return (bool) $this->getCheckoutPresentation()["showLogo"];
     }
 
     /**
@@ -165,7 +110,7 @@ class CheckoutPreview extends Field
      */
     public function isSubtitleEnabled(): bool
     {
-        return $this->config->isCheckoutSubtitleEnabled();
+        return $this->getCheckoutPresentation()["description"] !== null;
     }
 
     /**
@@ -227,16 +172,15 @@ class CheckoutPreview extends Field
     }
 
     /**
-     * Return the default store name for subtitle copy.
+     * Build the same customer-facing presentation used by storefront checkout.
      *
-     * @return string
+     * Delegating to the shared builder keeps the admin preview's copy and
+     * visibility settings synchronized with the payment method customers see.
+     *
+     * @return array<string, bool|string|null>
      */
-    private function getShopName(): string
+    private function getCheckoutPresentation(): array
     {
-        try {
-            return (string) $this->storeManager->getStore()->getName();
-        } catch (\Throwable) {
-            return "";
-        }
+        return $this->cashbackDisplayBuilder->build()->toArray();
     }
 }

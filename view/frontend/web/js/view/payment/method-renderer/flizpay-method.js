@@ -27,6 +27,13 @@ define(["Magento_Checkout/js/view/payment/default"], function (Component) {
       );
     },
 
+    shouldShowMoreInfo: function () {
+      return (
+        this.isChecked() === this.getCode() &&
+        this.getCashbackConfig().available === true
+      );
+    },
+
     shouldShowLogo: function () {
       return this.getCashbackConfig().showLogo === true;
     },
