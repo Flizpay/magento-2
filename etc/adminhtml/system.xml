@@ -217,7 +217,7 @@
                     showInDefault="1"
                     showInWebsite="1"
                 >
-                    <label>Cashback Information</label>
+                    <label>Discount Information</label>
                     <frontend_model
                     >Magento\Config\Block\System\Config\Form\Field\Heading</frontend_model>
                 </field>
@@ -229,7 +229,7 @@
                     showInDefault="1"
                     showInWebsite="1"
                 >
-                    <label>Current Cashback Rates</label>
+                    <label>Current Discount Rates</label>
                     <frontend_model
                     >FlizPay\Payment\Block\Adminhtml\System\Config\CashbackInfo</frontend_model>
                 </field>
@@ -421,7 +421,7 @@
                     showInDefault="1"
                     showInWebsite="1"
                 >
-                    <label>Cashback Information</label>
+                    <label>Discount Information</label>
                     <frontend_model
                     >Magento\Config\Block\System\Config\Form\Field\Heading</frontend_model>
                 </field>
@@ -433,7 +433,7 @@
                     showInDefault="1"
                     showInWebsite="1"
                 >
-                    <label>Current Cashback Rates</label>
+                    <label>Current Discount Rates</label>
                     <frontend_model
                     >FlizPay\Payment\Block\Adminhtml\System\Config\CashbackInfo</frontend_model>
                 </field>

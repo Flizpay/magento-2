@@ -38,7 +38,7 @@ class CashbackDisplayBuilder
                 "FLIZpay",
                 $this->config->isCheckoutSubtitleEnabled($storeId)
                     ? (string) __(
-                        "Secure payments in direct collaboration with your bank. We support small businesses and keep your data private, stored securely in Germany.",
+                        "Pay with FLIZ. Stop carrying the hidden cost of payments. The European solution.",
                     )
                     : null,
                 $showLogo,
@@ -55,16 +55,24 @@ class CashbackDisplayBuilder
                     ? "first"
                     : "standard");
 
+        $formattedFirstPurchase = $this->percentageFormatter->format(
+            $firstPurchase,
+        );
         $formattedValue = $this->percentageFormatter->format(
             max($firstPurchase, $standard),
         );
 
         $title = $this->config->isCashbackInTitleEnabled($storeId)
-            ? (string) __("FLIZpay - Up to %1% Cashback", $formattedValue)
+            ? $this->buildTitle($type, $formattedFirstPurchase, $formattedValue)
             : "FLIZpay";
 
         $description = $this->config->isCheckoutSubtitleEnabled($storeId)
-            ? $this->buildDescription($type, $standard, $storeId)
+            ? $this->buildDescription(
+                $type,
+                $firstPurchase,
+                $standard,
+                $storeId,
+            )
             : null;
 
         return new CashbackDisplay(
@@ -77,31 +85,56 @@ class CashbackDisplayBuilder
         );
     }
 
+    private function buildTitle(
+        string $type,
+        string $formattedFirstPurchase,
+        string $formattedValue,
+    ): string {
+        if ($type === "first") {
+            return (string) __(
+                "FLIZpay - Save %1% on your first payment",
+                $formattedFirstPurchase,
+            );
+        }
+
+        if ($type === "both") {
+            return (string) __("FLIZpay - Save up to %1%", $formattedValue);
+        }
+
+        return (string) __("FLIZpay - Up to %1% discount", $formattedValue);
+    }
+
     private function buildDescription(
         string $type,
+        float $firstPurchase,
         float $standard,
         ?int $storeId,
     ): string {
         $shopName = (string) $this->storeManager->getStore($storeId)->getName();
+        $formattedFirstPurchase = $this->percentageFormatter->format(
+            $firstPurchase,
+        );
         $formattedStandard = $this->percentageFormatter->format($standard);
 
         if ($type === "both") {
             return (string) __(
-                "Secure payments in direct collaboration with your bank. After your first FLIZpay payment at %1, you will continue to receive %2% cashback.",
-                $shopName,
+                "Get %1% discount on your first payment, then %2% on every payment after that at %3.",
+                $formattedFirstPurchase,
                 $formattedStandard,
+                $shopName,
             );
         }
 
         if ($type === "first") {
             return (string) __(
-                "Secure payments in direct collaboration with your bank. No additional cashback after your first FLIZpay payment at %1.",
+                "Get %1% discount on your first payment at %2.",
+                $formattedFirstPurchase,
                 $shopName,
             );
         }
 
         return (string) __(
-            "Secure payments in direct collaboration with your bank. Receive %1% cashback for every FLIZpay payment at %2.",
+            "Get %1% discount on every payment at %2.",
             $formattedStandard,
             $shopName,
         );

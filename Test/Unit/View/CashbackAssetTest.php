@@ -24,7 +24,13 @@ class CashbackAssetTest extends TestCase
         self::assertStringContainsString("shouldShowDescription()", $template);
         self::assertStringContainsString("shouldShowLogo()", $template);
         self::assertStringContainsString("getLogoUrl()", $template);
+        self::assertStringContainsString("shouldShowMoreInfo()", $template);
+        self::assertStringContainsString(
+            "https://flizpay.de/shoppers",
+            $template,
+        );
         self::assertStringContainsString("cashback || {}", $script);
+        self::assertStringContainsString("shouldShowMoreInfo", $script);
     }
 
     public function testCheckoutAssetsExist(): void

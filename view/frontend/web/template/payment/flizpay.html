@@ -24,6 +24,14 @@
                     data-bind="text: getCashbackDescription(),
                                visible: shouldShowDescription()"
                 ></span>
+                <a
+                    class="flizpay-payment-more-info"
+                    href="https://flizpay.de/shoppers"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    data-bind="text: $t('Learn more.'),
+                               visible: shouldShowMoreInfo()"
+                ></a>
             </span>
             <img
                 class="flizpay-checkout-logo"
