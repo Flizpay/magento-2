@@ -12,6 +12,7 @@ class TransactionCreationException extends LocalizedException
     public const API_AUTHENTICATION_FAILED = "api_authentication_failed";
     public const API_INVALID_RESPONSE = "api_invalid_response";
     public const API_TRANSPORT_ERROR = "api_transport_error";
+    public const API_IDEMPOTENCY_CONFLICT = "api_idempotency_conflict";
 
     public function __construct(
         private readonly string $safeErrorCode,

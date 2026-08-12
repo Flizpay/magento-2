@@ -22,10 +22,11 @@ class SchemaTest extends TestCase
 
         self::assertTrue($connection->isTableExists($attemptTable));
         self::assertTrue($connection->isTableExists($eventTable));
-        self::assertArrayHasKey(
-            "safe_error_code",
-            $connection->describeTable($attemptTable),
-        );
+        $attemptColumns = $connection->describeTable($attemptTable);
+        self::assertArrayHasKey("safe_error_code", $attemptColumns);
+        self::assertArrayHasKey("encrypted_success_url", $attemptColumns);
+        self::assertArrayHasKey("encrypted_failure_url", $attemptColumns);
+        self::assertArrayHasKey("encrypted_redirect_url", $attemptColumns);
 
         $attemptIndexes = $connection->getIndexList($attemptTable);
         self::assertSame(
