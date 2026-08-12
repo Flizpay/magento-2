@@ -65,6 +65,7 @@ class TransactionRequestBuilder
             ],
             static fn(string $value): bool => $value !== "",
         );
+
         if ($customer !== []) {
             $request["customer"] = $customer;
         }

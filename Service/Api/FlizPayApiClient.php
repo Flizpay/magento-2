@@ -22,74 +22,20 @@ use Psr\Log\LoggerInterface;
 class FlizPayApiClient
 {
     private const API_BASE_URL = "https://olegs-macbook-pro-1.tail9450f2.ts.net:4440";
-    private const REDIRECT_HOST = "olegs-macbook-pro-1.tail9450f2.ts.net";
     private const REQUEST_TIMEOUT_SECONDS = 30;
-
-    private readonly string $baseUrl;
-
-    /** @var list<string> */
-    private readonly array $redirectHosts;
 
     /**
      * @param Curl $httpClient
      * @param Json $json
      * @param ConfigInterface $config
      * @param LoggerInterface $logger
-     * @param string $baseUrl
-     * @param list<string> $redirectHosts
      */
     public function __construct(
         private readonly Curl $httpClient,
         private readonly Json $json,
         private readonly ConfigInterface $config,
         private readonly LoggerInterface $logger,
-        string $baseUrl = self::API_BASE_URL,
-        array $redirectHosts = [self::REDIRECT_HOST],
-    ) {
-        $baseUrl = rtrim($baseUrl, "/");
-        $parts = parse_url($baseUrl);
-        if (
-            !is_array($parts) ||
-            strtolower((string) ($parts["scheme"] ?? "")) !== "https" ||
-            empty($parts["host"]) ||
-            isset($parts["user"]) ||
-            isset($parts["pass"]) ||
-            isset($parts["query"]) ||
-            isset($parts["fragment"])
-        ) {
-            throw new \InvalidArgumentException(
-                "FLIZpay API base URL must be an absolute HTTPS URL.",
-            );
-        }
-
-        $redirectHosts = array_values(
-            array_unique(
-                array_map(
-                    static fn(string $host): string => strtolower(trim($host)),
-                    $redirectHosts,
-                ),
-            ),
-        );
-        if (
-            $redirectHosts === [] ||
-            array_filter(
-                $redirectHosts,
-                static fn(string $host): bool => $host === "" ||
-                    filter_var(
-                        $host,
-                        FILTER_VALIDATE_DOMAIN,
-                        FILTER_FLAG_HOSTNAME,
-                    ) === false,
-            ) !== []
-        ) {
-            throw new \InvalidArgumentException(
-                "FLIZpay redirect hosts must be valid hostnames.",
-            );
-        }
-
-        $this->baseUrl = $baseUrl;
-        $this->redirectHosts = $redirectHosts;
-    }
+    ) {}
 
     /**
      * Register the Magento webhook URL for the merchant.
@@ -165,37 +111,49 @@ class FlizPayApiClient
     /**
      * Create one FLIZpay transaction without automatic retries.
      *
-     * @param array<string, mixed> $request
-     * @return CreatedTransaction
+     * @param array<string, mixed> $requestBody
+     * @param string $idempotencyKey
+     * @return array{transaction_id: string, redirect_url: string}
      * @throws LocalizedException
      */
-    public function createTransaction(array $request): CreatedTransaction
-    {
+    public function createTransaction(
+        array $requestBody,
+        string $idempotencyKey,
+    ): array {
+        if (!preg_match('/^[A-Za-z0-9._:-]{16,128}$/', $idempotencyKey)) {
+            throw new \InvalidArgumentException(
+                "FLIZpay idempotency key is invalid.",
+            );
+        }
+
         try {
-            $data = $this->request("POST", "/transactions", $request);
+            $data = $this->request("POST", "/transactions", $requestBody, [
+                "Idempotency-Key" => $idempotencyKey,
+            ]);
         } catch (LocalizedException $exception) {
             $status = $this->httpClient->getStatus();
             $definite = $status >= 400 && $status < 500;
-            $code =
-                $status === 401 || $status === 403
-                    ? TransactionCreationException::API_AUTHENTICATION_FAILED
-                    : ($definite
-                        ? TransactionCreationException::API_REJECTED
-                        : TransactionCreationException::API_TRANSPORT_ERROR);
+            $code = match ($status) {
+                409 => TransactionCreationException::API_IDEMPOTENCY_CONFLICT,
+                401,
+                403
+                    => TransactionCreationException::API_AUTHENTICATION_FAILED,
+                default => $definite
+                    ? TransactionCreationException::API_REJECTED
+                    : TransactionCreationException::API_TRANSPORT_ERROR,
+            };
 
             throw new TransactionCreationException($code, $definite);
         }
 
-        try {
-            return CreatedTransaction::fromResponse(
-                $data,
-                $this->redirectHosts,
-            );
-        } catch (\Throwable $exception) {
+        $transactionId = $data["transactionId"] ?? null;
+        $redirectUrl = $data["redirectUrl"] ?? null;
+
+        if (!$this->isValidTransactionResponse($transactionId, $redirectUrl)) {
             $this->logFailure(
                 "/transactions",
                 $this->httpClient->getStatus(),
-                $exception,
+                new \UnexpectedValueException("Invalid transaction response."),
             );
 
             throw new TransactionCreationException(
@@ -203,6 +161,11 @@ class FlizPayApiClient
                 true,
             );
         }
+
+        return [
+            "transaction_id" => trim($transactionId),
+            "redirect_url" => trim($redirectUrl),
+        ];
     }
 
     /**
@@ -211,6 +174,7 @@ class FlizPayApiClient
      * @param string $method
      * @param string $path
      * @param array|null $body
+     * @param array<string, string> $headers
      * @return array<string, mixed>
      * @throws LocalizedException
      * @phpstan-param array<string, mixed>|null $body
@@ -219,6 +183,7 @@ class FlizPayApiClient
         string $method,
         string $path,
         ?array $body = null,
+        array $headers = [],
     ): array {
         $apiKey = $this->config->getApiKey();
 
@@ -230,14 +195,19 @@ class FlizPayApiClient
 
         try {
             $this->httpClient->setTimeout(self::REQUEST_TIMEOUT_SECONDS);
-            $this->httpClient->setHeaders([
-                "Accept" => "application/json",
-                "Content-Type" => "application/json",
-                "User-Agent" => "FlizPayMagento2/0.1.0",
-                "x-api-key" => $apiKey,
-            ]);
+            $this->httpClient->setHeaders(
+                array_merge(
+                    [
+                        "Accept" => "application/json",
+                        "Content-Type" => "application/json",
+                        "User-Agent" => "FlizPayMagento2/0.1.0",
+                        "x-api-key" => $apiKey,
+                    ],
+                    $headers,
+                ),
+            );
 
-            $url = $this->baseUrl . $path;
+            $url = self::API_BASE_URL . $path;
 
             if ($method === "POST") {
                 $this->httpClient->post(
@@ -296,5 +266,15 @@ class FlizPayApiClient
             "status" => $status,
             "exception" => get_class($exception),
         ]);
+    }
+
+    private function isValidTransactionResponse(
+        mixed $transactionId,
+        mixed $redirectUrl,
+    ): bool {
+        return is_string($transactionId) &&
+            trim($transactionId) !== "" &&
+            is_string($redirectUrl) &&
+            trim($redirectUrl) !== "";
     }
 }

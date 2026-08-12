@@ -22,6 +22,13 @@ class FlizPayApiClientTest extends TestCase
         $httpClient->expects(self::once())->method("setTimeout")->with(30);
         $httpClient
             ->expects(self::once())
+            ->method("setHeaders")
+            ->with(self::callback(
+                static fn(array $headers): bool =>
+                    !isset($headers["Idempotency-Key"]),
+            ));
+        $httpClient
+            ->expects(self::once())
             ->method("post")
             ->with(
                 "https://api.flizpay.de/business/edit",
@@ -44,8 +51,6 @@ class FlizPayApiClientTest extends TestCase
             $json,
             $config,
             $this->createStub(LoggerInterface::class),
-            "https://api.flizpay.de",
-            ["secure.flizpay.de"],
         ))->registerWebhook(
             "https://shop.test/flizpay/webhook",
         );
@@ -76,8 +81,6 @@ class FlizPayApiClientTest extends TestCase
                 $json,
                 $config,
                 $this->createStub(LoggerInterface::class),
-                "https://api.flizpay.de",
-                ["secure.flizpay.de"],
             ))
                 ->generateWebhookSecret(),
         );
@@ -140,6 +143,14 @@ class FlizPayApiClientTest extends TestCase
         $httpClient = $this->createMock(Curl::class);
         $httpClient
             ->expects(self::once())
+            ->method("setHeaders")
+            ->with(self::callback(
+                static fn(array $headers): bool =>
+                    $headers["Idempotency-Key"] ===
+                    "0123456789abcdef0123456789abcdef",
+            ));
+        $httpClient
+            ->expects(self::once())
             ->method("post")
             ->with(
                 "https://api.flizpay.de/transactions",
@@ -162,43 +173,15 @@ class FlizPayApiClientTest extends TestCase
         ]);
 
         $transaction = $this->createClient($httpClient, $json)
-            ->createTransaction($request);
+            ->createTransaction(
+                $request,
+                "0123456789abcdef0123456789abcdef",
+            );
 
-        self::assertSame("transaction-123", $transaction->getTransactionId());
+        self::assertSame("transaction-123", $transaction["transaction_id"]);
         self::assertSame(
             "https://secure.flizpay.de/pay/token",
-            $transaction->getRedirectUrl(),
-        );
-    }
-
-    public function testUsesInjectedApiBaseUrlAndRedirectHost(): void
-    {
-        $httpClient = $this->createMock(Curl::class);
-        $httpClient
-            ->expects(self::once())
-            ->method("post")
-            ->with("https://api.example.test/v1/transactions", "request");
-        $httpClient->method("getStatus")->willReturn(200);
-        $httpClient->method("getBody")->willReturn("response");
-
-        $json = $this->createStub(Json::class);
-        $json->method("serialize")->willReturn("request");
-        $json->method("unserialize")->willReturn([
-            "transactionId" => "transaction-123",
-            "redirectUrl" => "https://checkout.example.test/pay",
-        ]);
-
-        $transaction = $this->createClient(
-            $httpClient,
-            $json,
-            $this->createStub(LoggerInterface::class),
-            "https://api.example.test/v1/",
-            ["checkout.example.test"],
-        )->createTransaction([]);
-
-        self::assertSame(
-            "https://checkout.example.test/pay",
-            $transaction->getRedirectUrl(),
+            $transaction["redirect_url"],
         );
     }
 
@@ -216,7 +199,10 @@ class FlizPayApiClientTest extends TestCase
         $this->expectException(LocalizedException::class);
         $this->expectExceptionMessage("Unable to connect Magento to FLIZpay.");
 
-        $this->createClient($httpClient, $json)->createTransaction([]);
+        $this->createClient($httpClient, $json)->createTransaction(
+            [],
+            "0123456789abcdef0123456789abcdef",
+        );
     }
 
     /**
@@ -229,17 +215,9 @@ class FlizPayApiClientTest extends TestCase
                 "transactionId" => " ",
                 "redirectUrl" => "https://secure.flizpay.de/pay",
             ]],
-            "HTTP redirect" => [[
+            "empty redirect" => [[
                 "transactionId" => "transaction-123",
-                "redirectUrl" => "http://secure.flizpay.de/pay",
-            ]],
-            "lookalike redirect host" => [[
-                "transactionId" => "transaction-123",
-                "redirectUrl" => "https://secure.flizpay.de.example.test/pay",
-            ]],
-            "redirect credentials" => [[
-                "transactionId" => "transaction-123",
-                "redirectUrl" => "https://user@secure.flizpay.de/pay",
+                "redirectUrl" => " ",
             ]],
         ];
     }
@@ -273,7 +251,10 @@ class FlizPayApiClientTest extends TestCase
             $httpClient,
             $this->createStub(Json::class),
             $logger,
-        )->createTransaction(["secret" => "request-body"]);
+        )->createTransaction(
+            ["secret" => "request-body"],
+            "0123456789abcdef0123456789abcdef",
+        );
     }
 
     public function testClientErrorIsDefiniteCreationFailure(): void
@@ -283,7 +264,7 @@ class FlizPayApiClientTest extends TestCase
 
         try {
             $this->createClient($httpClient, $this->createStub(Json::class))
-                ->createTransaction([]);
+                ->createTransaction([], "0123456789abcdef0123456789abcdef");
             self::fail("Expected transaction creation to fail.");
         } catch (TransactionCreationException $exception) {
             self::assertTrue($exception->isDefinite());
@@ -301,7 +282,7 @@ class FlizPayApiClientTest extends TestCase
 
         try {
             $this->createClient($httpClient, $this->createStub(Json::class))
-                ->createTransaction([]);
+                ->createTransaction([], "0123456789abcdef0123456789abcdef");
             self::fail("Expected transaction creation to fail.");
         } catch (TransactionCreationException $exception) {
             self::assertFalse($exception->isDefinite());
@@ -312,20 +293,44 @@ class FlizPayApiClientTest extends TestCase
         }
     }
 
+    public function testConflictHasDedicatedCreationFailureCode(): void
+    {
+        $httpClient = $this->createStub(Curl::class);
+        $httpClient->method("getStatus")->willReturn(409);
+
+        try {
+            $this->createClient($httpClient, $this->createStub(Json::class))
+                ->createTransaction([], "0123456789abcdef0123456789abcdef");
+            self::fail("Expected transaction creation to fail.");
+        } catch (TransactionCreationException $exception) {
+            self::assertTrue($exception->isDefinite());
+            self::assertSame(
+                TransactionCreationException::API_IDEMPOTENCY_CONFLICT,
+                $exception->getSafeErrorCode(),
+            );
+        }
+    }
+
+    public function testRejectsInvalidIdempotencyKeyBeforeRequest(): void
+    {
+        $httpClient = $this->createMock(Curl::class);
+        $httpClient->expects(self::never())->method("post");
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->createClient($httpClient, $this->createStub(Json::class))
+            ->createTransaction([], "too-short");
+    }
+
     /**
      * @param Curl $httpClient
      * @param Json $json
      * @param LoggerInterface|null $logger
-     * @param string $baseUrl
-     * @param list<string> $redirectHosts
      * @return FlizPayApiClient
      */
     private function createClient(
         Curl $httpClient,
         Json $json,
         ?LoggerInterface $logger = null,
-        string $baseUrl = "https://api.flizpay.de",
-        array $redirectHosts = ["secure.flizpay.de"],
     ): FlizPayApiClient {
         $config = $this->createStub(ConfigInterface::class);
         $config->method("getApiKey")->willReturn("api-key");
@@ -335,8 +340,6 @@ class FlizPayApiClientTest extends TestCase
             $json,
             $config,
             $logger ?? $this->createStub(LoggerInterface::class),
-            $baseUrl,
-            $redirectHosts,
         );
     }
 }
