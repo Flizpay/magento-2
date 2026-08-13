@@ -83,7 +83,7 @@ jobs:
         run: echo "dir=$(composer config --global cache-files-dir)" >> "$GITHUB_OUTPUT"
 
       - name: Cache Composer downloads
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: composer-unit-${{ matrix.php }}-${{ hashFiles('composer.json') }}
@@ -178,7 +178,7 @@ jobs:
         run: echo "dir=$(composer config --global cache-files-dir)" >> "$GITHUB_OUTPUT"
 
       - name: Cache Composer downloads
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: composer-integration-${{ matrix.magento }}-${{ matrix.php }}
