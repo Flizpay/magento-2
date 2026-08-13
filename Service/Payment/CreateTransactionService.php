@@ -104,6 +104,10 @@ class CreateTransactionService
                 ),
                 "creation_state" => "creating",
                 "return_token_hash" => hash("sha256", $returnToken),
+                "expires_at" => date(
+                    "Y-m-d H:i:s",
+                    time() + 86400, // 24 hours
+                ),
             ]);
 
             $attempt->setData(

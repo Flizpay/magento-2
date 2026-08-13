@@ -31,6 +31,7 @@ class ReturnContextValidator
 
         $tokenHash = hash("sha256", $token);
         $attempt = $this->attemptRepository->getByReturnTokenHash($tokenHash);
+
         if (
             !hash_equals(
                 (string) $attempt->getData("return_token_hash"),
@@ -40,10 +41,17 @@ class ReturnContextValidator
             throw NoSuchEntityException::singleField("return_token", "invalid");
         }
 
+        $expiresAt = (string) $attempt->getData("expires_at");
+
+        if ($expiresAt !== "" && strtotime($expiresAt) < time()) {
+            throw NoSuchEntityException::singleField("return_token", "expired");
+        }
+
         $order = $this->orderRepository->get(
             (int) $attempt->getData("order_id"),
         );
         $payment = $order instanceof Order ? $order->getPayment() : null;
+
         if (
             !$order instanceof Order ||
             !$payment instanceof Payment ||
