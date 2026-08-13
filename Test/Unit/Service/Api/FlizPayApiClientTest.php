@@ -49,12 +49,12 @@ class FlizPayApiClientTest extends TestCase
         $config = $this->createStub(ConfigInterface::class);
         $config->method("getApiKey")->willReturn("api-key");
 
-        new FlizPayApiClient(
+        (new FlizPayApiClient(
             $httpClient,
             $json,
             $config,
             $this->createStub(LoggerInterface::class),
-        )->registerWebhook("https://shop.test/flizpay/webhook");
+        ))->registerWebhook("https://shop.test/flizpay/webhook");
     }
 
     public function testGeneratesWebhookSecret(): void
@@ -77,12 +77,12 @@ class FlizPayApiClientTest extends TestCase
 
         self::assertSame(
             "generated-secret",
-            new FlizPayApiClient(
+            (new FlizPayApiClient(
                 $httpClient,
                 $json,
                 $config,
                 $this->createStub(LoggerInterface::class),
-            )->generateWebhookSecret(),
+            ))->generateWebhookSecret(),
         );
     }
 
