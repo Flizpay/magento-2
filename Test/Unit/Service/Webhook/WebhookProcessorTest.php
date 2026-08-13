@@ -7,6 +7,7 @@ namespace FlizPay\Payment\Test\Unit\Service\Webhook;
 use FlizPay\Payment\Service\Payment\PaymentStateMapper;
 use FlizPay\Payment\Service\Webhook\WebhookPayload;
 use FlizPay\Payment\Service\Webhook\WebhookProcessor;
+use Magento\Framework\Lock\LockManagerInterface;
 use PHPUnit\Framework\TestCase;
 
 class WebhookProcessorTest extends TestCase
@@ -26,7 +27,11 @@ class WebhookProcessorTest extends TestCase
                 "100000001",
             );
 
-        (new WebhookProcessor($mapper))->process(
+        $lockManager = $this->createMock(LockManagerInterface::class);
+        $lockManager->expects(self::once())->method("lock")->willReturn(true);
+        $lockManager->expects(self::once())->method("unlock");
+
+        (new WebhookProcessor($mapper, $lockManager))->process(
             WebhookPayload::fromArray([
                 "transactionId" => "provider-123",
                 "status" => "completed",
@@ -46,7 +51,11 @@ class WebhookProcessorTest extends TestCase
             ->method("apply")
             ->with("provider-123", "failed", null, null, null, null);
 
-        (new WebhookProcessor($mapper))->process(
+        $lockManager = $this->createMock(LockManagerInterface::class);
+        $lockManager->expects(self::once())->method("lock")->willReturn(true);
+        $lockManager->expects(self::once())->method("unlock");
+
+        (new WebhookProcessor($mapper, $lockManager))->process(
             WebhookPayload::fromArray([
                 "transactionId" => "provider-123",
                 "status" => "failed",
