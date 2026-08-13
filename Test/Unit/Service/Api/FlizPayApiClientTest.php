@@ -23,15 +23,18 @@ class FlizPayApiClientTest extends TestCase
         $httpClient
             ->expects(self::once())
             ->method("setHeaders")
-            ->with(self::callback(
-                static fn(array $headers): bool =>
-                    !isset($headers["Idempotency-Key"]),
-            ));
+            ->with(
+                self::callback(
+                    static fn(array $headers): bool => !isset(
+                        $headers["Idempotency-Key"],
+                    ),
+                ),
+            );
         $httpClient
             ->expects(self::once())
             ->method("post")
             ->with(
-                "https://olegs-macbook-pro-1.tail9450f2.ts.net:4440/business/edit",
+                "https://api.flizpay.de/business/edit",
                 "serialized-request",
             );
         $httpClient->method("getStatus")->willReturn(200);
@@ -46,14 +49,12 @@ class FlizPayApiClientTest extends TestCase
         $config = $this->createStub(ConfigInterface::class);
         $config->method("getApiKey")->willReturn("api-key");
 
-        (new FlizPayApiClient(
+        new FlizPayApiClient(
             $httpClient,
             $json,
             $config,
             $this->createStub(LoggerInterface::class),
-        ))->registerWebhook(
-            "https://shop.test/flizpay/webhook",
-        );
+        )->registerWebhook("https://shop.test/flizpay/webhook");
     }
 
     public function testGeneratesWebhookSecret(): void
@@ -62,7 +63,7 @@ class FlizPayApiClientTest extends TestCase
         $httpClient
             ->expects(self::once())
             ->method("get")
-            ->with("https://olegs-macbook-pro-1.tail9450f2.ts.net:4440/business/generate-webhook-key");
+            ->with("https://api.flizpay.de/business/generate-webhook-key");
         $httpClient->method("getStatus")->willReturn(200);
         $httpClient->method("getBody")->willReturn("response");
 
@@ -76,13 +77,12 @@ class FlizPayApiClientTest extends TestCase
 
         self::assertSame(
             "generated-secret",
-            (new FlizPayApiClient(
+            new FlizPayApiClient(
                 $httpClient,
                 $json,
                 $config,
                 $this->createStub(LoggerInterface::class),
-            ))
-                ->generateWebhookSecret(),
+            )->generateWebhookSecret(),
         );
     }
 
@@ -92,7 +92,7 @@ class FlizPayApiClientTest extends TestCase
         $httpClient
             ->expects(self::once())
             ->method("get")
-            ->with("https://olegs-macbook-pro-1.tail9450f2.ts.net:4440/business/cashback");
+            ->with("https://api.flizpay.de/business/cashback");
         $httpClient->method("getStatus")->willReturn(200);
         $httpClient->method("getBody")->willReturn("response");
 
@@ -144,18 +144,17 @@ class FlizPayApiClientTest extends TestCase
         $httpClient
             ->expects(self::once())
             ->method("setHeaders")
-            ->with(self::callback(
-                static fn(array $headers): bool =>
-                    $headers["Idempotency-Key"] ===
-                    "0123456789abcdef0123456789abcdef",
-            ));
+            ->with(
+                self::callback(
+                    static fn(array $headers): bool => $headers[
+                        "Idempotency-Key"
+                    ] === "0123456789abcdef0123456789abcdef",
+                ),
+            );
         $httpClient
             ->expects(self::once())
             ->method("post")
-            ->with(
-                "https://olegs-macbook-pro-1.tail9450f2.ts.net:4440/transactions",
-                "serialized-request",
-            );
+            ->with("https://api.flizpay.de/transactions", "serialized-request");
         $httpClient->method("getStatus")->willReturn(200);
         $httpClient->method("getBody")->willReturn("response");
 
@@ -172,11 +171,10 @@ class FlizPayApiClientTest extends TestCase
             ],
         ]);
 
-        $transaction = $this->createClient($httpClient, $json)
-            ->createTransaction(
-                $request,
-                "0123456789abcdef0123456789abcdef",
-            );
+        $transaction = $this->createClient(
+            $httpClient,
+            $json,
+        )->createTransaction($request, "0123456789abcdef0123456789abcdef");
 
         self::assertSame("transaction-123", $transaction["transaction_id"]);
         self::assertSame(
@@ -211,14 +209,18 @@ class FlizPayApiClientTest extends TestCase
     public static function invalidTransactionResponseProvider(): array
     {
         return [
-            "empty transaction ID" => [[
-                "transactionId" => " ",
-                "redirectUrl" => "https://secure.flizpay.de/pay",
-            ]],
-            "empty redirect" => [[
-                "transactionId" => "transaction-123",
-                "redirectUrl" => " ",
-            ]],
+            "empty transaction ID" => [
+                [
+                    "transactionId" => " ",
+                    "redirectUrl" => "https://secure.flizpay.de/pay",
+                ],
+            ],
+            "empty redirect" => [
+                [
+                    "transactionId" => "transaction-123",
+                    "redirectUrl" => " ",
+                ],
+            ],
         ];
     }
 
@@ -227,22 +229,17 @@ class FlizPayApiClientTest extends TestCase
         $httpClient = $this->createMock(Curl::class);
         $httpClient->expects(self::once())->method("post");
         $httpClient->method("getStatus")->willReturn(500);
-        $httpClient
-            ->expects(self::never())
-            ->method("getBody");
+        $httpClient->expects(self::never())->method("getBody");
 
         $logger = $this->createMock(LoggerInterface::class);
         $logger
             ->expects(self::once())
             ->method("warning")
-            ->with(
-                "FLIZpay API request failed",
-                [
-                    "path" => "/transactions",
-                    "status" => 500,
-                    "exception" => \RuntimeException::class,
-                ],
-            );
+            ->with("FLIZpay API request failed", [
+                "path" => "/transactions",
+                "status" => 500,
+                "exception" => \RuntimeException::class,
+            ]);
 
         $this->expectException(LocalizedException::class);
         $this->expectExceptionMessage("Unable to connect Magento to FLIZpay.");
@@ -263,8 +260,10 @@ class FlizPayApiClientTest extends TestCase
         $httpClient->method("getStatus")->willReturn(400);
 
         try {
-            $this->createClient($httpClient, $this->createStub(Json::class))
-                ->createTransaction([], "0123456789abcdef0123456789abcdef");
+            $this->createClient(
+                $httpClient,
+                $this->createStub(Json::class),
+            )->createTransaction([], "0123456789abcdef0123456789abcdef");
             self::fail("Expected transaction creation to fail.");
         } catch (TransactionCreationException $exception) {
             self::assertTrue($exception->isDefinite());
@@ -281,8 +280,10 @@ class FlizPayApiClientTest extends TestCase
         $httpClient->method("getStatus")->willReturn(500);
 
         try {
-            $this->createClient($httpClient, $this->createStub(Json::class))
-                ->createTransaction([], "0123456789abcdef0123456789abcdef");
+            $this->createClient(
+                $httpClient,
+                $this->createStub(Json::class),
+            )->createTransaction([], "0123456789abcdef0123456789abcdef");
             self::fail("Expected transaction creation to fail.");
         } catch (TransactionCreationException $exception) {
             self::assertFalse($exception->isDefinite());
@@ -299,8 +300,10 @@ class FlizPayApiClientTest extends TestCase
         $httpClient->method("getStatus")->willReturn(409);
 
         try {
-            $this->createClient($httpClient, $this->createStub(Json::class))
-                ->createTransaction([], "0123456789abcdef0123456789abcdef");
+            $this->createClient(
+                $httpClient,
+                $this->createStub(Json::class),
+            )->createTransaction([], "0123456789abcdef0123456789abcdef");
             self::fail("Expected transaction creation to fail.");
         } catch (TransactionCreationException $exception) {
             self::assertTrue($exception->isDefinite());
@@ -317,8 +320,10 @@ class FlizPayApiClientTest extends TestCase
         $httpClient->expects(self::never())->method("post");
 
         $this->expectException(\InvalidArgumentException::class);
-        $this->createClient($httpClient, $this->createStub(Json::class))
-            ->createTransaction([], "too-short");
+        $this->createClient(
+            $httpClient,
+            $this->createStub(Json::class),
+        )->createTransaction([], "too-short");
     }
 
     /**
