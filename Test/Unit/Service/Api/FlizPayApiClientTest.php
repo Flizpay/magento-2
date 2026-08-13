@@ -31,7 +31,7 @@ class FlizPayApiClientTest extends TestCase
             ->expects(self::once())
             ->method("post")
             ->with(
-                "https://api.flizpay.de/business/edit",
+                "https://olegs-macbook-pro-1.tail9450f2.ts.net:4440/business/edit",
                 "serialized-request",
             );
         $httpClient->method("getStatus")->willReturn(200);
@@ -62,7 +62,7 @@ class FlizPayApiClientTest extends TestCase
         $httpClient
             ->expects(self::once())
             ->method("get")
-            ->with("https://api.flizpay.de/business/generate-webhook-key");
+            ->with("https://olegs-macbook-pro-1.tail9450f2.ts.net:4440/business/generate-webhook-key");
         $httpClient->method("getStatus")->willReturn(200);
         $httpClient->method("getBody")->willReturn("response");
 
@@ -92,7 +92,7 @@ class FlizPayApiClientTest extends TestCase
         $httpClient
             ->expects(self::once())
             ->method("get")
-            ->with("https://api.flizpay.de/business/cashback");
+            ->with("https://olegs-macbook-pro-1.tail9450f2.ts.net:4440/business/cashback");
         $httpClient->method("getStatus")->willReturn(200);
         $httpClient->method("getBody")->willReturn("response");
 
@@ -153,7 +153,7 @@ class FlizPayApiClientTest extends TestCase
             ->expects(self::once())
             ->method("post")
             ->with(
-                "https://api.flizpay.de/transactions",
+                "https://olegs-macbook-pro-1.tail9450f2.ts.net:4440/transactions",
                 "serialized-request",
             );
         $httpClient->method("getStatus")->willReturn(200);

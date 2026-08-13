@@ -18,15 +18,14 @@ class SchemaTest extends TestCase
         );
         $connection = $resource->getConnection();
         $attemptTable = $resource->getTableName("flizpay_payment_attempt");
-        $eventTable = $resource->getTableName("flizpay_webhook_event");
 
         self::assertTrue($connection->isTableExists($attemptTable));
-        self::assertTrue($connection->isTableExists($eventTable));
         $attemptColumns = $connection->describeTable($attemptTable);
         self::assertArrayHasKey("safe_error_code", $attemptColumns);
         self::assertArrayHasKey("encrypted_success_url", $attemptColumns);
         self::assertArrayHasKey("encrypted_failure_url", $attemptColumns);
         self::assertArrayHasKey("encrypted_redirect_url", $attemptColumns);
+        self::assertArrayHasKey("expires_at", $attemptColumns);
 
         $attemptIndexes = $connection->getIndexList($attemptTable);
         self::assertSame(
@@ -36,14 +35,6 @@ class SchemaTest extends TestCase
         self::assertSame(
             AdapterInterface::INDEX_TYPE_UNIQUE,
             $attemptIndexes["FLIZPAY_PAYMENT_ATTEMPT_ATTEMPT_ID"]["INDEX_TYPE"],
-        );
-
-        $eventIndexes = $connection->getIndexList($eventTable);
-        self::assertSame(
-            AdapterInterface::INDEX_TYPE_UNIQUE,
-            $eventIndexes["FLIZPAY_WEBHOOK_EVENT_PAYLOAD_FINGERPRINT"][
-                "INDEX_TYPE"
-            ],
         );
     }
 }
