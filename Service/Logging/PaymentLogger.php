@@ -49,7 +49,7 @@ class PaymentLogger extends AbstractLogger
      *
      * @param mixed $level
      * @param string|\Stringable $message
-     * @param array $context
+     * @param array<string, mixed> $context
      * @return void
      */
     public function log(

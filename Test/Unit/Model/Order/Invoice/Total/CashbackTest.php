@@ -8,7 +8,6 @@ use FlizPay\Payment\Model\Order\Invoice\Total\Cashback;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Item as OrderItem;
 use Magento\Sales\Model\Order\Invoice;
-use Magento\Sales\Model\ResourceModel\Order\Invoice\Collection;
 use PHPUnit\Framework\TestCase;
 
 class CashbackTest extends TestCase
@@ -22,9 +21,6 @@ class CashbackTest extends TestCase
             ["flizpay_shipping_cashback_amount", null, 0.0],
             ["base_flizpay_shipping_cashback_amount", null, 0.0],
         ]);
-        $invoiceCollection = $this->createStub(Collection::class);
-        $invoiceCollection->method("getSize")->willReturn(0);
-        $order->method("getInvoiceCollection")->willReturn($invoiceCollection);
         $order->method("getAllVisibleItems")->willReturn([]);
         $order->method("getTaxAmount")->willReturn(0.0);
         $order->method("getBaseTaxAmount")->willReturn(0.0);
@@ -58,9 +54,6 @@ class CashbackTest extends TestCase
             ["flizpay_shipping_cashback_amount", null, 0.50],
             ["base_flizpay_shipping_cashback_amount", null, 0.50],
         ]);
-        $invoiceCollection = $this->createStub(Collection::class);
-        $invoiceCollection->method("getSize")->willReturn(0);
-        $order->method("getInvoiceCollection")->willReturn($invoiceCollection);
         $order->method("getAllVisibleItems")->willReturn([]);
         $order->method("getTaxAmount")->willReturn(0.0);
         $order->method("getBaseTaxAmount")->willReturn(0.0);
@@ -103,10 +96,6 @@ class CashbackTest extends TestCase
         $order->method("getTaxAmount")->willReturn(8.38);
         $order->method("getBaseTaxAmount")->willReturn(8.38);
         $order->method("getAllVisibleItems")->willReturn([$item]);
-        $invoiceCollection = $this->createStub(Collection::class);
-        $invoiceCollection->method("getSize")->willReturn(0);
-        $order->method("getInvoiceCollection")->willReturn($invoiceCollection);
-
         $invoice = $this->createMock(Invoice::class);
         $invoice->method("getOrder")->willReturn($order);
         $invoice->method("getAllItems")->willReturn([
@@ -151,10 +140,6 @@ class CashbackTest extends TestCase
         $order->method("getShippingAmount")->willReturn(5.00);
         $order->method("getBaseShippingAmount")->willReturn(5.00);
         $order->method("getAllVisibleItems")->willReturn([$item]);
-        $invoiceCollection = $this->createStub(Collection::class);
-        $invoiceCollection->method("getSize")->willReturn(0);
-        $order->method("getInvoiceCollection")->willReturn($invoiceCollection);
-
         $invoice = $this->createMock(Invoice::class);
         $invoice->method("getOrder")->willReturn($order);
         $invoice->method("getAllItems")->willReturn([
@@ -168,6 +153,55 @@ class CashbackTest extends TestCase
         $invoice->expects(self::once())->method("setBaseDiscountAmount")->with(-2.50);
         $invoice->expects(self::once())->method("setGrandTotal")->with(26.77);
         $invoice->expects(self::once())->method("setBaseGrandTotal")->with(26.77);
+
+        (new Cashback())->collect($invoice);
+    }
+
+    public function testEmptyInvoiceIsNoOp(): void
+    {
+        $invoice = $this->createMock(Invoice::class);
+        $invoice->expects(self::once())->method("getAllItems")->willReturn([]);
+        $invoice->expects(self::never())->method("setData");
+        $invoice->expects(self::never())->method("setGrandTotal");
+
+        (new Cashback())->collect($invoice);
+    }
+
+    public function testZeroCashbackIsNoOp(): void
+    {
+        $order = $this->createStub(Order::class);
+        $order->method("getData")->willReturn(0.0);
+
+        $invoice = $this->createMock(Invoice::class);
+        $invoice->method("getOrder")->willReturn($order);
+        $invoice->method("getAllItems")->willReturn([
+            $this->createStub(Invoice\Item::class),
+        ]);
+        $invoice->expects(self::never())->method("setData");
+        $invoice->expects(self::never())->method("setGrandTotal");
+
+        (new Cashback())->collect($invoice);
+    }
+
+    public function testAlreadyCollectedInvoiceIsNoOp(): void
+    {
+        $order = $this->createStub(Order::class);
+        $order->method("getData")->willReturnMap([
+            ["flizpay_cashback_amount", null, 5.0],
+            ["base_flizpay_cashback_amount", null, 5.0],
+        ]);
+
+        $invoice = $this->createMock(Invoice::class);
+        $invoice->method("getOrder")->willReturn($order);
+        $invoice->method("getAllItems")->willReturn([
+            $this->createStub(Invoice\Item::class),
+        ]);
+        $invoice->method("getData")->willReturnMap([
+            ["flizpay_cashback_amount", null, 5.0],
+            ["base_flizpay_cashback_amount", null, 5.0],
+        ]);
+        $invoice->expects(self::never())->method("setData");
+        $invoice->expects(self::never())->method("setGrandTotal");
 
         (new Cashback())->collect($invoice);
     }

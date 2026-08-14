@@ -90,35 +90,41 @@ class CompletedPaymentHandler
                 );
             }
 
-            if ($order->getInvoiceCollection()->getSize() === 0) {
-                if ($order->getState() !== Order::STATE_PENDING_PAYMENT) {
-                    throw new LocalizedException(
-                        __("FLIZpay order is not awaiting payment."),
-                    );
-                }
-
-                $payment->setTransactionId($providerTransactionId);
-                $payment->setData(
-                    "currency_code",
-                    (string) $order->getBaseCurrencyCode(),
+            $invoices = $order->getInvoiceCollection();
+            $invoices->clear();
+            if ($invoices->getSize() !== 0) {
+                throw new LocalizedException(
+                    __("FLIZpay payment has an unexpected existing invoice."),
                 );
-                $payment->setIsTransactionClosed(true);
-                $this->cashbackAdjustmentService->apply(
-                    $order,
-                    $originalAmountMinor,
-                    $finalAmountMinor,
-                );
-                $order->setState(Order::STATE_PROCESSING);
-                $payment->registerCaptureNotification(
-                    (float) $order->getBaseGrandTotal(),
-                    true,
-                );
-                $order->addCommentToStatusHistory(
-                    (string) __("FLIZpay payment completed."),
-                );
-                $this->orderRepository->save($order);
-                $this->updateTaxBreakdown($order);
             }
+
+            if ($order->getState() !== Order::STATE_PENDING_PAYMENT) {
+                throw new LocalizedException(
+                    __("FLIZpay order is not awaiting payment."),
+                );
+            }
+
+            $payment->setTransactionId($providerTransactionId);
+            $payment->setData(
+                "currency_code",
+                (string) $order->getBaseCurrencyCode(),
+            );
+            $payment->setIsTransactionClosed(true);
+            $this->cashbackAdjustmentService->apply(
+                $order,
+                $originalAmountMinor,
+                $finalAmountMinor,
+            );
+            $order->setState(Order::STATE_PROCESSING);
+            $payment->registerCaptureNotification(
+                (float) $order->getBaseGrandTotal(),
+                true,
+            );
+            $order->addCommentToStatusHistory(
+                (string) __("FLIZpay payment completed."),
+            );
+            $this->orderRepository->save($order);
+            $this->updateTaxBreakdown($order);
 
             $attempt->setData("provider_status", "completed");
             $this->attemptRepository->save($attempt);

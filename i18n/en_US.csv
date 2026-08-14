@@ -26,6 +26,8 @@
 "Show description in subtitle when FLIZpay is selected.","Show description in subtitle when FLIZpay is selected."
 "Payment Options","Payment Options"
 "Enable Debug Logging","Enable Debug Logging"
+"FLIZpay supports one full invoice only.","FLIZpay supports one full invoice only."
+"FLIZpay payment has an unexpected existing invoice.","FLIZpay payment has an unexpected existing invoice."
 "Warnings and errors are always written to var/log/flizpay.log. Enable to also record verbose debug entries (disable in production).","Warnings and errors are always written to var/log/flizpay.log. Enable to also record verbose debug entries (disable in production)."
 "Sort Order","Sort Order"
 "Position of FLIZpay in the checkout payment method list. Lower numbers appear first.","Position of FLIZpay in the checkout payment method list. Lower numbers appear first."

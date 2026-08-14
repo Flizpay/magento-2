@@ -132,4 +132,18 @@
             >FlizPay\Payment\Service\Logging\PaymentLogger</argument>
         </arguments>
     </type>
+
+    <type name="Magento\Sales\Model\Service\InvoiceService">
+        <plugin
+            name="flizpay_full_invoice_validation"
+            type="FlizPay\Payment\Plugin\InvoicePreparationPlugin"
+        />
+    </type>
+
+    <type name="Magento\Sales\Model\Order">
+        <plugin
+            name="flizpay_order_full_invoice_validation"
+            type="FlizPay\Payment\Plugin\OrderInvoicePreparationPlugin"
+        />
+    </type>
 </config>

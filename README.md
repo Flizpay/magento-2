@@ -63,6 +63,9 @@ and reactivate its quote for a fresh checkout order. Browser returns never
 decide provider state or settle payment; a terminal failure return only restores
 the already-reactivated quote to the checkout session.
 
+FLIZpay supports one full invoice per order. Partial and multiple invoices are
+rejected before Magento constructs invoice totals.
+
 Transaction creation is idempotent. Every payment attempt sends a unique
 `Idempotency-Key` header; the provider answers a conflicting reuse with HTTP
 409, which the module reports as a distinct creation failure. Repeated start

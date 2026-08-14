@@ -6,9 +6,12 @@ namespace FlizPay\Payment\Test\Integration;
 
 use FlizPay\Payment\Service\Payment\CompletedPaymentHandler;
 use FlizPay\Payment\Service\Payment\PaymentAttemptRepository;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Sales\Api\InvoiceRepositoryInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Invoice;
+use Magento\Sales\Model\Service\InvoiceService;
 use Magento\Framework\App\ResourceConnection;
 use Magento\TestFramework\Helper\Bootstrap;
 use PHPUnit\Framework\TestCase;
@@ -96,6 +99,7 @@ class CompletedPaymentHandlerTest extends TestCase
         $order = $objectManager->create(Order::class)->load($order->getId());
         self::assertSame(Order::STATE_PROCESSING, $order->getState());
         self::assertSame(1, $order->getInvoiceCollection()->getSize());
+        self::assertFalse($order->canInvoice());
         self::assertEquals(5.83, (float) $order->getData("flizpay_cashback_amount"));
         self::assertEquals(8.38, (float) $order->getTaxAmount());
         self::assertEquals(
@@ -158,6 +162,70 @@ class CompletedPaymentHandlerTest extends TestCase
             "completed",
             $repository
                 ->getByProviderTransactionId("provider-completed-123")
+                ->getData("provider_status"),
+        );
+    }
+
+    /**
+     * @magentoDbIsolation enabled
+     * @magentoDataFixture Magento/Sales/_files/order.php
+     */
+    public function testExistingInvoicePreventsCompletion(): void
+    {
+        $objectManager = Bootstrap::getObjectManager();
+        $order = $objectManager->create(Order::class);
+        $order->loadByIncrementId("100000001");
+        $order->setState(Order::STATE_PENDING_PAYMENT);
+        $order->setStatus(Order::STATE_PENDING_PAYMENT);
+        $order->setOrderCurrencyCode("EUR");
+        $order->setBaseCurrencyCode("EUR");
+        $order->getPayment()->setMethod("flizpay");
+        $objectManager->get(OrderRepositoryInterface::class)->save($order);
+
+        $invoice = $objectManager
+            ->get(InvoiceService::class)
+            ->prepareInvoice($order);
+        $invoice->register();
+        $objectManager->get(InvoiceRepositoryInterface::class)->save($invoice);
+        $objectManager->get(OrderRepositoryInterface::class)->save($order);
+
+        $amountMinor = (int) round((float) $order->getGrandTotal() * 100);
+        $repository = $objectManager->get(PaymentAttemptRepository::class);
+        $repository->save($repository->create([
+            "attempt_id" => "existing-invoice-attempt",
+            "order_id" => (int) $order->getId(),
+            "order_increment_id" => (string) $order->getIncrementId(),
+            "quote_id" => $order->getQuoteId(),
+            "store_id" => (int) $order->getStoreId(),
+            "provider_transaction_id" => "provider-existing-invoice",
+            "expected_amount_minor" => $amountMinor,
+            "currency" => "EUR",
+            "creation_state" => "created",
+            "return_token_hash" => hash("sha256", "existing-invoice-return"),
+        ]));
+
+        try {
+            $objectManager
+                ->get(CompletedPaymentHandler::class)
+                ->execute(
+                    "provider-existing-invoice",
+                    $amountMinor,
+                    $amountMinor,
+                    "EUR",
+                    (string) $order->getIncrementId(),
+                );
+            self::fail("Expected existing invoice validation to fail.");
+        } catch (LocalizedException $exception) {
+            self::assertSame(
+                "FLIZpay payment has an unexpected existing invoice.",
+                $exception->getMessage(),
+            );
+        }
+
+        self::assertNotSame(
+            "completed",
+            $repository
+                ->getByProviderTransactionId("provider-existing-invoice")
                 ->getData("provider_status"),
         );
     }
