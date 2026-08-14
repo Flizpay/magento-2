@@ -18,26 +18,32 @@ use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Item;
 use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\Invoice\Total\AbstractTotal;
-use Magento\Framework\Exception\LocalizedException;
 
 class Cashback extends AbstractTotal
 {
     public function collect(Invoice $invoice): self
     {
         $order = $invoice->getOrder();
-
-        $hasIssuedOrderInvoices =
-            $order->getInvoiceCollection()->getSize() !== 0;
         $itemsToInvoice = $invoice->getAllItems();
 
-        if ($hasIssuedOrderInvoices || !$itemsToInvoice) {
-            throw new LocalizedException(
-                __("FLIZpay supports one full invoice only."),
-            );
+        if (!$itemsToInvoice) {
+            return $this;
         }
 
         $cashback = (float) $order->getData("flizpay_cashback_amount");
         $baseCashback = (float) $order->getData("base_flizpay_cashback_amount");
+
+        if ($cashback <= 0 && $baseCashback <= 0) {
+            return $this;
+        }
+
+        if (
+            (float) $invoice->getData("flizpay_cashback_amount") > 0 ||
+            (float) $invoice->getData("base_flizpay_cashback_amount") > 0
+        ) {
+            return $this;
+        }
+
         $shippingCashback = (float) $order->getData(
             "flizpay_shipping_cashback_amount",
         );

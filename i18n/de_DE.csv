@@ -26,6 +26,8 @@
 "Show description in subtitle when FLIZpay is selected.","Beschreibung im Untertitel anzeigen, wenn FLIZpay ausgewählt ist."
 "Payment Options","Zahlungsoptionen"
 "Enable Debug Logging","Debug-Protokollierung aktivieren"
+"FLIZpay supports one full invoice only.","FLIZpay unterstützt nur eine vollständige Rechnung."
+"FLIZpay payment has an unexpected existing invoice.","Für die FLIZpay-Zahlung ist bereits eine unerwartete Rechnung vorhanden."
 "Warnings and errors are always written to var/log/flizpay.log. Enable to also record verbose debug entries (disable in production).","Warnungen und Fehler werden immer in var/log/flizpay.log protokolliert. Aktivieren, um zusätzlich ausführliche Debug-Einträge aufzuzeichnen (in Produktion deaktivieren)."
 "Sort Order","Sortierreihenfolge"
 "Position of FLIZpay in the checkout payment method list. Lower numbers appear first.","Position von FLIZpay in der Liste der Zahlungsmethoden an der Kasse. Niedrigere Zahlen erscheinen zuerst."
