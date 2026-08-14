@@ -31,13 +31,16 @@ the Magento container without reinstalling the package.
 
 ## Current Payment Behavior
 
-FlizPay is disabled by default. Configure it under **Stores > Configuration >
-Sales > Payment Methods > FlizPay**. The method is available only when:
+The payment method is active after installation but is never offered in
+checkout until merchant onboarding is complete. Configure it under
+**Stores > Configuration > Sales > Payment Methods > FlizPay**. The method
+appears in checkout only when all of the following hold:
 
 - It is enabled for the current website.
 - The global API key is configured.
 - The merchant connection has passed a signed webhook test.
 - The store's secure base URL uses HTTPS.
+- The quote currency is EUR.
 
 The API key and webhook secret use Magento's encrypted configuration backend.
 Neither credential is included in checkout configuration.
@@ -60,9 +63,13 @@ and reactivate its quote for a fresh checkout order. Browser returns never
 decide provider state or settle payment; a terminal failure return only restores
 the already-reactivated quote to the checkout session.
 
-The current provider API does not implement transaction-creation idempotency.
-The module therefore makes one creation call without automatic retries. Safe
-retry, repeated-start, and concurrent-webhook behavior remain post-MVP work.
+Transaction creation is idempotent. Every payment attempt sends a unique
+`Idempotency-Key` header; the provider answers a conflicting reuse with HTTP
+409, which the module reports as a distinct creation failure. Repeated start
+requests for the same order replay the stored hosted-checkout redirect URL
+instead of creating a new transaction, and concurrent webhook deliveries are
+serialized with a named lock before any order state is applied. Automatic
+retry with backoff after ambiguous creation failures remains post-MVP work.
 
 ## Development Checks
 
@@ -148,9 +155,9 @@ require the package, unit, and integration jobs as status checks on `main`.
 ../magento-store/bin/magento setup:upgrade
 ```
 
-The module currently owns the `flizpay_payment_attempt` and
-`flizpay_webhook_event` declarative-schema tables. Full uninstall and data
-retention verification is scheduled for the release lifecycle phase.
+The module owns the `flizpay_payment_attempt` declarative-schema table. Full
+uninstall and data retention verification is scheduled for the release
+lifecycle phase.
 
 ## License
 
