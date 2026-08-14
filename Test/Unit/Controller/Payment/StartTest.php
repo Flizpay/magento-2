@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace FlizPay\Payment\Test\Unit\Controller\Payment;
 
 use FlizPay\Payment\Controller\Payment\Start;
+use FlizPay\Payment\Service\Logging\PaymentLogger;
 use FlizPay\Payment\Service\Payment\CreateTransactionService;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\App\Action\HttpGetActionInterface;
@@ -69,6 +70,7 @@ class StartTest extends TestCase
                 $session,
                 $orders,
                 $service,
+                $this->createStub(PaymentLogger::class),
             ))->execute(),
         );
     }

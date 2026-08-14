@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace FlizPay\Payment\Test\Unit\Controller\Payment;
 
 use FlizPay\Payment\Controller\Payment\Status;
+use FlizPay\Payment\Service\Logging\PaymentLogger;
 use FlizPay\Payment\Service\Payment\ReturnContext;
 use FlizPay\Payment\Service\Payment\ReturnContextValidator;
 use Magento\Framework\App\Action\HttpGetActionInterface;
@@ -128,6 +129,12 @@ class StatusTest extends TestCase
         $storeManager = $this->createStub(StoreManagerInterface::class);
         $storeManager->method("getStore")->willReturn($store);
 
-        return new Status($request, $jsonFactory, $validator, $storeManager);
+        return new Status(
+            $request,
+            $jsonFactory,
+            $validator,
+            $storeManager,
+            $this->createStub(PaymentLogger::class),
+        );
     }
 }

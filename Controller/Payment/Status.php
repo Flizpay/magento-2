@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace FlizPay\Payment\Controller\Payment;
 
+use FlizPay\Payment\Service\Logging\PaymentLogger;
 use FlizPay\Payment\Service\Payment\ReturnContextValidator;
 use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\App\RequestInterface;
@@ -31,6 +32,7 @@ class Status implements HttpGetActionInterface
         private readonly JsonFactory $jsonFactory,
         private readonly ReturnContextValidator $returnContextValidator,
         private readonly StoreManagerInterface $storeManager,
+        private readonly PaymentLogger $logger,
     ) {}
 
     public function execute(): Json
@@ -47,7 +49,13 @@ class Status implements HttpGetActionInterface
             return $result->setData([
                 "status" => $context->getPublicStatus(),
             ]);
-        } catch (\Throwable) {
+        } catch (\Throwable $exception) {
+            $this->logger->warning("FLIZpay return rejected", [
+                "route" => "status",
+                "exception" => get_class($exception),
+                "message" => $exception->getMessage(),
+            ]);
+
             return $result->setHttpResponseCode(404)->setData([
                 "message" => (string) __("Payment return is invalid."),
             ]);

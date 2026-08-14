@@ -71,6 +71,19 @@ instead of creating a new transaction, and concurrent webhook deliveries are
 serialized with a named lock before any order state is applied. Automatic
 retry with backoff after ambiguous creation failures remains post-MVP work.
 
+## Logs
+
+The module writes to a dedicated log file at `var/log/flizpay.log`. Warnings
+and errors — failed payment starts, rejected webhooks, connection failures —
+are always recorded. Enable **Stores > Configuration > Sales > Payment
+Methods > FlizPay > Enable Debug Logging** to also record verbose debug
+entries such as webhook processing traces and API request outcomes.
+
+Log entries contain only safe identifiers: order increment IDs, attempt IDs,
+exception classes, safe error codes, HTTP statuses, and API paths. They never
+contain API credentials, webhook signatures, request or response bodies,
+return URLs, or customer data.
+
 ## Development Checks
 
 Run `make` from this repository to list the available development commands and

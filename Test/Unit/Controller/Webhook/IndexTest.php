@@ -6,6 +6,7 @@ namespace FlizPay\Payment\Test\Unit\Controller\Webhook;
 
 use FlizPay\Payment\Controller\Webhook\Index;
 use FlizPay\Payment\Service\Connection\ConnectionManager;
+use FlizPay\Payment\Service\Logging\PaymentLogger;
 use FlizPay\Payment\Service\Connection\ConnectionConfigWriter;
 use FlizPay\Payment\Service\Webhook\WebhookAuthenticator;
 use FlizPay\Payment\Service\Webhook\WebhookProcessor;
@@ -61,6 +62,7 @@ class IndexTest extends TestCase
                 $connectionManager,
                 $this->createStub(ConnectionConfigWriter::class),
                 $this->createStub(WebhookProcessor::class),
+                $this->createStub(PaymentLogger::class),
             ))->execute(),
         );
     }
@@ -121,6 +123,7 @@ class IndexTest extends TestCase
                 $connectionManager,
                 $this->createStub(ConnectionConfigWriter::class),
                 $processor,
+                $this->createStub(PaymentLogger::class),
             ))->execute(),
         );
     }
@@ -176,6 +179,7 @@ class IndexTest extends TestCase
                 $this->createStub(ConnectionManager::class),
                 $writer,
                 $processor,
+                $this->createStub(PaymentLogger::class),
             ))->execute(),
         );
     }
@@ -214,6 +218,7 @@ class IndexTest extends TestCase
             $this->createStub(ConnectionManager::class),
             $writer,
             $this->createStub(WebhookProcessor::class),
+            $this->createStub(PaymentLogger::class),
         ))->execute();
     }
 
@@ -246,6 +251,7 @@ class IndexTest extends TestCase
             $this->createStub(ConnectionManager::class),
             $writer,
             $this->createStub(WebhookProcessor::class),
+            $this->createStub(PaymentLogger::class),
         ))->execute();
     }
 }

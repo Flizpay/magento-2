@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace FlizPay\Payment\Test\Unit\Controller\Payment;
 
 use FlizPay\Payment\Controller\Payment\Failure;
+use FlizPay\Payment\Service\Logging\PaymentLogger;
 use FlizPay\Payment\Service\Payment\ReturnContext;
 use FlizPay\Payment\Service\Payment\ReturnContextValidator;
 use Magento\Framework\App\Action\HttpGetActionInterface;
@@ -182,6 +183,7 @@ class FailureTest extends TestCase
             $checkoutSession ?? $this->createStub(CheckoutSession::class),
             $quoteRepository ?? $this->createStub(CartRepositoryInterface::class),
             $messageManager ?? $this->createStub(ManagerInterface::class),
+            $this->createStub(PaymentLogger::class),
         );
     }
 }

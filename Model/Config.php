@@ -165,6 +165,14 @@ class Config implements ConfigInterface
     /**
      * @inheritdoc
      */
+    public function isLoggingEnabled(?int $storeId = null): bool
+    {
+        return $this->getStoreFlag("logging_enabled", $storeId);
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function isCashbackInTitleEnabled(?int $storeId = null): bool
     {
         return $this->getStoreFlag("display_cashback_in_title", $storeId);

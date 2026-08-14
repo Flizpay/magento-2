@@ -6,6 +6,7 @@ namespace FlizPay\Payment\Test\Unit\Controller\Payment;
 
 use FlizPay\Payment\Block\Payment\ReturnPage;
 use FlizPay\Payment\Controller\Payment\Success;
+use FlizPay\Payment\Service\Logging\PaymentLogger;
 use FlizPay\Payment\Service\Payment\ReturnContext;
 use FlizPay\Payment\Service\Payment\ReturnContextValidator;
 use Magento\Checkout\Model\Session as CheckoutSession;
@@ -200,6 +201,7 @@ class SuccessTest extends TestCase
             $storeManager,
             $checkoutSession ?? $this->createMock(CheckoutSession::class),
             $response,
+            $this->createStub(PaymentLogger::class),
         );
     }
 }
