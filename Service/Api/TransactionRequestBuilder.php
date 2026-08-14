@@ -3,7 +3,7 @@
  * FLIZpay Magento 2
  *
  * @package FlizPay_Payment
- * @license https://www.gnu.org/licenses/gpl-2.0.txt GPLv2 or later
+ * @license OSL-3.0 (https://opensource.org/license/osl-3-0-php) / AFL-3.0 (https://opensource.org/license/afl-3-0-php)
  */
 
 declare(strict_types=1);

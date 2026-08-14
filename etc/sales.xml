@@ -1,8 +1,27 @@
-<?xml version="1.0"?>
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Sales:etc/sales.xsd">
+<?xml version="1.0" ?>
+<!--
+/**
+ * FLIZpay Magento 2
+ *
+ * This Magento 2 extension enables to process payments with FLIZpay.
+ *
+ * @package FlizPay_Payment
+ * @author  FLIZpay GmbH
+ * @license OSL-3.0 (https://opensource.org/license/osl-3-0-php) / AFL-3.0 (https://opensource.org/license/afl-3-0-php)
+ * @link    https://flizpay.de
+ */
+ -->
+<config
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Sales:etc/sales.xsd"
+>
     <section name="order_invoice">
         <group name="totals">
-            <item name="flizpay_cashback" instance="FlizPay\Payment\Model\Order\Invoice\Total\Cashback" sort_order="110" />
+            <item
+                name="flizpay_cashback"
+                instance="FlizPay\Payment\Model\Order\Invoice\Total\Cashback"
+                sort_order="110"
+            />
         </group>
     </section>
 </config>
