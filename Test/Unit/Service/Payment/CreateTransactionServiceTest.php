@@ -9,6 +9,7 @@ use FlizPay\Payment\Model\PaymentAttempt;
 use FlizPay\Payment\Service\Api\FlizPayApiClient;
 use FlizPay\Payment\Service\Api\TransactionRequestBuilder;
 use FlizPay\Payment\Service\Payment\CreateTransactionService;
+use FlizPay\Payment\Service\Logging\PaymentLogger;
 use FlizPay\Payment\Service\Payment\PaymentAttemptRepository;
 use FlizPay\Payment\Service\Payment\InitiationFailureHandler;
 use FlizPay\Payment\Service\Api\TransactionCreationException;
@@ -112,6 +113,7 @@ class CreateTransactionServiceTest extends TestCase
             $urlBuilder,
             $this->createStub(InitiationFailureHandler::class),
             $this->encryptor(),
+            $this->createStub(PaymentLogger::class),
         );
 
         self::assertSame(
@@ -151,6 +153,7 @@ class CreateTransactionServiceTest extends TestCase
             $urlBuilder,
             $failureHandler,
             $this->encryptor(),
+            $this->createStub(PaymentLogger::class),
         ))->execute($order);
     }
 
@@ -183,6 +186,7 @@ class CreateTransactionServiceTest extends TestCase
                 $urlBuilder,
                 $this->createStub(InitiationFailureHandler::class),
                 $this->encryptor(),
+                $this->createStub(PaymentLogger::class),
             ))->execute($order),
         );
     }
@@ -234,6 +238,7 @@ class CreateTransactionServiceTest extends TestCase
                 $urlBuilder,
                 $this->createStub(InitiationFailureHandler::class),
                 $this->encryptor(),
+                $this->createStub(PaymentLogger::class),
             ))->execute($order),
         );
     }
@@ -277,6 +282,7 @@ class CreateTransactionServiceTest extends TestCase
                 $urlBuilder,
                 $this->createStub(InitiationFailureHandler::class),
                 $this->encryptor(),
+                $this->createStub(PaymentLogger::class),
             ))->execute($order),
         );
     }

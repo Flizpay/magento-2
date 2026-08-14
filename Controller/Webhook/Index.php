@@ -16,6 +16,7 @@ namespace FlizPay\Payment\Controller\Webhook;
 
 use FlizPay\Payment\Service\Connection\ConnectionManager;
 use FlizPay\Payment\Service\Connection\ConnectionConfigWriter;
+use FlizPay\Payment\Service\Logging\PaymentLogger;
 use FlizPay\Payment\Service\Webhook\WebhookAuthenticator;
 use FlizPay\Payment\Service\Webhook\WebhookPayload;
 use FlizPay\Payment\Service\Webhook\WebhookProcessor;
@@ -50,6 +51,7 @@ class Index implements HttpPostActionInterface, CsrfAwareActionInterface
         private readonly ConnectionManager $connectionManager,
         private readonly ConnectionConfigWriter $connectionConfigWriter,
         private readonly WebhookProcessor $webhookProcessor,
+        private readonly PaymentLogger $logger,
     ) {}
 
     /**
@@ -64,6 +66,10 @@ class Index implements HttpPostActionInterface, CsrfAwareActionInterface
         $signature = (string) $this->request->getHeader("X-FLIZ-SIGNATURE");
 
         if (!$this->authenticator->authenticate($rawBody, $signature)) {
+            $this->logger->warning(
+                "FLIZpay webhook rejected: invalid signature",
+            );
+
             return $result
                 ->setHttpResponseCode(401)
                 ->setData(["error" => "Invalid signature"]);
@@ -73,6 +79,10 @@ class Index implements HttpPostActionInterface, CsrfAwareActionInterface
             $payload = $this->jsonSerializer->unserialize($rawBody);
 
             if (!is_array($payload)) {
+                $this->logger->warning(
+                    "FLIZpay webhook rejected: malformed payload",
+                );
+
                 return $result
                     ->setHttpResponseCode(400)
                     ->setData(["error" => "Invalid webhook"]);
@@ -80,6 +90,9 @@ class Index implements HttpPostActionInterface, CsrfAwareActionInterface
 
             if (($payload["test"] ?? null) === true) {
                 $this->connectionManager->confirmWebhookConnection();
+                $this->logger->debug(
+                    "FLIZpay connection test webhook acknowledged",
+                );
 
                 return $result->setData(["data" => ["alive" => true]]);
             }
@@ -90,6 +103,9 @@ class Index implements HttpPostActionInterface, CsrfAwareActionInterface
                         (float) ($payload["firstPurchaseAmount"] ?? 0),
                     "standard_amount" => (float) ($payload["amount"] ?? 0),
                 ]);
+                $this->logger->debug(
+                    "FLIZpay cashback data updated via webhook",
+                );
 
                 return $result->setData([
                     "success" => true,
@@ -100,13 +116,27 @@ class Index implements HttpPostActionInterface, CsrfAwareActionInterface
             $this->webhookProcessor->process(
                 WebhookPayload::fromArray($payload),
             );
+            $this->logger->debug("FLIZpay payment webhook processed", [
+                "transaction_id" => $payload["transactionId"] ?? null,
+                "status" => $payload["status"] ?? null,
+            ]);
 
             return $result->setData(["data" => ["received" => true]]);
-        } catch (\InvalidArgumentException) {
+        } catch (\InvalidArgumentException $exception) {
+            $this->logger->warning(
+                "FLIZpay webhook rejected: unsupported payload",
+                ["message" => $exception->getMessage()],
+            );
+
             return $result
                 ->setHttpResponseCode(400)
                 ->setData(["error" => "Unsupported webhook"]);
-        } catch (\Throwable) {
+        } catch (\Throwable $exception) {
+            $this->logger->error("FLIZpay webhook processing failed", [
+                "exception" => get_class($exception),
+                "message" => $exception->getMessage(),
+            ]);
+
             return $result
                 ->setHttpResponseCode(500)
                 ->setData(["error" => "Webhook processing failed"]);

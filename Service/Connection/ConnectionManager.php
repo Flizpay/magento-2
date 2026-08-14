@@ -13,6 +13,7 @@ namespace FlizPay\Payment\Service\Connection;
 use FlizPay\Payment\Api\ConfigInterface;
 use FlizPay\Payment\Service\Api\FlizPayApiClient;
 use FlizPay\Payment\Service\Connection\ConnectionConfigWriter;
+use FlizPay\Payment\Service\Logging\PaymentLogger;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\UrlInterface;
 use Magento\Store\Model\Store;
@@ -28,12 +29,14 @@ class ConnectionManager
      * @param ConnectionConfigWriter $configWriter
      * @param FlizPayApiClient $apiClient
      * @param StoreManagerInterface $storeManager
+     * @param PaymentLogger $logger
      */
     public function __construct(
         private readonly ConfigInterface $config,
         private readonly ConnectionConfigWriter $configWriter,
         private readonly FlizPayApiClient $apiClient,
         private readonly StoreManagerInterface $storeManager,
+        private readonly PaymentLogger $logger,
     ) {}
 
     /**
@@ -81,7 +84,14 @@ class ConnectionManager
             $this->configWriter->saveWebhookSecret(
                 $this->apiClient->generateWebhookSecret(),
             );
-        } catch (\Throwable) {
+            $this->logger->debug(
+                "FLIZpay webhook registered; awaiting signed test callback",
+            );
+        } catch (\Throwable $exception) {
+            $this->logger->error("FLIZpay connection attempt failed", [
+                "exception" => get_class($exception),
+                "message" => $exception->getMessage(),
+            ]);
             $this->configWriter->markFailed();
             throw new LocalizedException(
                 __("Unable to connect Magento to FLIZpay."),
@@ -92,8 +102,12 @@ class ConnectionManager
             $this->configWriter->replaceCashbackData(
                 $this->apiClient->fetchCashbackData(),
             );
-        } catch (\Throwable) {
+        } catch (\Throwable $exception) {
             // Cashback is optional, but stale provider rates must not be shown.
+            $this->logger->warning(
+                "FLIZpay cashback fetch failed during connection",
+                ["exception" => get_class($exception)],
+            );
             $this->configWriter->replaceCashbackData(null);
         }
 

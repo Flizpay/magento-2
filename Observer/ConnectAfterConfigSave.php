@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace FlizPay\Payment\Observer;
 
 use FlizPay\Payment\Service\Connection\ConnectionManager;
+use FlizPay\Payment\Service\Logging\PaymentLogger;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Message\ManagerInterface;
@@ -23,10 +24,12 @@ class ConnectAfterConfigSave implements ObserverInterface
     /**
      * @param ConnectionManager $connectionManager
      * @param ManagerInterface $messageManager
+     * @param PaymentLogger $logger
      */
     public function __construct(
         private readonly ConnectionManager $connectionManager,
         private readonly ManagerInterface $messageManager,
+        private readonly PaymentLogger $logger,
     ) {}
 
     /**
@@ -43,7 +46,14 @@ class ConnectAfterConfigSave implements ObserverInterface
                     __("FLIZpay is waiting for webhook verification."),
                 );
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $exception) {
+            $this->logger->error(
+                "FLIZpay connection failed after configuration save",
+                [
+                    "exception" => get_class($exception),
+                    "message" => $exception->getMessage(),
+                ],
+            );
             $this->messageManager->addErrorMessage(
                 __(
                     "Magento could not connect to FLIZpay. Verify the API key and try again.",

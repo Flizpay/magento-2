@@ -19,6 +19,7 @@ use FlizPay\Payment\Model\PaymentAttempt;
 use FlizPay\Payment\Service\Api\FlizPayApiClient;
 use FlizPay\Payment\Service\Api\TransactionRequestBuilder;
 use FlizPay\Payment\Service\Api\TransactionCreationException;
+use FlizPay\Payment\Service\Logging\PaymentLogger;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Encryption\EncryptorInterface;
@@ -38,6 +39,7 @@ class CreateTransactionService
         private readonly UrlInterface $urlBuilder,
         private readonly InitiationFailureHandler $failureHandler,
         private readonly EncryptorInterface $encryptor,
+        private readonly PaymentLogger $logger,
     ) {}
 
     /**
@@ -76,6 +78,11 @@ class CreateTransactionService
                 (string) $attempt->getData("creation_state") === "created" &&
                 $redirectUrl !== ""
             ) {
+                $this->logger->debug(
+                    "FLIZpay start replayed existing redirect",
+                    ["order_increment_id" => $order->getIncrementId()],
+                );
+
                 return $redirectUrl;
             }
         } catch (NoSuchEntityException) {
@@ -126,6 +133,10 @@ class CreateTransactionService
             try {
                 $this->attemptRepository->save($attempt);
             } catch (\Throwable) {
+                $this->logger->debug(
+                    "FLIZpay attempt insert raced; reloading stored attempt",
+                    ["order_increment_id" => $order->getIncrementId()],
+                );
                 $attempt = $this->attemptRepository->getByOrderId(
                     (int) $order->getEntityId(),
                 );
@@ -177,6 +188,13 @@ class CreateTransactionService
                 $attemptId,
             );
         } catch (TransactionCreationException $exception) {
+            $this->logger->error("FLIZpay transaction creation failed", [
+                "order_increment_id" => $order->getIncrementId(),
+                "attempt_id" => $attemptId,
+                "safe_error_code" => $exception->getSafeErrorCode(),
+                "definite" => $exception->isDefinite(),
+            ]);
+
             if (
                 $exception->getSafeErrorCode() ===
                 TransactionCreationException::API_IDEMPOTENCY_CONFLICT

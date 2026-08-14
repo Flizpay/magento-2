@@ -113,6 +113,14 @@ interface ConfigInterface
     public function getCashbackData(): ?array;
 
     /**
+     * Check whether verbose diagnostic logging is enabled.
+     *
+     * @param int|null $storeId
+     * @return bool
+     */
+    public function isLoggingEnabled(?int $storeId = null): bool;
+
+    /**
      * Check whether cashback should be included in the payment title.
      *
      * @param int|null $storeId

@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace FlizPay\Payment\Controller\Payment;
 
 use FlizPay\Payment\Block\Payment\ReturnPage;
+use FlizPay\Payment\Service\Logging\PaymentLogger;
 use FlizPay\Payment\Service\Payment\ReturnContextValidator;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\App\Action\HttpGetActionInterface;
@@ -42,6 +43,7 @@ class Success implements HttpGetActionInterface
         private readonly StoreManagerInterface $storeManager,
         private readonly CheckoutSession $checkoutSession,
         private readonly HttpResponse $response,
+        private readonly PaymentLogger $logger,
     ) {}
 
     public function execute(): Page|Raw|Redirect
@@ -79,7 +81,13 @@ class Success implements HttpGetActionInterface
             }
 
             return $page;
-        } catch (\Throwable) {
+        } catch (\Throwable $exception) {
+            $this->logger->warning("FLIZpay return rejected", [
+                "route" => "success",
+                "exception" => get_class($exception),
+                "message" => $exception->getMessage(),
+            ]);
+
             return $this->rawFactory
                 ->create()
                 ->setHttpResponseCode(404)

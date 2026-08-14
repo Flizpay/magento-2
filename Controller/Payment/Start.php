@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace FlizPay\Payment\Controller\Payment;
 
+use FlizPay\Payment\Service\Logging\PaymentLogger;
 use FlizPay\Payment\Service\Payment\CreateTransactionService;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\App\Action\HttpPostActionInterface;
@@ -38,6 +39,7 @@ class Start implements HttpPostActionInterface
         private readonly CheckoutSession $checkoutSession,
         private readonly OrderRepositoryInterface $orderRepository,
         private readonly CreateTransactionService $createTransactionService,
+        private readonly PaymentLogger $logger,
     ) {}
 
     /**
@@ -47,8 +49,9 @@ class Start implements HttpPostActionInterface
      */
     public function execute(): Redirect|Raw
     {
+        $orderId = (int) $this->checkoutSession->getData("last_order_id");
+
         try {
-            $orderId = (int) $this->checkoutSession->getData("last_order_id");
             $order = $this->orderRepository->get($orderId);
 
             if (!$order instanceof Order) {
@@ -63,7 +66,12 @@ class Start implements HttpPostActionInterface
             $result->setHttpResponseCode(303);
 
             return $result->setUrl($redirectUrl);
-        } catch (\Throwable) {
+        } catch (\Throwable $exception) {
+            $this->logger->error("FLIZpay payment start failed", [
+                "order_id" => $orderId,
+                "exception" => get_class($exception),
+                "message" => $exception->getMessage(),
+            ]);
             return $this->rawFactory
                 ->create()
                 ->setHttpResponseCode(503)

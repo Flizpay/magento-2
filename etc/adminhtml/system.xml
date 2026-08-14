@@ -190,7 +190,7 @@
                 >
                     <label>Enable Debug Logging</label>
                     <comment
-                    >Enable detailed logging for troubleshooting (disable in production).</comment>
+                    >Warnings and errors are always written to var/log/flizpay.log. Enable to also record verbose debug entries (disable in production).</comment>
                     <config_path>payment/flizpay/logging_enabled</config_path>
                     <source_model
                     >Magento\Config\Model\Config\Source\Yesno</source_model>
@@ -394,7 +394,7 @@
                 >
                     <label>Enable Debug Logging</label>
                     <comment
-                    >Enable detailed logging for troubleshooting (disable in production).</comment>
+                    >Warnings and errors are always written to var/log/flizpay.log. Enable to also record verbose debug entries (disable in production).</comment>
                     <config_path>payment/flizpay/logging_enabled</config_path>
                     <source_model
                     >Magento\Config\Model\Config\Source\Yesno</source_model>

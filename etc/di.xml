@@ -93,4 +93,43 @@
             >FlizPayPaymentCommandPool</argument>
         </arguments>
     </virtualType>
+
+    <virtualType
+        name="FlizPayLoggerHandler"
+        type="Magento\Framework\Logger\Handler\Base"
+    >
+        <arguments>
+            <argument
+                name="fileName"
+                xsi:type="string"
+            >/var/log/flizpay.log</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="FlizPayLogger" type="Magento\Framework\Logger\Monolog">
+        <arguments>
+            <argument name="name" xsi:type="string">flizpay</argument>
+            <argument name="handlers" xsi:type="array">
+                <item
+                    name="system"
+                    xsi:type="object"
+                >FlizPayLoggerHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <type name="FlizPay\Payment\Service\Logging\PaymentLogger">
+        <arguments>
+            <argument name="logger" xsi:type="object">FlizPayLogger</argument>
+        </arguments>
+    </type>
+
+    <type name="FlizPay\Payment\Service\Api\FlizPayApiClient">
+        <arguments>
+            <argument
+                name="logger"
+                xsi:type="object"
+            >FlizPay\Payment\Service\Logging\PaymentLogger</argument>
+        </arguments>
+    </type>
 </config>

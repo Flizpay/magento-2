@@ -8,6 +8,7 @@ use FlizPay\Payment\Api\ConfigInterface;
 use FlizPay\Payment\Service\Api\FlizPayApiClient;
 use FlizPay\Payment\Service\Connection\ConnectionConfigWriter;
 use FlizPay\Payment\Service\Connection\ConnectionManager;
+use FlizPay\Payment\Service\Logging\PaymentLogger;
 use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreManagerInterface;
 use PHPUnit\Framework\TestCase;
@@ -63,7 +64,13 @@ class ConnectionManagerTest extends TestCase
         $storeManager->method("getDefaultStoreView")->willReturn($store);
 
         self::assertTrue(
-            (new ConnectionManager($config, $writer, $apiClient, $storeManager))
+            (new ConnectionManager(
+                $config,
+                $writer,
+                $apiClient,
+                $storeManager,
+                $this->createStub(PaymentLogger::class),
+            ))
                 ->connectIfNeeded(),
         );
     }
@@ -91,7 +98,13 @@ class ConnectionManagerTest extends TestCase
         $storeManager->method("getDefaultStoreView")->willReturn($store);
 
         self::assertFalse(
-            (new ConnectionManager($config, $writer, $apiClient, $storeManager))
+            (new ConnectionManager(
+                $config,
+                $writer,
+                $apiClient,
+                $storeManager,
+                $this->createStub(PaymentLogger::class),
+            ))
                 ->connectIfNeeded(),
         );
     }
@@ -144,7 +157,13 @@ class ConnectionManagerTest extends TestCase
         $storeManager->method("getDefaultStoreView")->willReturn($store);
 
         self::assertTrue(
-            (new ConnectionManager($config, $writer, $apiClient, $storeManager))
+            (new ConnectionManager(
+                $config,
+                $writer,
+                $apiClient,
+                $storeManager,
+                $this->createStub(PaymentLogger::class),
+            ))
                 ->connectIfNeeded(),
         );
     }
@@ -173,7 +192,13 @@ class ConnectionManagerTest extends TestCase
         $storeManager->method("getDefaultStoreView")->willReturn($store);
 
         self::assertTrue(
-            (new ConnectionManager($config, $writer, $apiClient, $storeManager))
+            (new ConnectionManager(
+                $config,
+                $writer,
+                $apiClient,
+                $storeManager,
+                $this->createStub(PaymentLogger::class),
+            ))
                 ->connectIfNeeded(),
         );
     }
