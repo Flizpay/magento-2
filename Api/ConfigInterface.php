@@ -2,11 +2,11 @@
 /**
  * FLIZpay Magento 2
  *
- * This Magento 2 extension enables to process payments with FLIZpay (https://flizpay.de).
+ * This Magento 2 extension enables to process payments with FLIZpay.
  *
  * @package FlizPay_Payment
- * @author  FLIZpay GmbH (https://flizpay.de)
- * @license https://www.gnu.org/licenses/gpl-2.0.txt GPLv2 or later
+ * @author  FLIZpay GmbH
+ * @license OSL-3.0 (https://opensource.org/license/osl-3-0-php) / AFL-3.0 (https://opensource.org/license/afl-3-0-php)
  * @link    https://flizpay.de
  */
 

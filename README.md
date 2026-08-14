@@ -151,3 +151,12 @@ require the package, unit, and integration jobs as status checks on `main`.
 The module currently owns the `flizpay_payment_attempt` and
 `flizpay_webhook_event` declarative-schema tables. Full uninstall and data
 retention verification is scheduled for the release lifecycle phase.
+
+## License
+
+This extension is dual-licensed under the
+[Open Software License 3.0 (OSL-3.0)](https://opensource.org/license/osl-3-0-php)
+and the
+[Academic Free License 3.0 (AFL-3.0)](https://opensource.org/license/afl-3-0-php),
+matching the licensing of Magento Open Source. See [LICENSE.txt](LICENSE.txt)
+and [LICENSE_AFL.txt](LICENSE_AFL.txt) for the full license texts.

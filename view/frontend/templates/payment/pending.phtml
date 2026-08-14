@@ -1,11 +1,24 @@
 <?php
+/**
+ * FLIZpay Magento 2
+ *
+ * This Magento 2 extension enables to process payments with FLIZpay.
+ *
+ * @package FlizPay_Payment
+ * @author  FLIZpay GmbH
+ * @license OSL-3.0 (https://opensource.org/license/osl-3-0-php) / AFL-3.0 (https://opensource.org/license/afl-3-0-php)
+ * @link    https://flizpay.de
+ */
+
 /** @var \FlizPay\Payment\Block\Payment\ReturnPage $block */
 ?>
 <div class="flizpay-payment-pending" data-mage-init='<?= /* @noEscape */ $block->getPollingConfiguration() ?>'>
     <h1><?= $block->escapeHtml(__("We are confirming your payment")) ?></h1>
     <p>
         <?= $block->escapeHtml(
-            __("Your FLIZpay payment is being confirmed. This usually takes only a few seconds."),
+            __(
+                "Your FLIZpay payment is being confirmed. This usually takes only a few seconds.",
+            ),
         ) ?>
     </p>
     <p data-role="flizpay-payment-status">
@@ -13,8 +26,12 @@
     </p>
     <noscript>
         <p>
-            <a class="action primary" href="<?= $block->escapeUrl($block->getSuccessUrl()) ?>">
-                <span><?= $block->escapeHtml(__("Check payment status")) ?></span>
+            <a class="action primary" href="<?= $block->escapeUrl(
+                $block->getSuccessUrl(),
+            ) ?>">
+                <span><?= $block->escapeHtml(
+                    __("Check payment status"),
+                ) ?></span>
             </a>
         </p>
     </noscript>
