@@ -146,4 +146,25 @@
             type="FlizPay\Payment\Plugin\OrderInvoicePreparationPlugin"
         />
     </type>
+
+    <type name="Magento\Sales\Model\Order\CreditmemoFactory">
+        <plugin
+            name="flizpay_full_creditmemo_preparation"
+            type="FlizPay\Payment\Plugin\CreditmemoPreparationPlugin"
+        />
+    </type>
+
+    <type name="Magento\Sales\Model\Service\CreditmemoService">
+        <plugin
+            name="flizpay_full_offline_creditmemo_refund"
+            type="FlizPay\Payment\Plugin\CreditmemoRefundPlugin"
+        />
+    </type>
+
+    <type name="Magento\Sales\Model\RefundInvoice">
+        <plugin
+            name="flizpay_offline_invoice_refund"
+            type="FlizPay\Payment\Plugin\RefundInvoicePlugin"
+        />
+    </type>
 </config>

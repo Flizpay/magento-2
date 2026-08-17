@@ -66,6 +66,11 @@ the already-reactivated quote to the checkout session.
 FLIZpay supports one full invoice per order. Partial and multiple invoices are
 rejected before Magento constructs invoice totals.
 
+One full offline credit memo is supported after payment completion. Partial or
+multiple credit memos and online refunds are not supported. Creating the credit
+memo updates Magento accounting only; it does not send a refund to FLIZpay, so
+the merchant must return funds to the customer separately.
+
 Transaction creation is idempotent. Every payment attempt sends a unique
 `Idempotency-Key` header; the provider answers a conflicting reuse with HTTP
 409, which the module reports as a distinct creation failure. Repeated start

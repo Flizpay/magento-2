@@ -1,0 +1,35 @@
+<?xml version="1.0" ?>
+<!--
+/**
+ * FLIZpay Magento 2
+ *
+ * This Magento 2 extension enables to process payments with FLIZpay.
+ *
+ * @package FlizPay_Payment
+ * @author  FLIZpay GmbH
+ * @license OSL-3.0 (https://opensource.org/license/osl-3-0-php) / AFL-3.0 (https://opensource.org/license/afl-3-0-php)
+ * @link    https://flizpay.de
+ */
+ -->
+<page
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd"
+>
+    <body>
+        <referenceContainer name="content">
+            <block
+                class="Magento\Backend\Block\Template"
+                name="flizpay.creditmemo.notice"
+                template="FlizPay_Payment::creditmemo/notice.phtml"
+                before="-"
+            >
+                <arguments>
+                    <argument
+                        name="view_model"
+                        xsi:type="object"
+                    >FlizPay\Payment\ViewModel\Adminhtml\CreditmemoNotice</argument>
+                </arguments>
+            </block>
+        </referenceContainer>
+    </body>
+</page>

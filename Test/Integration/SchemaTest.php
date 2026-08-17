@@ -36,5 +36,21 @@ class SchemaTest extends TestCase
             AdapterInterface::INDEX_TYPE_UNIQUE,
             $attemptIndexes["FLIZPAY_PAYMENT_ATTEMPT_ATTEMPT_ID"]["INDEX_TYPE"],
         );
+
+        $creditmemoTable = $resource->getTableName("sales_creditmemo");
+        $creditmemoColumns = $connection->describeTable($creditmemoTable);
+        self::assertArrayHasKey("flizpay_cashback_amount", $creditmemoColumns);
+        self::assertArrayHasKey(
+            "base_flizpay_cashback_amount",
+            $creditmemoColumns,
+        );
+        self::assertArrayHasKey("flizpay_full_refund", $creditmemoColumns);
+        $creditmemoIndexes = $connection->getIndexList($creditmemoTable);
+        self::assertSame(
+            AdapterInterface::INDEX_TYPE_UNIQUE,
+            $creditmemoIndexes["SALES_CREDITMEMO_ORDER_ID_FLIZPAY_FULL_REFUND"][
+                "INDEX_TYPE"
+            ],
+        );
     }
 }
