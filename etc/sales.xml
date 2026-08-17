@@ -24,4 +24,13 @@
             />
         </group>
     </section>
+    <section name="order_creditmemo">
+        <group name="totals">
+            <item
+                name="flizpay_cashback"
+                instance="FlizPay\Payment\Model\Order\Creditmemo\Total\Cashback"
+                sort_order="350"
+            />
+        </group>
+    </section>
 </config>

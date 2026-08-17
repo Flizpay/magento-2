@@ -7,10 +7,15 @@ namespace FlizPay\Payment\Test\Integration;
 use FlizPay\Payment\Service\Payment\CompletedPaymentHandler;
 use FlizPay\Payment\Service\Payment\PaymentAttemptRepository;
 use Magento\Framework\App\ResourceConnection;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Creditmemo;
+use Magento\Sales\Model\Order\CreditmemoFactory;
 use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\ItemFactory;
+use Magento\Sales\Model\RefundInvoice;
+use Magento\Sales\Model\Service\CreditmemoService;
 use Magento\TestFramework\Helper\Bootstrap;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -356,6 +361,126 @@ class CashbackVatScenarioTest extends TestCase
                 ->getByProviderTransactionId($providerTransactionId)
                 ->getData("provider_status"),
         );
+
+        $firstItem = $order->getAllVisibleItems()[0];
+        try {
+            $objectManager->get(CreditmemoFactory::class)->createByInvoice(
+                $invoice,
+                ["qtys" => [(int) $firstItem->getId() => 0]],
+            );
+            self::fail("Expected partial FLIZpay credit memo to fail.");
+        } catch (LocalizedException $exception) {
+            self::assertSame(
+                "FLIZpay supports one full offline credit memo only.",
+                $exception->getMessage(),
+            );
+        }
+
+        try {
+            $objectManager->get(CreditmemoFactory::class)->createByInvoice(
+                $invoice,
+                ["adjustment_positive" => 1],
+            );
+            self::fail("Expected adjusted FLIZpay credit memo to fail.");
+        } catch (LocalizedException $exception) {
+            self::assertSame(
+                "FLIZpay credit memo adjustments are not supported.",
+                $exception->getMessage(),
+            );
+        }
+
+        if ((float) $order->getShippingInvoiced() > 0) {
+            try {
+                $objectManager->get(CreditmemoFactory::class)->createByInvoice(
+                    $invoice,
+                    ["shipping_amount" => 0],
+                );
+                self::fail("Expected partial shipping refund to fail.");
+            } catch (LocalizedException $exception) {
+                self::assertSame(
+                    "FLIZpay supports one full offline credit memo only.",
+                    $exception->getMessage(),
+                );
+            }
+        }
+
+        try {
+            $objectManager
+                ->get(RefundInvoice::class)
+                ->execute((int) $invoice->getId(), [], true);
+            self::fail("Expected online FLIZpay refund to fail.");
+        } catch (LocalizedException $exception) {
+            self::assertSame(
+                "FLIZpay online refunds are not supported. Choose Refund Offline.",
+                $exception->getMessage(),
+            );
+        }
+
+        $creditmemo = $objectManager
+            ->get(CreditmemoFactory::class)
+            ->createByInvoice($invoice);
+        self::assertEquals($final, (float) $creditmemo->getGrandTotal());
+        self::assertEquals(
+            $cashback,
+            (float) $creditmemo->getData("flizpay_cashback_amount"),
+        );
+        self::assertSame(
+            1,
+            (int) $creditmemo->getData("flizpay_full_refund"),
+        );
+
+        $objectManager
+            ->get(CreditmemoService::class)
+            ->refund($creditmemo, true);
+
+        $order = $objectManager->create(Order::class)->load($order->getId());
+        $invoice = $order->getInvoiceCollection()->getFirstItem();
+        $creditmemo = $order->getCreditmemosCollection()->getFirstItem();
+        self::assertInstanceOf(Creditmemo::class, $creditmemo);
+        self::assertSame(Creditmemo::STATE_REFUNDED, (int) $creditmemo->getState());
+        self::assertSame(Order::STATE_CLOSED, $order->getState());
+        self::assertEquals($final, (float) $creditmemo->getGrandTotal());
+        self::assertEquals($final, (float) $order->getTotalRefunded());
+        self::assertEquals($final, (float) $order->getTotalOfflineRefunded());
+        self::assertEquals(0.0, (float) $order->getTotalOnlineRefunded());
+        self::assertEquals(
+            (float) $order->getTotalPaid(),
+            (float) $order->getPayment()->getAmountRefunded(),
+        );
+        self::assertTrue((bool) $invoice->getIsUsedForRefund());
+        self::assertEquals(
+            (float) $invoice->getBaseGrandTotal(),
+            (float) $invoice->getBaseTotalRefunded(),
+        );
+        self::assertSame(1, $order->getCreditmemosCollection()->getSize());
+        self::assertStringContainsString(
+            "No refund request was sent to FLIZpay.",
+            implode(
+                " ",
+                array_map(
+                    static fn($history): string => (string) $history->getComment(),
+                    $order->getStatusHistories(),
+                ),
+            ),
+        );
+        foreach ($order->getAllVisibleItems() as $item) {
+            self::assertEquals(
+                (float) $item->getQtyInvoiced(),
+                (float) $item->getQtyRefunded(),
+            );
+        }
+
+        try {
+            $objectManager
+                ->get(CreditmemoFactory::class)
+                ->createByInvoice($invoice);
+            self::fail("Expected second FLIZpay credit memo to fail.");
+        } catch (LocalizedException $exception) {
+            self::assertSame(
+                "This FLIZpay order has already been refunded.",
+                $exception->getMessage(),
+            );
+        }
     }
 
     private function prepareOrder(array $scenario): Order

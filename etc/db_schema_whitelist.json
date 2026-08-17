@@ -1,60 +1,70 @@
 {
-    "sales_order": {
-        "column": {
-            "flizpay_cashback_amount": true,
-            "base_flizpay_cashback_amount": true,
-            "flizpay_original_grand_total": true,
-            "base_flizpay_original_grand_total": true,
-            "flizpay_shipping_cashback_amount": true,
-            "base_flizpay_shipping_cashback_amount": true
-        }
-    },
-    "sales_order_item": {
-        "column": {
-            "flizpay_cashback_amount": true,
-            "base_flizpay_cashback_amount": true
-        }
-    },
-    "sales_invoice": {
-        "column": {
-            "flizpay_cashback_amount": true,
-            "base_flizpay_cashback_amount": true
-        }
-    },
-    "flizpay_payment_attempt": {
-        "column": {
-            "entity_id": true,
-            "attempt_id": true,
-            "order_id": true,
-            "order_increment_id": true,
-            "quote_id": true,
-            "store_id": true,
-            "provider_transaction_id": true,
-            "provider_reference": true,
-            "expected_amount_minor": true,
-            "currency": true,
-            "provider_status": true,
-            "creation_state": true,
-            "safe_error_code": true,
-            "encrypted_success_url": true,
-            "encrypted_failure_url": true,
-            "encrypted_redirect_url": true,
-            "return_token_hash": true,
-            "expires_at": true,
-            "created_at": true,
-            "updated_at": true
-        },
-        "index": {
-            "FLIZPAY_PAYMENT_ATTEMPT_CREATION_STATE": true
-        },
-        "constraint": {
-            "PRIMARY": true,
-            "FLIZPAY_PAYMENT_ATTEMPT_ORDER_ID_SALES_ORDER_ENTITY_ID": true,
-            "FLIZPAY_PAYMENT_ATTEMPT_STORE_ID_STORE_STORE_ID": true,
-            "FLIZPAY_PAYMENT_ATTEMPT_ORDER_ID": true,
-            "FLIZPAY_PAYMENT_ATTEMPT_ATTEMPT_ID": true,
-            "FLIZPAY_PAYMENT_ATTEMPT_PROVIDER_TRANSACTION_ID": true,
-            "FLIZPAY_PAYMENT_ATTEMPT_PROVIDER_REFERENCE": true
-        }
+  "sales_order": {
+    "column": {
+      "flizpay_cashback_amount": true,
+      "base_flizpay_cashback_amount": true,
+      "flizpay_original_grand_total": true,
+      "base_flizpay_original_grand_total": true,
+      "flizpay_shipping_cashback_amount": true,
+      "base_flizpay_shipping_cashback_amount": true
     }
+  },
+  "sales_order_item": {
+    "column": {
+      "flizpay_cashback_amount": true,
+      "base_flizpay_cashback_amount": true
+    }
+  },
+  "sales_invoice": {
+    "column": {
+      "flizpay_cashback_amount": true,
+      "base_flizpay_cashback_amount": true
+    }
+  },
+  "sales_creditmemo": {
+    "column": {
+      "flizpay_cashback_amount": true,
+      "base_flizpay_cashback_amount": true,
+      "flizpay_full_refund": true
+    },
+    "constraint": {
+      "SALES_CREDITMEMO_ORDER_ID_FLIZPAY_FULL_REFUND": true
+    }
+  },
+  "flizpay_payment_attempt": {
+    "column": {
+      "entity_id": true,
+      "attempt_id": true,
+      "order_id": true,
+      "order_increment_id": true,
+      "quote_id": true,
+      "store_id": true,
+      "provider_transaction_id": true,
+      "provider_reference": true,
+      "expected_amount_minor": true,
+      "currency": true,
+      "provider_status": true,
+      "creation_state": true,
+      "safe_error_code": true,
+      "encrypted_success_url": true,
+      "encrypted_failure_url": true,
+      "encrypted_redirect_url": true,
+      "return_token_hash": true,
+      "expires_at": true,
+      "created_at": true,
+      "updated_at": true
+    },
+    "index": {
+      "FLIZPAY_PAYMENT_ATTEMPT_CREATION_STATE": true
+    },
+    "constraint": {
+      "PRIMARY": true,
+      "FLIZPAY_PAYMENT_ATTEMPT_ORDER_ID_SALES_ORDER_ENTITY_ID": true,
+      "FLIZPAY_PAYMENT_ATTEMPT_STORE_ID_STORE_STORE_ID": true,
+      "FLIZPAY_PAYMENT_ATTEMPT_ORDER_ID": true,
+      "FLIZPAY_PAYMENT_ATTEMPT_ATTEMPT_ID": true,
+      "FLIZPAY_PAYMENT_ATTEMPT_PROVIDER_TRANSACTION_ID": true,
+      "FLIZPAY_PAYMENT_ATTEMPT_PROVIDER_REFERENCE": true
+    }
+  }
 }
