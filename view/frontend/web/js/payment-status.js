@@ -9,7 +9,7 @@
  * @link    https://flizpay.de
  */
 
-define(["jquery"], function ($) {
+define(["jquery", "mage/translate"], function ($, $t) {
   "use strict";
 
   return function (config, element) {
@@ -34,7 +34,9 @@ define(["jquery"], function ($) {
           }
 
           status.text(
-            "Confirmation is taking longer than expected. You may refresh this page shortly.",
+            $t(
+              "Confirmation is taking longer than expected. You may refresh this page shortly.",
+            ),
           );
         })
         .fail(function () {

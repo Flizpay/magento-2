@@ -2,8 +2,6 @@
 
 Native FlizPay payment integration for Magento Open Source and Adobe Commerce.
 
-The module is under active development and is not ready for production use.
-
 ## Compatibility
 
 - Magento Open Source and Adobe Commerce 2.4.7, 2.4.8, and 2.4.9

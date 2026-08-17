@@ -9,14 +9,14 @@
  * @link    https://flizpay.de
  */
 
-define(["jquery"], function ($) {
+define(["jquery", "mage/translate"], function ($, $t) {
   "use strict";
 
   var labels = {
-    not_connected: "Not connected",
-    connecting: "Connecting",
-    connected: "Connected",
-    failed: "Connection failed",
+    not_connected: $t("Not connected"),
+    connecting: $t("Connecting"),
+    connected: $t("Connected"),
+    failed: $t("Connection failed"),
   };
 
   /**
@@ -35,7 +35,7 @@ define(["jquery"], function ($) {
           $(element).text(labels[response.status] || response.status);
           $("#flizpay-connection-verified").text(
             response.verifiedAt
-              ? "Last verified: " + response.verifiedAt + " UTC"
+              ? $t("Last verified: %1 UTC").replace("%1", response.verifiedAt)
               : "",
           );
 

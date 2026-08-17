@@ -75,6 +75,9 @@ class Success implements HttpGetActionInterface
             }
 
             $page = $this->pageFactory->create();
+            $page->getConfig()->getTitle()->set(
+                (string) __("Payment confirmation"),
+            );
             $block = $page->getLayout()->getBlock("flizpay.payment.pending");
             if ($block instanceof ReturnPage) {
                 $block->setData("return_token", $token);
