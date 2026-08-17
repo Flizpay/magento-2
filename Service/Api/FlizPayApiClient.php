@@ -21,7 +21,7 @@ use Psr\Log\LoggerInterface;
  */
 class FlizPayApiClient
 {
-    private const API_BASE_URL = "https://olegs-macbook-pro-1.tail9450f2.ts.net:4440";
+    private const API_BASE_URL = "https://api.flizpay.de";
     private const REQUEST_TIMEOUT_SECONDS = 30;
 
     /**
