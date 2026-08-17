@@ -28,7 +28,7 @@
       "flizpay_full_refund": true
     },
     "constraint": {
-      "SALES_CREDITMEMO_ORDER_ID_FLIZPAY_FULL_REFUND": true
+      "FLIZPAY_CREDITMEMO_ORDER_FULL_REFUND": true
     }
   },
   "flizpay_payment_attempt": {

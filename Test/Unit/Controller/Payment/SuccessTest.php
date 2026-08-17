@@ -20,6 +20,8 @@ use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\Controller\Result\RedirectFactory;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\View\LayoutInterface;
+use Magento\Framework\View\Page\Config;
+use Magento\Framework\View\Page\Title;
 use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
 use Magento\Sales\Model\Order;
@@ -59,6 +61,14 @@ class SuccessTest extends TestCase
             ->willReturn($block);
         $page = $this->createMock(Page::class);
         $page->method("getLayout")->willReturn($layout);
+        $title = $this->createMock(Title::class);
+        $title
+            ->expects(self::once())
+            ->method("set")
+            ->with("Payment confirmation");
+        $config = $this->createStub(Config::class);
+        $config->method("getTitle")->willReturn($title);
+        $page->method("getConfig")->willReturn($config);
         $pageFactory = $this->createStub(PageFactory::class);
         $pageFactory->method("create")->willReturn($page);
 

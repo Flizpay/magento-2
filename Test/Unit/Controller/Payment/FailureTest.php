@@ -19,6 +19,8 @@ use Magento\Framework\Controller\Result\RedirectFactory;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
+use Magento\Framework\View\Page\Config;
+use Magento\Framework\View\Page\Title;
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Checkout\Model\Session as CheckoutSession;
@@ -49,6 +51,14 @@ class FailureTest extends TestCase
         $context->method("isTerminalFailure")->willReturn(false);
 
         $page = $this->createStub(Page::class);
+        $title = $this->createMock(Title::class);
+        $title
+            ->expects(self::once())
+            ->method("set")
+            ->with("Payment not completed");
+        $config = $this->createStub(Config::class);
+        $config->method("getTitle")->willReturn($title);
+        $page->method("getConfig")->willReturn($config);
         $pageFactory = $this->createStub(PageFactory::class);
         $pageFactory->method("create")->willReturn($page);
 

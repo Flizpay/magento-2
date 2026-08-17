@@ -89,7 +89,12 @@ class Failure implements HttpGetActionInterface
                     ->setPath("checkout", ["_secure" => true]);
             }
 
-            return $this->pageFactory->create();
+            $page = $this->pageFactory->create();
+            $page->getConfig()->getTitle()->set(
+                (string) __("Payment not completed"),
+            );
+
+            return $page;
         } catch (\Throwable $exception) {
             $this->logger->warning("FLIZpay return rejected", [
                 "route" => "failure",
