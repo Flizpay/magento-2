@@ -164,6 +164,7 @@ class CompletedPaymentHandlerTest extends TestCase
                 ->getByProviderTransactionId("provider-completed-123")
                 ->getData("provider_status"),
         );
+        self::assertSame(1, (int) $order->getSendEmail());
     }
 
     /**
