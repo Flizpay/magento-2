@@ -1,5 +1,5 @@
 {
-  "name": "flizpay/magento2",
+  "name": "flizpay-gmbh/magento2",
   "description": "FlizPay payment integration for Magento Open Source and Adobe Commerce",
   "type": "magento2-module",
   "version": "1.0.4",

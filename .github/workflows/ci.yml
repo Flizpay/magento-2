@@ -133,11 +133,11 @@ jobs:
           composer config --no-plugins allow-plugins.magento/magento-composer-installer true
           composer config --no-plugins allow-plugins.laminas/laminas-dependency-plugin true
           composer config --no-plugins allow-plugins.php-http/discovery true
-          composer require --no-interaction --no-progress "flizpay/magento2:*"
+          composer require --no-interaction --no-progress "flizpay-gmbh/magento2:*"
           composer require --no-interaction --no-progress --dev "phpunit/phpunit:^12.0"
 
       - name: Run unit tests
-        run: make test-unit MAGENTO_ROOT="$RUNNER_TEMP/package" MODULE_PATH=vendor/flizpay/magento2
+        run: make test-unit MAGENTO_ROOT="$RUNNER_TEMP/package" MODULE_PATH=vendor/flizpay-gmbh/magento2
 
   integration:
     # Provisions a full Magento installation, so it needs the COMPOSER_AUTH

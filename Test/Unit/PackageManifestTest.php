@@ -18,7 +18,7 @@ class PackageManifestTest extends TestCase
             JSON_THROW_ON_ERROR,
         );
 
-        self::assertSame("flizpay/magento2", $manifest["name"]);
+        self::assertSame("flizpay-gmbh/magento2", $manifest["name"]);
         self::assertSame("magento2-module", $manifest["type"]);
         self::assertContains(
             "registration.php",
