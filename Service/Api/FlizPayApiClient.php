@@ -2,8 +2,12 @@
 /**
  * FLIZpay Magento 2
  *
+ * This Magento 2 extension enables to process payments with FLIZpay.
+ *
  * @package FlizPay_Payment
+ * @author  FLIZpay GmbH
  * @license OSL-3.0 (https://opensource.org/license/osl-3-0-php) / AFL-3.0 (https://opensource.org/license/afl-3-0-php)
+ * @link    https://flizpay.de
  */
 
 declare(strict_types=1);
@@ -11,6 +15,7 @@ declare(strict_types=1);
 namespace FlizPay\Payment\Service\Api;
 
 use FlizPay\Payment\Api\ConfigInterface;
+use FlizPay\Payment\Service\ModuleVersion;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\HTTP\Client\Curl;
 use Magento\Framework\Serialize\Serializer\Json;
@@ -29,12 +34,14 @@ class FlizPayApiClient
      * @param Json $json
      * @param ConfigInterface $config
      * @param LoggerInterface $logger
+     * @param ModuleVersion $moduleVersion
      */
     public function __construct(
         private readonly Curl $httpClient,
         private readonly Json $json,
         private readonly ConfigInterface $config,
         private readonly LoggerInterface $logger,
+        private readonly ModuleVersion $moduleVersion,
     ) {}
 
     /**
@@ -200,7 +207,8 @@ class FlizPayApiClient
                     [
                         "Accept" => "application/json",
                         "Content-Type" => "application/json",
-                        "User-Agent" => "FlizPayMagento2/0.1.0",
+                        "User-Agent" =>
+                            "FlizPayMagento2/" . $this->moduleVersion->get(),
                         "x-api-key" => $apiKey,
                     ],
                     $headers,

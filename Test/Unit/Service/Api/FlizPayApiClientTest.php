@@ -7,6 +7,7 @@ namespace FlizPay\Payment\Test\Unit\Service\Api;
 use FlizPay\Payment\Api\ConfigInterface;
 use FlizPay\Payment\Service\Api\FlizPayApiClient;
 use FlizPay\Payment\Service\Api\TransactionCreationException;
+use FlizPay\Payment\Service\ModuleVersion;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\HTTP\Client\Curl;
 use Magento\Framework\Serialize\Serializer\Json;
@@ -25,9 +26,9 @@ class FlizPayApiClientTest extends TestCase
             ->method("setHeaders")
             ->with(
                 self::callback(
-                    static fn(array $headers): bool => !isset(
-                        $headers["Idempotency-Key"],
-                    ),
+                    static fn(array $headers): bool =>
+                        !isset($headers["Idempotency-Key"]) &&
+                        $headers["User-Agent"] === "FlizPayMagento2/1.0.1",
                 ),
             );
         $httpClient
@@ -54,6 +55,7 @@ class FlizPayApiClientTest extends TestCase
             $json,
             $config,
             $this->createStub(LoggerInterface::class),
+            $this->moduleVersion(),
         ))->registerWebhook("https://shop.test/flizpay/webhook");
     }
 
@@ -82,6 +84,7 @@ class FlizPayApiClientTest extends TestCase
                 $json,
                 $config,
                 $this->createStub(LoggerInterface::class),
+                $this->moduleVersion(),
             ))->generateWebhookSecret(),
         );
     }
@@ -345,6 +348,15 @@ class FlizPayApiClientTest extends TestCase
             $json,
             $config,
             $logger ?? $this->createStub(LoggerInterface::class),
+            $this->moduleVersion(),
         );
+    }
+
+    private function moduleVersion(): ModuleVersion
+    {
+        $moduleVersion = $this->createStub(ModuleVersion::class);
+        $moduleVersion->method("get")->willReturn("1.0.1");
+
+        return $moduleVersion;
     }
 }
