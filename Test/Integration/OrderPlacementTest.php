@@ -24,6 +24,9 @@ class OrderPlacementTest extends TestCase
         self::assertSame(Order::STATE_PENDING_PAYMENT, $order->getStatus());
         self::assertSame("flizpay", $order->getPayment()->getMethod());
         self::assertSame(0, $order->getInvoiceCollection()->getSize());
+        self::assertFalse($order->getCanSendNewEmailFlag());
+        self::assertNull($order->getSendEmail());
+        self::assertNull($order->getEmailSent());
     }
 
     /**
@@ -41,6 +44,9 @@ class OrderPlacementTest extends TestCase
         self::assertSame("flizpay", $order->getPayment()->getMethod());
         self::assertSame(1, (int) $order->getCustomerId());
         self::assertSame(0, $order->getInvoiceCollection()->getSize());
+        self::assertFalse($order->getCanSendNewEmailFlag());
+        self::assertNull($order->getSendEmail());
+        self::assertNull($order->getEmailSent());
     }
 
     private function submitFixtureQuote(?Quote $quote = null): Order

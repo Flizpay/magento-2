@@ -17,6 +17,7 @@ namespace FlizPay\Payment\Gateway\Command;
 use Magento\Payment\Gateway\CommandInterface;
 use Magento\Payment\Gateway\Helper\SubjectReader;
 use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Payment;
 
 /**
  * Initializes a persisted FlizPay order without contacting the provider.
@@ -33,6 +34,13 @@ class InitializeCommand implements CommandInterface
     public function execute(array $commandSubject)
     {
         $stateObject = SubjectReader::readStateObject($commandSubject);
+        $paymentData = SubjectReader::readPayment($commandSubject);
+        $payment = $paymentData->getPayment();
+
+        if ($payment instanceof Payment) {
+            $payment->getOrder()->setCanSendNewEmailFlag(false);
+        }
+
         $stateObject->setData("state", Order::STATE_PENDING_PAYMENT);
         $stateObject->setData("status", Order::STATE_PENDING_PAYMENT);
         $stateObject->setData("is_notified", false);

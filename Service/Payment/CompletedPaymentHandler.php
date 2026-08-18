@@ -19,6 +19,7 @@ use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 use Magento\Sales\Model\Order\Payment;
 
 /**
@@ -31,6 +32,7 @@ class CompletedPaymentHandler
         private readonly OrderRepositoryInterface $orderRepository,
         private readonly ResourceConnection $resourceConnection,
         private readonly CashbackAdjustmentService $cashbackAdjustmentService,
+        private readonly OrderSender $orderSender,
     ) {}
 
     /**
@@ -132,6 +134,10 @@ class CompletedPaymentHandler
         } catch (\Throwable $exception) {
             $connection->rollBack();
             throw $exception;
+        }
+
+        if (!$order->getSendEmail()) {
+            $this->orderSender->send($order);
         }
     }
 
