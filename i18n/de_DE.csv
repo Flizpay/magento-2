@@ -4,7 +4,7 @@
 "Welcome to FLIZpay!","Willkommen bei FLIZpay!"
 "Instructions:","Anleitung:"
 "If you don't yet have a FLIZpay business account, please %1click here%2 to create one.","Wenn du noch kein FLIZpay-Geschäftskonto hast, %1klicke hier%2, um eines zu erstellen."
-"Once you have created your account, generate a new API key in your FLIZpay business account and paste it into the ""API Key"" field below. You can find your API keys in the ""Installation"" section of your account.","Erstelle anschließend in deinem FLIZpay-Geschäftskonto einen neuen API-Key und füge ihn unten in das Feld „API Key“ ein. Deinen API-Key findest du im Bereich „Installation“ deines Kontos."
+"Once you have created your account, generate a new API key in your FLIZpay business account and paste it into the ""API Key"" field below. You can find your API keys under ""Set up FLIZ"" > ""Plugins"" > ""Magento"" in your account.","Erstelle anschließend in deinem FLIZpay-Geschäftskonto einen neuen API-Key und füge ihn unten in das Feld „API Key“ ein. Deinen API-Key findest du unter „FLIZ einrichten“ > „Plugins“ > „Magento“ in deinem Konto."
 "Click ""Save Config"".","Klicke auf „Konfiguration speichern“."
 "After approximately five seconds, the page will reload automatically.","Nach etwa fünf Sekunden wird die Seite automatisch neu geladen."
 "Once the connection status shows ""Connected"", your FLIZpay extension is configured, and you can start accepting secure, bank-account-based payments while reducing your payment costs.","Sobald der Verbindungsstatus „Verbunden“ anzeigt, ist die FLIZpay-Extension eingerichtet und du kannst sichere, bankkontobasierte Zahlungen akzeptieren und dabei deine Zahlungskosten senken."
