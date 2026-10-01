@@ -209,6 +209,8 @@ class FlizPayApiClient
                         "Content-Type" => "application/json",
                         "User-Agent" =>
                             "FlizPayMagento2/" . $this->moduleVersion->get(),
+                        "X-FLIZpay-Plugin-Version" =>
+                            $this->moduleVersion->get(),
                         "x-api-key" => $apiKey,
                     ],
                     $headers,

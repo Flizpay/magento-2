@@ -28,7 +28,8 @@ class FlizPayApiClientTest extends TestCase
                 self::callback(
                     static fn(array $headers): bool =>
                         !isset($headers["Idempotency-Key"]) &&
-                        $headers["User-Agent"] === "FlizPayMagento2/1.0.1",
+                        $headers["User-Agent"] === "FlizPayMagento2/1.0.1" &&
+                        $headers["X-FLIZpay-Plugin-Version"] === "1.0.1",
                 ),
             );
         $httpClient
