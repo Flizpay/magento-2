@@ -24,10 +24,11 @@ cashback directly in the Magento checkout.
 
 ## Installation
 
-Run the following commands from the Magento root directory:
+To install from [Packagist](https://packagist.org/packages/flizpay/magento2), run
+the following commands from the Magento root directory:
 
 ```bash
-composer require flizpay-gmbh/magento2
+composer require flizpay/magento2
 bin/magento module:enable FlizPay_Payment
 bin/magento setup:upgrade
 bin/magento setup:di:compile
