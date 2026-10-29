@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FLIZpay for Magento 2 - User Guide</title>
+  <style>
+    @page { size: A4; margin: 13mm 15mm 14mm; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: #102a43;
+      background: #fff;
+      font: 9.2pt/1.33 Arial, Helvetica, sans-serif;
+    }
+    .page {
+      height: 269mm;
+      position: relative;
+      page-break-after: always;
+    }
+    .page:last-child { page-break-after: auto; }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 5mm;
+      border-bottom: 1px solid #cbd5e1;
+    }
+    header img { width: 30mm; height: auto; }
+    header span { color: #52677d; font-size: 8pt; }
+    .hero {
+      margin: 8mm 0 6mm;
+      padding: 12mm;
+      border-radius: 4mm;
+      color: #fff;
+      background: #001f3f;
+    }
+    .hero h1 { margin: 0 0 3mm; color: #80ed99; font-size: 25pt; }
+    .hero p { max-width: 145mm; margin: 0; font-size: 11pt; }
+    h1, h2, h3 { color: #001f3f; line-height: 1.14; }
+    h2 { margin: 5mm 0 2.5mm; font-size: 15pt; }
+    h3 { margin: 3mm 0 1mm; font-size: 10.5pt; }
+    p { margin: 0 0 2mm; }
+    ul, ol { margin: 1mm 0 2.5mm 5mm; padding-left: 4mm; }
+    li { margin: 0 0 .8mm; }
+    code {
+      padding: .2mm 1mm;
+      border-radius: 1mm;
+      color: #0f2942;
+      background: #edf2f7;
+      font: 8.5pt Menlo, Consolas, monospace;
+    }
+    pre {
+      margin: 2mm 0 3mm;
+      padding: 3mm;
+      overflow: hidden;
+      border-radius: 2mm;
+      color: #e8fff0;
+      background: #001f3f;
+      font: 8.2pt/1.55 Menlo, Consolas, monospace;
+      white-space: pre-wrap;
+    }
+    table { width: 100%; border-collapse: collapse; margin: 2mm 0 4mm; }
+    th, td { padding: 1.8mm 2.2mm; border: 1px solid #cbd5e1; vertical-align: top; }
+    th { color: #001f3f; background: #eafbf0; text-align: left; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+    .card { padding: 3mm; border: 1px solid #cbd5e1; border-radius: 2mm; }
+    .card h3 { margin-top: 0; }
+    .note {
+      margin: 3mm 0;
+      padding: 2.5mm 3.5mm;
+      border-left: 1.5mm solid #80ed99;
+      background: #f2fcf5;
+    }
+    .warning { border-left-color: #f0a04b; background: #fff8ed; }
+    .steps { counter-reset: steps; list-style: none; margin-left: 0; padding-left: 0; }
+    .steps li { position: relative; min-height: 8mm; padding: 1mm 0 2mm 10mm; }
+    .steps li::before {
+      counter-increment: steps;
+      content: counter(steps);
+      position: absolute;
+      left: 0;
+      top: .5mm;
+      width: 6mm;
+      height: 6mm;
+      border-radius: 50%;
+      color: #001f3f;
+      background: #80ed99;
+      font-weight: bold;
+      line-height: 6mm;
+      text-align: center;
+    }
+    footer {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      display: flex;
+      justify-content: space-between;
+      padding-top: 2mm;
+      border-top: 1px solid #e2e8f0;
+      color: #718096;
+      font-size: 7.5pt;
+    }
+    a { color: #075d45; }
+  </style>
+</head>
+<body>
+  <section class="page">
+    <header>
+      <img src="../view/frontend/web/images/fliz-checkout-logo.svg" alt="FLIZpay">
+      <span>User and Installation Guide · Extension version 1.0.6</span>
+    </header>
+
+    <div class="hero">
+      <h1>FLIZpay for Magento 2</h1>
+      <p>Accept FLIZpay payments through a hosted checkout and show available cashback in the Magento checkout.</p>
+    </div>
+
+    <h2>About the extension</h2>
+    <p>After a customer places an order, the extension redirects them to the secure FLIZpay payment page. Magento receives signed payment notifications, updates the order, creates the paid invoice, and records the final cashback.</p>
+
+    <div class="grid">
+      <div class="card">
+        <h3>Included</h3>
+        <ul>
+          <li>Guest and registered-customer checkout</li>
+          <li>Automatic webhook registration and verification</li>
+          <li>Cashback display and Magento total adjustment</li>
+          <li>Automatic paid invoice after successful payment</li>
+          <li>Cart restoration after failed or canceled payment</li>
+          <li>Privacy-safe operational logging</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Requirements</h3>
+        <ul>
+          <li>Magento Open Source or Adobe Commerce 2.4.7–2.4.9</li>
+          <li>PHP 8.2–8.5, as supported by the Magento release</li>
+          <li>HTTPS storefront</li>
+          <li>EUR quote currency</li>
+          <li>Magento Luma or Blank checkout</li>
+          <li>Active FLIZpay merchant API key</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="note">
+      <strong>Availability:</strong> FLIZpay appears at checkout only when it is enabled, the API key and connection are valid, the storefront uses HTTPS, and the quote currency is EUR.
+    </div>
+
+    <h2>Before installation</h2>
+    <ul>
+      <li>Back up the Magento files and database.</li>
+      <li>Confirm that Magento cron and production deployment are working.</li>
+      <li>Obtain the API key from the FLIZpay merchant dashboard.</li>
+      <li>Use a staging environment for the initial installation and payment test.</li>
+    </ul>
+
+    <footer><span>FLIZpay for Magento 2</span><span>1 / 4</span></footer>
+  </section>
+
+  <section class="page">
+    <header>
+      <img src="../view/frontend/web/images/fliz-checkout-logo.svg" alt="FLIZpay">
+      <span>Installation and configuration</span>
+    </header>
+
+    <h2>Install with Composer</h2>
+    <p>To install from <a href="https://packagist.org/packages/flizpay/magento2">Packagist</a>, run the following commands from the Magento root directory:</p>
+    <pre>composer require flizpay/magento2
+bin/magento module:enable FlizPay_Payment
+bin/magento setup:upgrade
+bin/magento setup:di:compile
+bin/magento cache:flush</pre>
+
+    <p>For production stores, complete the normal static-content deployment and production-mode process required by your Magento installation.</p>
+
+    <h2>Configure FLIZpay</h2>
+    <ol class="steps">
+      <li>In Admin, open <strong>Stores → Configuration → Sales → Payment Methods → FLIZpay</strong>.</li>
+      <li>Set <strong>Enabled</strong> to <strong>Yes</strong>.</li>
+      <li>Enter the <strong>API Key</strong> from the FLIZpay merchant dashboard.</li>
+      <li>Click <strong>Save Config</strong>. The extension registers the secure webhook and verifies it with a signed test notification.</li>
+      <li>Wait until <strong>Connection Status</strong> reports a successful connection, then flush the Magento configuration cache if necessary.</li>
+      <li>Place a test order in your staging environment before enabling FLIZpay on the production storefront.</li>
+    </ol>
+
+    <h2>Configuration fields</h2>
+    <table>
+      <thead><tr><th>Field</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Enabled</strong></td><td>Shows or hides FLIZpay for eligible storefront quotes.</td></tr>
+        <tr><td><strong>API Key</strong></td><td>Authenticates FLIZpay API requests. Magento encrypts it at rest.</td></tr>
+        <tr><td><strong>Connection Status</strong></td><td>Shows whether webhook registration and signed verification succeeded.</td></tr>
+        <tr><td><strong>Preview</strong></td><td>Displays the customer-facing appearance of the payment method in the Admin configuration.</td></tr>
+        <tr><td><strong>Logo</strong></td><td>Shows the FLIZpay logo next to the checkout payment method.</td></tr>
+        <tr><td><strong>Subtitle</strong></td><td>Shows the payment and cashback description when FLIZpay is selected.</td></tr>
+        <tr><td><strong>Enable Debug Logging</strong></td><td>Adds verbose diagnostic entries. Leave disabled in production unless troubleshooting.</td></tr>
+        <tr><td><strong>Sort Order</strong></td><td>Controls the method position. Lower values appear first.</td></tr>
+        <tr><td><strong>Current Discount Rates</strong></td><td>Displays the cashback rates synchronized from FLIZpay.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="note">
+      One Magento installation uses one global FLIZpay API key and webhook connection. Enablement and checkout presentation can follow Magento website configuration scope.
+    </div>
+
+    <footer><span>FLIZpay for Magento 2</span><span>2 / 4</span></footer>
+  </section>
+
+  <section class="page">
+    <header>
+      <img src="../view/frontend/web/images/fliz-checkout-logo.svg" alt="FLIZpay">
+      <span>Payment behavior</span>
+    </header>
+
+    <h2>Customer checkout</h2>
+    <ol class="steps">
+      <li>The customer selects FLIZpay and places the Magento order.</li>
+      <li>Magento creates the order with status <code>pending_payment</code>.</li>
+      <li>The customer is redirected to the hosted FLIZpay payment page.</li>
+      <li>After payment, the customer returns to Magento. A pending page waits briefly if the signed payment notification is still being processed.</li>
+      <li>Magento trusts the signed webhook, not the browser return, to settle the order.</li>
+    </ol>
+
+    <h2>Payment results</h2>
+    <table>
+      <thead><tr><th>FLIZpay result</th><th>Magento behavior</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Pending / processing</strong></td><td>The order remains <code>pending_payment</code> while Magento waits for a terminal result.</td></tr>
+        <tr><td><strong>Completed</strong></td><td>Magento records the capture, creates one paid invoice, and moves the order to <code>processing</code>.</td></tr>
+        <tr><td><strong>Failed / canceled</strong></td><td>Magento cancels the order and restores the customer cart when the checkout session is available.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Cashback</h2>
+    <p>The checkout can display the maximum available cashback percentage. This preview does not change the quote total. FLIZpay determines the actual cashback and sends the original and final amounts in the signed completed-payment notification.</p>
+    <p>Before settlement, Magento applies the difference as cashback across eligible products and shipping, including the proportional tax adjustment. The order and invoice then show the final paid totals.</p>
+
+    <h2>Invoices and credit memos</h2>
+    <ul>
+      <li>A successful FLIZpay payment creates exactly one full paid invoice automatically.</li>
+      <li>For a completed payment, Magento permits one full <strong>offline</strong> credit memo.</li>
+      <li>An offline credit memo updates Magento records only. It does not send money through FLIZpay.</li>
+      <li>Refunds cannot currently be initiated through this extension or your FLIZ Business account. If a refund is required, repay the customer directly outside FLIZpay, for example by bank transfer. Then create the corresponding full offline credit memo in Magento Admin.</li>
+    </ul>
+
+    <div class="note warning">
+      <strong>Not supported:</strong> partial or multiple invoices, partial credit memos, online refunds, merchant-initiated capture or void, Admin order payment, multi-address checkout, non-EUR checkout, Hyvä, PWA/headless, GraphQL checkout, and third-party checkout replacements.
+    </div>
+
+    <footer><span>FLIZpay for Magento 2</span><span>3 / 4</span></footer>
+  </section>
+
+  <section class="page">
+    <header>
+      <img src="../view/frontend/web/images/fliz-checkout-logo.svg" alt="FLIZpay">
+      <span>Troubleshooting and maintenance</span>
+    </header>
+
+    <h2>Troubleshooting</h2>
+    <table>
+      <thead><tr><th>Problem</th><th>Check</th></tr></thead>
+      <tbody>
+        <tr><td>FLIZpay is missing at checkout</td><td>Confirm Enabled = Yes, EUR currency, HTTPS secure base URL, a saved API key, and a successful Connection Status.</td></tr>
+        <tr><td>Connection is not verified</td><td>Save the API key again and confirm that the public HTTPS endpoint <code>/flizpay/webhook</code> is reachable through the firewall or proxy.</td></tr>
+        <tr><td>Order remains pending</td><td>Check the FLIZpay payment state and <code>var/log/flizpay.log</code>. Do not manually mark the order paid based only on the browser return.</td></tr>
+        <tr><td>Customer cannot complete payment</td><td>Confirm the storefront session is active, retry from the restored cart when offered, and inspect the FLIZpay log for a safe error code.</td></tr>
+        <tr><td>Credit memo is rejected</td><td>Create a full credit memo from the paid invoice and choose <strong>Refund Offline</strong>. Partial and online refunds are not supported.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Logging</h2>
+    <p>Warnings and errors are written to <code>var/log/flizpay.log</code>. Enable <strong>Debug Logging</strong> temporarily for additional API and webhook diagnostics, then disable it again in production.</p>
+    <p>The dedicated log excludes API credentials, webhook signatures, customer data, and request or response bodies. Review a diagnostic copy before sharing it with support.</p>
+
+    <h2>Update or disable</h2>
+    <p>Update the Composer package using your normal controlled deployment, then run:</p>
+    <pre>bin/magento setup:upgrade
+bin/magento setup:di:compile
+bin/magento cache:flush</pre>
+    <p>To stop offering FLIZpay, set <strong>Enabled</strong> to <strong>No</strong>. Existing orders and payment records remain in Magento for operational and accounting history.</p>
+
+    <h2>Support and license</h2>
+    <p>Contact FLIZpay support at <a href="mailto:info@flizpay.de">info@flizpay.de</a>.</p>
+    <p>When requesting support, provide the Magento version, PHP version, extension version, affected order number, time of the event, and relevant sanitized lines from <code>var/log/flizpay.log</code>.</p>
+    <p>Product website: <a href="https://flizpay.de">https://flizpay.de</a></p>
+    <p>This extension is dual-licensed under the Open Software License 3.0 and Academic Free License 3.0. See <code>LICENSE.txt</code> and <code>LICENSE_AFL.txt</code> in the extension package.</p>
+
+    <div class="note">
+      <strong>Go-live check:</strong> verify the connection, place one successful payment and one failed/canceled payment, confirm the invoice and cashback totals, and confirm that the failed checkout restores the cart.
+    </div>
+
+    <footer><span>FLIZpay for Magento 2 · Fliz Pay GmbH</span><span>4 / 4</span></footer>
+  </section>
+</body>
+</html>

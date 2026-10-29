@@ -12,6 +12,7 @@ namespace FlizPay\Payment\Service\Connection;
 
 use FlizPay\Payment\Api\ConfigInterface;
 use FlizPay\Payment\Service\Api\FlizPayApiClient;
+use FlizPay\Payment\Service\Checkout\PublicIdResolver;
 use FlizPay\Payment\Service\Connection\ConnectionConfigWriter;
 use FlizPay\Payment\Service\Logging\PaymentLogger;
 use Magento\Framework\Exception\LocalizedException;
@@ -28,6 +29,7 @@ class ConnectionManager
      * @param ConfigInterface $config
      * @param ConnectionConfigWriter $configWriter
      * @param FlizPayApiClient $apiClient
+     * @param PublicIdResolver $publicIdResolver
      * @param StoreManagerInterface $storeManager
      * @param PaymentLogger $logger
      */
@@ -35,6 +37,7 @@ class ConnectionManager
         private readonly ConfigInterface $config,
         private readonly ConnectionConfigWriter $configWriter,
         private readonly FlizPayApiClient $apiClient,
+        private readonly PublicIdResolver $publicIdResolver,
         private readonly StoreManagerInterface $storeManager,
         private readonly PaymentLogger $logger,
     ) {}
@@ -74,10 +77,16 @@ class ConnectionManager
         $sameWebhookUrl = $this->config->getWebhookUrl() === $webhookUrl;
 
         if ($connectionCurrent && $sameApiKey && $sameWebhookUrl) {
+            // Nothing to reconnect, but an earlier acquisition may have failed.
+            // Saving settings is merchant-initiated, so retry without throttling.
+            $this->publicIdResolver->ensure();
+
             return false;
         }
 
+        // Blanks the stored public id along with the rest of the connection.
         $this->configWriter->markConnecting($webhookUrl, $apiKeyHash);
+        $this->publicIdResolver->clearRetryBackoff();
 
         try {
             $this->apiClient->registerWebhook($webhookUrl);
@@ -97,6 +106,9 @@ class ConnectionManager
                 __("Unable to connect Magento to FLIZpay."),
             );
         }
+
+        // The checkout components need this; failure only costs the offer text.
+        $this->publicIdResolver->ensure();
 
         try {
             $this->configWriter->replaceCashbackData(

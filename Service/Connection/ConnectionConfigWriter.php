@@ -57,6 +57,21 @@ class ConnectionConfigWriter
         $this->save("connection_api_key_hash", $apiKeyHash);
         $this->delete("webhook_secret");
         $this->delete("connection_verified_at");
+        // The id belongs to the credentials being replaced, so it is dropped
+        // here and refetched; a reconnect can never inherit a stale one.
+        $this->delete("public_id");
+        $this->cleanConfigCache();
+    }
+
+    /**
+     * Store the shop's public id.
+     *
+     * @param string $publicId
+     * @return void
+     */
+    public function savePublicId(string $publicId): void
+    {
+        $this->save("public_id", $publicId);
         $this->cleanConfigCache();
     }
 
@@ -127,6 +142,7 @@ class ConnectionConfigWriter
         $this->delete("webhook_secret");
         $this->delete("connection_api_key_hash");
         $this->delete("connection_verified_at");
+        $this->delete("public_id");
         $this->delete("cashback_data");
         $this->cleanConfigCache();
     }

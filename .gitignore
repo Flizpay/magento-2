@@ -2,3 +2,4 @@
 /vendor/
 /.phpunit.cache/
 /.codegraph
+/.DS_Store

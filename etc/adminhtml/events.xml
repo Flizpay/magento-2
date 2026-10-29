@@ -27,4 +27,10 @@
             instance="FlizPay\Payment\Observer\ConnectAfterConfigSave"
         />
     </event>
+    <event name="controller_action_predispatch_adminhtml_system_config_edit">
+        <observer
+            name="flizpay_ensure_public_id"
+            instance="FlizPay\Payment\Observer\EnsurePublicId"
+        />
+    </event>
 </config>

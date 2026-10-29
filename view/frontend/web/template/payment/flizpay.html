@@ -1,3 +1,12 @@
+<!--
+/**
+ * FLIZpay Magento 2
+ *
+ * Checkout offer text. What it shows is decided by FLIZpay; the shop only
+ * passes what it knows. The surfaces are rendered once and keep their nodes,
+ * because remounting a <fliz-checkout> makes it refetch its offer text.
+ */
+-->
 <div
     class="payment-method"
     data-bind="css: {'_active': (getCode() == isChecked())}"
@@ -18,25 +27,37 @@
             class="label flizpay-payment-label"
         >
             <span class="flizpay-payment-copy">
-                <strong data-bind="text: getDisplayTitle()"></strong>
+                <strong>
+                    <!-- ko if: showHeadline -->
+                    <fliz-checkout
+                        data-surface="title"
+                        data-bind="attr: {'data-public-id': publicId,
+                                          'data-locale': locale,
+                                          'data-amount': amount}"
+                    >FLIZpay</fliz-checkout>
+                    <!-- /ko -->
+                    <!-- ko ifnot: showHeadline -->
+                    <span data-bind="text: getTitle()"></span>
+                    <!-- /ko -->
+                </strong>
+                <!-- ko if: showDescription -->
                 <span
                     class="flizpay-payment-description"
-                    data-bind="text: getCashbackDescription(),
-                               visible: shouldShowDescription()"
-                ></span>
-                <a
-                    class="flizpay-payment-more-info"
-                    href="https://flizpay.de/shoppers"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    data-bind="text: $t('Learn more.'),
-                               visible: shouldShowMoreInfo()"
-                ></a>
+                    data-bind="visible: isDescriptionVisible()"
+                >
+                    <fliz-checkout
+                        data-surface="description"
+                        data-bind="attr: {'data-public-id': publicId,
+                                          'data-locale': locale,
+                                          'data-amount': amount}"
+                    ></fliz-checkout>
+                </span>
+                <!-- /ko -->
             </span>
             <img
                 class="flizpay-checkout-logo"
                 data-bind="attr: {src: getLogoUrl()},
-                           visible: shouldShowLogo()"
+                           visible: showLogo"
                 alt="FLIZpay"
             />
         </label>

@@ -23,8 +23,14 @@
     flex-direction: column;
 }
 
+/**
+ * <fliz-checkout> is styled only through its container. The component sets
+ * font and color to inherit on its shadow root, so these reach its text while
+ * everything inside stays FLIZpay's to style.
+ */
 .flizpay-payment-description {
     color: #12233f;
+    display: block;
     font-size: 1.3rem;
     line-height: 1.5;
     margin-top: 6px;

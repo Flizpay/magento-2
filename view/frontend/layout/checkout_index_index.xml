@@ -19,6 +19,13 @@
         <css src="FlizPay_Payment::css/source/_checkout.css" />
     </head>
     <body>
+        <referenceContainer name="before.body.end">
+            <block
+                class="FlizPay\Payment\Block\Checkout\WidgetScript"
+                name="flizpay.widget.script"
+                template="FlizPay_Payment::checkout/widget-script.phtml"
+            />
+        </referenceContainer>
         <referenceBlock name="checkout.root">
             <arguments>
                 <argument name="jsLayout" xsi:type="array">

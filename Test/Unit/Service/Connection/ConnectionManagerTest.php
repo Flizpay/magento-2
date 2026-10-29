@@ -6,6 +6,7 @@ namespace FlizPay\Payment\Test\Unit\Service\Connection;
 
 use FlizPay\Payment\Api\ConfigInterface;
 use FlizPay\Payment\Service\Api\FlizPayApiClient;
+use FlizPay\Payment\Service\Checkout\PublicIdResolver;
 use FlizPay\Payment\Service\Connection\ConnectionConfigWriter;
 use FlizPay\Payment\Service\Connection\ConnectionManager;
 use FlizPay\Payment\Service\Logging\PaymentLogger;
@@ -62,12 +63,14 @@ class ConnectionManagerTest extends TestCase
         $store->method("getBaseUrl")->willReturn("https://shop.test/");
         $storeManager = $this->createStub(StoreManagerInterface::class);
         $storeManager->method("getDefaultStoreView")->willReturn($store);
+        $publicIdResolver = $this->createStub(PublicIdResolver::class);
 
         self::assertTrue(
             (new ConnectionManager(
                 $config,
                 $writer,
                 $apiClient,
+                $publicIdResolver,
                 $storeManager,
                 $this->createStub(PaymentLogger::class),
             ))
@@ -96,12 +99,14 @@ class ConnectionManagerTest extends TestCase
         $store->method("getBaseUrl")->willReturn("https://shop.test/");
         $storeManager = $this->createStub(StoreManagerInterface::class);
         $storeManager->method("getDefaultStoreView")->willReturn($store);
+        $publicIdResolver = $this->createStub(PublicIdResolver::class);
 
         self::assertFalse(
             (new ConnectionManager(
                 $config,
                 $writer,
                 $apiClient,
+                $publicIdResolver,
                 $storeManager,
                 $this->createStub(PaymentLogger::class),
             ))
@@ -155,16 +160,92 @@ class ConnectionManagerTest extends TestCase
         $store->method("getBaseUrl")->willReturn("https://shop.test/");
         $storeManager = $this->createStub(StoreManagerInterface::class);
         $storeManager->method("getDefaultStoreView")->willReturn($store);
+        $publicIdResolver = $this->createStub(PublicIdResolver::class);
 
         self::assertTrue(
             (new ConnectionManager(
                 $config,
                 $writer,
                 $apiClient,
+                $publicIdResolver,
                 $storeManager,
                 $this->createStub(PaymentLogger::class),
             ))
                 ->connectIfNeeded(),
+        );
+    }
+
+    /** markConnecting() blanks the stored id, so a reconnect must refetch it. */
+    public function testConnectingAcquiresThePublicIdUnthrottled(): void
+    {
+        $config = $this->createStub(ConfigInterface::class);
+        $config->method("getApiKey")->willReturn("api-key");
+        $config->method("getConnectionStatus")->willReturn("not_connected");
+
+        $apiClient = $this->createStub(FlizPayApiClient::class);
+        $apiClient->method("generateWebhookSecret")->willReturn("secret");
+        $apiClient->method("fetchCashbackData")->willReturn([
+            "first_purchase_amount" => 5.0,
+            "standard_amount" => 2.0,
+        ]);
+
+        $store = $this->createStub(Store::class);
+        $store->method("getBaseUrl")->willReturn("https://shop.test/");
+        $storeManager = $this->createStub(StoreManagerInterface::class);
+        $storeManager->method("getDefaultStoreView")->willReturn($store);
+
+        $publicIdResolver = $this->createMock(PublicIdResolver::class);
+        $publicIdResolver->expects(self::once())->method("clearRetryBackoff");
+        $publicIdResolver
+            ->expects(self::once())
+            ->method("ensure")
+            ->with();
+
+        self::assertTrue(
+            (new ConnectionManager(
+                $config,
+                $this->createStub(ConnectionConfigWriter::class),
+                $apiClient,
+                $publicIdResolver,
+                $storeManager,
+                $this->createStub(PaymentLogger::class),
+            ))->connectIfNeeded(),
+        );
+    }
+
+    /**
+     * Nothing to reconnect, but an earlier acquisition may have failed, and
+     * saving settings is merchant-initiated.
+     */
+    public function testUnchangedConfigurationStillRetriesThePublicId(): void
+    {
+        $apiKeyHash = hash("sha256", "api-key");
+        $config = $this->createStub(ConfigInterface::class);
+        $config->method("getApiKey")->willReturn("api-key");
+        $config->method("getConnectionStatus")->willReturn("connected");
+        $config->method("hasWebhookSecret")->willReturn(true);
+        $config->method("getConnectionApiKeyHash")->willReturn($apiKeyHash);
+        $config
+            ->method("getWebhookUrl")
+            ->willReturn("https://shop.test/flizpay/webhook");
+
+        $store = $this->createStub(Store::class);
+        $store->method("getBaseUrl")->willReturn("https://shop.test/");
+        $storeManager = $this->createStub(StoreManagerInterface::class);
+        $storeManager->method("getDefaultStoreView")->willReturn($store);
+
+        $publicIdResolver = $this->createMock(PublicIdResolver::class);
+        $publicIdResolver->expects(self::once())->method("ensure")->with();
+
+        self::assertFalse(
+            (new ConnectionManager(
+                $config,
+                $this->createStub(ConnectionConfigWriter::class),
+                $this->createStub(FlizPayApiClient::class),
+                $publicIdResolver,
+                $storeManager,
+                $this->createStub(PaymentLogger::class),
+            ))->connectIfNeeded(),
         );
     }
 
@@ -190,12 +271,14 @@ class ConnectionManagerTest extends TestCase
         $store->method("getBaseUrl")->willReturn("https://shop.test/");
         $storeManager = $this->createStub(StoreManagerInterface::class);
         $storeManager->method("getDefaultStoreView")->willReturn($store);
+        $publicIdResolver = $this->createStub(PublicIdResolver::class);
 
         self::assertTrue(
             (new ConnectionManager(
                 $config,
                 $writer,
                 $apiClient,
+                $publicIdResolver,
                 $storeManager,
                 $this->createStub(PaymentLogger::class),
             ))
