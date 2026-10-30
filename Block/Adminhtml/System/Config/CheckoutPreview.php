@@ -14,31 +14,44 @@ declare(strict_types=1);
 
 namespace FlizPay\Payment\Block\Adminhtml\System\Config;
 
-use FlizPay\Payment\Service\Cashback\CashbackDisplayBuilder;
+use FlizPay\Payment\Service\Checkout\CheckoutData;
+use FlizPay\Payment\Service\Checkout\CheckoutDataBuilder;
+use FlizPay\Payment\Service\Checkout\WidgetScriptUrl;
 use Magento\Backend\Block\Template\Context;
 use Magento\Config\Block\System\Config\Form\Field;
 use Magento\Framework\Data\Form\Element\AbstractElement;
 use Magento\Framework\Serialize\Serializer\Json;
+use NumberFormatter;
 
 /**
  * Renders a live checkout preview of the FLIZpay payment method row.
+ *
+ * The offer text comes from the same hosted component the storefront uses, so
+ * the preview cannot drift from what customers see.
  */
 class CheckoutPreview extends Field
 {
     private const TEMPLATE = "FlizPay_Payment::system/config/checkout-preview.phtml";
 
+    /** Sample basket the preview asks the component to price, in cents. */
+    private const SAMPLE_AMOUNT = 10000;
+
+    private ?CheckoutData $checkoutData = null;
+
     /**
      * Initialize the checkout-preview renderer.
      *
      * @param Context $context
-     * @param CashbackDisplayBuilder $cashbackDisplayBuilder
+     * @param CheckoutDataBuilder $checkoutDataBuilder
+     * @param WidgetScriptUrl $scriptUrl
      * @param Json $json
      * @param array $data
      * @phpstan-param array<string, mixed> $data
      */
     public function __construct(
         Context $context,
-        private readonly CashbackDisplayBuilder $cashbackDisplayBuilder,
+        private readonly CheckoutDataBuilder $checkoutDataBuilder,
+        private readonly WidgetScriptUrl $scriptUrl,
         private readonly Json $json,
         array $data = [],
     ) {
@@ -60,55 +73,47 @@ class CheckoutPreview extends Field
     }
 
     /**
-     * Whether an active cashback campaign exists.
+     * Return the sample basket amount in cents.
      *
-     * @return bool
+     * @return int
      */
-    public function hasCashback(): bool
+    public function getSampleAmount(): int
     {
-        return (bool) $this->getCheckoutPresentation()["available"];
+        return self::SAMPLE_AMOUNT;
     }
 
     /**
-     * Return the cashback title suffix shown next to the method name.
+     * Return the sample basket amount for the hint, in the admin locale.
+     *
+     * Formatted from the same constant the preview element receives, so the
+     * hint can never name a different basket than the one being priced.
      *
      * @return string
      */
-    public function getCashbackTitleSuffix(): string
+    public function getFormattedSampleAmount(): string
     {
-        $title = (string) $this->getCheckoutPresentation()["title"];
+        $formatter = new NumberFormatter(
+            $this->getCheckoutData()->locale,
+            NumberFormatter::CURRENCY,
+        );
+        $formatted = $formatter->formatCurrency(
+            self::SAMPLE_AMOUNT / 100,
+            "EUR",
+        );
 
-        return $title === "FLIZpay" ? "" : substr($title, strlen("FLIZpay"));
+        return is_string($formatted)
+            ? $formatted
+            : (string) (self::SAMPLE_AMOUNT / 100);
     }
 
     /**
-     * Return the checkout subtitle matching the current cashback state.
+     * Return the hosted bundle URL that upgrades the preview elements.
      *
      * @return string
      */
-    public function getSubtitle(): string
+    public function getScriptUrl(): string
     {
-        return (string) ($this->getCheckoutPresentation()["description"] ?? "");
-    }
-
-    /**
-     * Whether the checkout logo toggle is currently enabled.
-     *
-     * @return bool
-     */
-    public function isLogoEnabled(): bool
-    {
-        return (bool) $this->getCheckoutPresentation()["showLogo"];
-    }
-
-    /**
-     * Whether the checkout subtitle toggle is currently enabled.
-     *
-     * @return bool
-     */
-    public function isSubtitleEnabled(): bool
-    {
-        return $this->getCheckoutPresentation()["description"] !== null;
+        return $this->scriptUrl->get();
     }
 
     /**
@@ -140,8 +145,14 @@ class CheckoutPreview extends Field
             "#flizpay-checkout-preview" => [
                 "FlizPay_Payment/js/checkout-preview" => [
                     "fields" => [
-                        "logo" => $prefix . "show_checkout_logo",
-                        "subtitle" => $prefix . "show_checkout_subtitle",
+                        "headline" => $prefix . "show_headline",
+                        "logo" => $prefix . "show_logo",
+                        "description" => $prefix . "show_description",
+                    ],
+                    "component" => [
+                        "publicId" => $this->getCheckoutData()->publicId,
+                        "locale" => $this->getCheckoutData()->locale,
+                        "amount" => $this->getSampleAmount(),
                     ],
                 ],
             ],
@@ -170,15 +181,14 @@ class CheckoutPreview extends Field
     }
 
     /**
-     * Build the same customer-facing presentation used by storefront checkout.
+     * Return the same component inputs the storefront checkout receives.
      *
-     * Delegating to the shared builder keeps the admin preview's copy and
-     * visibility settings synchronized with the payment method customers see.
+     * Memoized: one render asks for these repeatedly.
      *
-     * @return array<string, bool|string|null>
+     * @return CheckoutData
      */
-    private function getCheckoutPresentation(): array
+    public function getCheckoutData(): CheckoutData
     {
-        return $this->cashbackDisplayBuilder->build()->toArray();
+        return $this->checkoutData ??= $this->checkoutDataBuilder->build();
     }
 }

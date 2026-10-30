@@ -136,7 +136,23 @@
                     >FlizPay\Payment\Block\Adminhtml\System\Config\CheckoutPreview</frontend_model>
                 </field>
                 <field
-                    id="show_checkout_logo"
+                    id="show_headline"
+                    translate="label comment"
+                    type="select"
+                    sortOrder="80"
+                    showInDefault="1"
+                    showInWebsite="1"
+                    canRestore="1"
+                >
+                    <label>Headline</label>
+                    <comment
+                    >Show the FLIZpay offer instead of the payment method name.</comment>
+                    <config_path>payment/flizpay/show_headline</config_path>
+                    <source_model
+                    >Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field
+                    id="show_logo"
                     translate="label comment"
                     type="select"
                     sortOrder="90"
@@ -146,13 +162,12 @@
                 >
                     <label>Logo</label>
                     <comment>Show FLIZpay logo in checkout.</comment>
-                    <config_path
-                    >payment/flizpay/show_checkout_logo</config_path>
+                    <config_path>payment/flizpay/show_logo</config_path>
                     <source_model
                     >Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
                 <field
-                    id="show_checkout_subtitle"
+                    id="show_description"
                     translate="label comment"
                     type="select"
                     sortOrder="100"
@@ -163,8 +178,7 @@
                     <label>Subtitle</label>
                     <comment
                     >Show description in subtitle when FLIZpay is selected.</comment>
-                    <config_path
-                    >payment/flizpay/show_checkout_subtitle</config_path>
+                    <config_path>payment/flizpay/show_description</config_path>
                     <source_model
                     >Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
@@ -340,7 +354,23 @@
                     >FlizPay\Payment\Block\Adminhtml\System\Config\CheckoutPreview</frontend_model>
                 </field>
                 <field
-                    id="show_checkout_logo"
+                    id="show_headline"
+                    translate="label comment"
+                    type="select"
+                    sortOrder="80"
+                    showInDefault="1"
+                    showInWebsite="1"
+                    canRestore="1"
+                >
+                    <label>Headline</label>
+                    <comment
+                    >Show the FLIZpay offer instead of the payment method name.</comment>
+                    <config_path>payment/flizpay/show_headline</config_path>
+                    <source_model
+                    >Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field
+                    id="show_logo"
                     translate="label comment"
                     type="select"
                     sortOrder="90"
@@ -350,13 +380,12 @@
                 >
                     <label>Logo</label>
                     <comment>Show FLIZpay logo in checkout.</comment>
-                    <config_path
-                    >payment/flizpay/show_checkout_logo</config_path>
+                    <config_path>payment/flizpay/show_logo</config_path>
                     <source_model
                     >Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
                 <field
-                    id="show_checkout_subtitle"
+                    id="show_description"
                     translate="label comment"
                     type="select"
                     sortOrder="100"
@@ -367,8 +396,7 @@
                     <label>Subtitle</label>
                     <comment
                     >Show description in subtitle when FLIZpay is selected.</comment>
-                    <config_path
-                    >payment/flizpay/show_checkout_subtitle</config_path>
+                    <config_path>payment/flizpay/show_description</config_path>
                     <source_model
                     >Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>

@@ -13,12 +13,25 @@
 /** @var \FlizPay\Payment\Block\Adminhtml\System\Config\CheckoutPreview $block */
 /** @var \Magento\Framework\Escaper $escaper */
 
-$hasCashback = $block->hasCashback();
-$showTitle = $hasCashback;
-$showLogo = $block->isLogoEnabled();
-$showSubtitle = $block->isSubtitleEnabled();
+$checkout = $block->getCheckoutData();
+$hasPublicId = $checkout->isRenderable();
+$showHeadline = $checkout->showHeadline;
+$showLogo = $checkout->showLogo;
+$showDescription = $checkout->showDescription;
+$publicId = $checkout->publicId;
+$locale = $checkout->locale;
+$amount = (string) $block->getSampleAmount();
 ?>
 <div id="flizpay-checkout-preview" class="flizpay-checkout-preview">
+    <?php if (!$hasPublicId): ?>
+        <div class="flizpay-checkout-preview__hint flizpay-checkout-preview__hint--warning">
+            <?= $escaper->escapeHtml(
+                __(
+                    "Save your FLIZpay API key to load the checkout preview.",
+                ),
+            ) ?>
+        </div>
+    <?php endif; ?>
     <div class="flizpay-checkout-preview__box">
         <input
             type="radio"
@@ -30,16 +43,21 @@ $showSubtitle = $block->isSubtitleEnabled();
         <div class="flizpay-checkout-preview__row">
             <div
                 class="flizpay-checkout-preview__title"
-                data-role="cashback-title"
+                data-role="title"
             >
-                <strong>FLIZpay</strong>
-                <strong
-                    <?= $showTitle ? "" : 'style="display:none"' ?>
-                >
-                    <?= $escaper->escapeHtml(
-                        $block->getCashbackTitleSuffix(),
-                    ) ?>
-                </strong>
+                <?php if ($hasPublicId && $showHeadline): ?>
+                    <?php /* The shop's own name shows until the hosted script upgrades the element. */ ?>
+                    <fliz-checkout
+                        data-public-id="<?= $escaper->escapeHtmlAttr(
+                            $publicId,
+                        ) ?>"
+                        data-surface="title"
+                        data-locale="<?= $escaper->escapeHtmlAttr($locale) ?>"
+                        data-amount="<?= $escaper->escapeHtmlAttr($amount) ?>"
+                    >FLIZpay</fliz-checkout>
+                <?php else: ?>
+                    FLIZpay
+                <?php endif; ?>
             </div>
             <span
                 class="flizpay-checkout-preview__logo"
@@ -54,22 +72,51 @@ $showSubtitle = $block->isSubtitleEnabled();
         </div>
         <div
             class="flizpay-checkout-preview__subtitle"
-            data-role="subtitle"
-            <?= $showSubtitle ? "" : 'style="display:none"' ?>
-        ><?= $escaper->escapeHtml($block->getSubtitle()) ?></div>
+            data-role="description"
+            <?= $showDescription ? "" : 'style="display:none"' ?>
+        ><?php if ($hasPublicId): ?>
+                <fliz-checkout
+                    data-public-id="<?= $escaper->escapeHtmlAttr($publicId) ?>"
+                    data-surface="description"
+                    data-locale="<?= $escaper->escapeHtmlAttr($locale) ?>"
+                    data-amount="<?= $escaper->escapeHtmlAttr($amount) ?>"
+                ></fliz-checkout>
+            <?php endif; ?></div>
     </div>
     <div class="flizpay-checkout-preview__labels">
+        <span
+            class="flizpay-checkout-preview__label flizpay-checkout-preview__label--headline"
+            data-role="label-headline"
+            <?= $showHeadline ? "" : 'style="display:none"' ?>
+        ><?= $escaper->escapeHtml(__("Headline")) ?></span>
         <span
             class="flizpay-checkout-preview__label flizpay-checkout-preview__label--logo"
             data-role="label-logo"
             <?= $showLogo ? "" : 'style="display:none"' ?>
         ><?= $escaper->escapeHtml(__("Logo")) ?></span>
         <span
-            class="flizpay-checkout-preview__label flizpay-checkout-preview__label--subtitle"
-            data-role="label-subtitle"
-            <?= $showSubtitle ? "" : 'style="display:none"' ?>
+            class="flizpay-checkout-preview__label flizpay-checkout-preview__label--description"
+            data-role="label-description"
+            <?= $showDescription ? "" : 'style="display:none"' ?>
         ><?= $escaper->escapeHtml(__("Subtitle")) ?></span>
     </div>
+    <?php if ($hasPublicId): ?>
+        <p class="flizpay-checkout-preview__hint">
+            <?= $escaper->escapeHtml(
+                __(
+                    "The preview prices a sample basket of %1. The offer text comes straight from FLIZpay, so customers always see the current offer.",
+                    $block->getFormattedSampleAmount(),
+                ),
+            ) ?>
+        </p>
+        <?php /* Sets no cookies or storage; the attributes keep consent managers from blocking it. */ ?>
+        <script
+            async
+            src="<?= $escaper->escapeUrl($block->getScriptUrl()) ?>"
+            data-cookieconsent="ignore"
+            data-borlabs-cookie-script-blocker-ignore
+        ></script>
+    <?php endif; ?>
     <script type="text/x-magento-init">
         <?= /* @noEscape */ $block->getInitializationJson() ?>
     </script>

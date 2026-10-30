@@ -55,6 +55,7 @@ class FlizPayApiClient
     {
         $data = $this->request("POST", "/business/edit", [
             "webhookUrl" => $webhookUrl,
+            "integrationType" => "Magento",
         ]);
 
         if (($data["webhookUrl"] ?? null) !== $webhookUrl) {
@@ -81,6 +82,25 @@ class FlizPayApiClient
         }
 
         return $secret;
+    }
+
+    /**
+     * Fetch the shop's public id, used by the hosted web components.
+     *
+     * Returns null when FLIZpay has no id for these credentials, so callers can
+     * back off instead of treating a well-formed empty answer as a failure.
+     *
+     * @return string|null
+     * @throws LocalizedException
+     */
+    public function fetchPublicId(): ?string
+    {
+        $data = $this->request("GET", "/business/public-id");
+        $publicId = $data["publicId"] ?? null;
+
+        return is_string($publicId) && trim($publicId) !== ""
+            ? trim($publicId)
+            : null;
     }
 
     /**
@@ -209,8 +229,7 @@ class FlizPayApiClient
                         "Content-Type" => "application/json",
                         "User-Agent" =>
                             "FlizPayMagento2/" . $this->moduleVersion->get(),
-                        "X-FLIZpay-Plugin-Version" =>
-                            $this->moduleVersion->get(),
+                        "X-FLIZpay-Plugin-Version" => $this->moduleVersion->get(),
                         "x-api-key" => $apiKey,
                     ],
                     $headers,

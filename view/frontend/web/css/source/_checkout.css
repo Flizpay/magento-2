@@ -25,6 +25,7 @@
 
 .flizpay-payment-description {
     color: #12233f;
+    display: block;
     font-size: 1.3rem;
     line-height: 1.5;
     margin-top: 6px;

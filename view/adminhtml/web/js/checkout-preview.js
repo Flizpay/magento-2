@@ -15,11 +15,38 @@ define(["jquery"], function ($) {
   /**
    * Keep the checkout preview in sync with the Yes/No display toggles.
    *
-   * @param {{fields: {logo: string, subtitle: string}}} config
+   * @param {{fields: {headline: string, logo: string, description: string},
+   *          component: {publicId: string, locale: string, amount: number}}} config
    * @param {HTMLElement} element
    */
   function initialize(config, element) {
-    var $preview = $(element);
+    var $preview = $(element),
+      component = config.component || {};
+
+    /**
+     * Build one hosted offer-text surface.
+     *
+     * What it shows is decided by FLIZpay; the preview only passes the shop's
+     * public id, the admin locale, and the sample basket.
+     *
+     * @param {string} surface
+     * @return {HTMLElement}
+     */
+    function createSurface(surface) {
+      var fliz = document.createElement("fliz-checkout");
+
+      fliz.dataset.publicId = component.publicId;
+      fliz.dataset.surface = surface;
+      fliz.dataset.locale = component.locale;
+      fliz.dataset.amount = String(component.amount);
+
+      // The shop's own name shows until the hosted script upgrades the element.
+      if (surface === "title") {
+        fliz.textContent = "FLIZpay";
+      }
+
+      return fliz;
+    }
 
     /**
      * Bind a Yes/No select to a preview visibility handler.
@@ -52,11 +79,30 @@ define(["jquery"], function ($) {
       });
     }
 
+    bind(config.fields.headline, function (enabled) {
+      var $title = $preview.find('[data-role="title"]');
+
+      if (!component.publicId) {
+        return;
+      }
+
+      // Replacing only the headline keeps the description element mounted, so
+      // it never refetches its offer text.
+      $title.empty();
+      if (enabled) {
+        $title.append(createSurface("title"));
+      } else {
+        $title.text("FLIZpay");
+      }
+      toggleRoles(["label-headline"], enabled);
+    });
+
     bind(config.fields.logo, function (enabled) {
       toggleRoles(["logo", "label-logo"], enabled);
     });
-    bind(config.fields.subtitle, function (enabled) {
-      toggleRoles(["subtitle", "label-subtitle"], enabled);
+
+    bind(config.fields.description, function (enabled) {
+      toggleRoles(["description", "label-description"], enabled);
     });
   }
 

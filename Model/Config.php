@@ -123,6 +123,14 @@ class Config implements ConfigInterface
     /**
      * @inheritdoc
      */
+    public function getPublicId(): string
+    {
+        return $this->getGlobalValue("public_id");
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getCashbackData(): ?array
     {
         $value = $this->getGlobalValue("cashback_data");
@@ -173,25 +181,25 @@ class Config implements ConfigInterface
     /**
      * @inheritdoc
      */
-    public function isCashbackInTitleEnabled(?int $storeId = null): bool
+    public function isHeadlineEnabled(?int $storeId = null): bool
     {
-        return $this->getStoreFlag("display_cashback_in_title", $storeId);
+        return $this->getStoreFlag("show_headline", $storeId);
     }
 
     /**
      * @inheritdoc
      */
-    public function isCheckoutLogoEnabled(?int $storeId = null): bool
+    public function isLogoEnabled(?int $storeId = null): bool
     {
-        return $this->getStoreFlag("show_checkout_logo", $storeId);
+        return $this->getStoreFlag("show_logo", $storeId);
     }
 
     /**
      * @inheritdoc
      */
-    public function isCheckoutSubtitleEnabled(?int $storeId = null): bool
+    public function isDescriptionEnabled(?int $storeId = null): bool
     {
-        return $this->getStoreFlag("show_checkout_subtitle", $storeId);
+        return $this->getStoreFlag("show_description", $storeId);
     }
 
     /**

@@ -106,6 +106,16 @@ interface ConfigInterface
     public function getConnectionVerifiedAt(): string;
 
     /**
+     * Return the shop's public id, or an empty string when none is stored.
+     *
+     * Carries no credentials: it is the only FLIZpay identifier the browser
+     * needs to let <fliz-checkout> resolve the offer text for this shop.
+     *
+     * @return string
+     */
+    public function getPublicId(): string;
+
+    /**
      * Return normalized provider cashback percentages.
      *
      * @return array{first_purchase_amount: float, standard_amount: float}|null
@@ -121,12 +131,12 @@ interface ConfigInterface
     public function isLoggingEnabled(?int $storeId = null): bool;
 
     /**
-     * Check whether cashback should be included in the payment title.
+     * Check whether the offer headline should replace the payment method name.
      *
      * @param int|null $storeId
      * @return bool
      */
-    public function isCashbackInTitleEnabled(?int $storeId = null): bool;
+    public function isHeadlineEnabled(?int $storeId = null): bool;
 
     /**
      * Check whether the FLIZpay checkout logo should be displayed.
@@ -134,13 +144,13 @@ interface ConfigInterface
      * @param int|null $storeId
      * @return bool
      */
-    public function isCheckoutLogoEnabled(?int $storeId = null): bool;
+    public function isLogoEnabled(?int $storeId = null): bool;
 
     /**
-     * Check whether the FLIZpay checkout subtitle should be displayed.
+     * Check whether the offer description should be displayed when selected.
      *
      * @param int|null $storeId
      * @return bool
      */
-    public function isCheckoutSubtitleEnabled(?int $storeId = null): bool;
+    public function isDescriptionEnabled(?int $storeId = null): bool;
 }

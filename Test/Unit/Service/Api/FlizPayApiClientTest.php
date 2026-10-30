@@ -42,8 +42,15 @@ class FlizPayApiClientTest extends TestCase
         $httpClient->method("getStatus")->willReturn(200);
         $httpClient->method("getBody")->willReturn("response");
 
-        $json = $this->createStub(Json::class);
-        $json->method("serialize")->willReturn("serialized-request");
+        $json = $this->createMock(Json::class);
+        $json
+            ->expects(self::once())
+            ->method("serialize")
+            ->with([
+                "webhookUrl" => "https://shop.test/flizpay/webhook",
+                "integrationType" => "Magento",
+            ])
+            ->willReturn("serialized-request");
         $json->method("unserialize")->willReturn([
             "data" => ["webhookUrl" => "https://shop.test/flizpay/webhook"],
         ]);
@@ -87,6 +94,45 @@ class FlizPayApiClientTest extends TestCase
                 $this->createStub(LoggerInterface::class),
                 $this->moduleVersion(),
             ))->generateWebhookSecret(),
+        );
+    }
+
+    public function testFetchesThePublicId(): void
+    {
+        $httpClient = $this->createMock(Curl::class);
+        $httpClient
+            ->expects(self::once())
+            ->method("get")
+            ->with("https://api.flizpay.de/business/public-id");
+        $httpClient->method("getStatus")->willReturn(200);
+        $httpClient->method("getBody")->willReturn("response");
+
+        $json = $this->createStub(Json::class);
+        $json->method("unserialize")->willReturn([
+            "data" => ["publicId" => " pub_123 "],
+        ]);
+
+        self::assertSame(
+            "pub_123",
+            $this->createClient($httpClient, $json)->fetchPublicId(),
+        );
+    }
+
+    /**
+     * A well-formed empty answer is not a failure, so callers can back off
+     * rather than treat it as an error.
+     */
+    public function testReturnsNullWhenNoPublicIdExists(): void
+    {
+        $httpClient = $this->createStub(Curl::class);
+        $httpClient->method("getStatus")->willReturn(200);
+        $httpClient->method("getBody")->willReturn("response");
+
+        $json = $this->createStub(Json::class);
+        $json->method("unserialize")->willReturn(["data" => ["publicId" => ""]]);
+
+        self::assertNull(
+            $this->createClient($httpClient, $json)->fetchPublicId(),
         );
     }
 

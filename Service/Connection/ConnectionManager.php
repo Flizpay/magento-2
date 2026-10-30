@@ -12,6 +12,7 @@ namespace FlizPay\Payment\Service\Connection;
 
 use FlizPay\Payment\Api\ConfigInterface;
 use FlizPay\Payment\Service\Api\FlizPayApiClient;
+use FlizPay\Payment\Service\Checkout\PublicIdResolver;
 use FlizPay\Payment\Service\Connection\ConnectionConfigWriter;
 use FlizPay\Payment\Service\Logging\PaymentLogger;
 use Magento\Framework\Exception\LocalizedException;
@@ -28,6 +29,7 @@ class ConnectionManager
      * @param ConfigInterface $config
      * @param ConnectionConfigWriter $configWriter
      * @param FlizPayApiClient $apiClient
+     * @param PublicIdResolver $publicIdResolver
      * @param StoreManagerInterface $storeManager
      * @param PaymentLogger $logger
      */
@@ -35,6 +37,7 @@ class ConnectionManager
         private readonly ConfigInterface $config,
         private readonly ConnectionConfigWriter $configWriter,
         private readonly FlizPayApiClient $apiClient,
+        private readonly PublicIdResolver $publicIdResolver,
         private readonly StoreManagerInterface $storeManager,
         private readonly PaymentLogger $logger,
     ) {}
@@ -74,6 +77,8 @@ class ConnectionManager
         $sameWebhookUrl = $this->config->getWebhookUrl() === $webhookUrl;
 
         if ($connectionCurrent && $sameApiKey && $sameWebhookUrl) {
+            $this->publicIdResolver->ensure();
+
             return false;
         }
 
@@ -98,12 +103,13 @@ class ConnectionManager
             );
         }
 
+        $this->publicIdResolver->ensure();
+
         try {
             $this->configWriter->replaceCashbackData(
                 $this->apiClient->fetchCashbackData(),
             );
         } catch (\Throwable $exception) {
-            // Cashback is optional, but stale provider rates must not be shown.
             $this->logger->warning(
                 "FLIZpay cashback fetch failed during connection",
                 ["exception" => get_class($exception)],
@@ -133,7 +139,7 @@ class ConnectionManager
     private function buildWebhookUrl(): string
     {
         $store = $this->storeManager->getDefaultStoreView();
-        if (!$store instanceof Store) {
+        if (!($store instanceof Store)) {
             throw new LocalizedException(
                 __("Magento has no default store view."),
             );
