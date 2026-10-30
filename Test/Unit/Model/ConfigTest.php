@@ -6,7 +6,6 @@ namespace FlizPay\Payment\Test\Unit\Model;
 
 use FlizPay\Payment\Model\Config;
 use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\Serialize\Serializer\Json;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 
@@ -91,41 +90,8 @@ class ConfigTest extends TestCase
         );
     }
 
-    public function testReadsNormalizedCashbackData(): void
-    {
-        $this->scopeConfig->method("getValue")->willReturn(
-            '{"first_purchase_amount":5,"standard_amount":"2.5"}',
-        );
-
-        self::assertSame(
-            ["first_purchase_amount" => 5.0, "standard_amount" => 2.5],
-            $this->createConfig()->getCashbackData(),
-        );
-    }
-
-    public function testRejectsInvalidCashbackData(): void
-    {
-        $this->scopeConfig->method("getValue")->willReturn(
-            '{"first_purchase_amount":-1,"standard_amount":2}',
-        );
-
-        self::assertNull($this->createConfig()->getCashbackData());
-    }
-
     private function createConfig(): Config
     {
-        $json = $this->createStub(Json::class);
-        $json
-            ->method("unserialize")
-            ->willReturnCallback(
-                static fn(string $value): mixed => json_decode(
-                    $value,
-                    true,
-                    512,
-                    JSON_THROW_ON_ERROR,
-                ),
-            );
-
-        return new Config($this->scopeConfig, $json);
+        return new Config($this->scopeConfig);
     }
 }

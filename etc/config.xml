@@ -45,7 +45,6 @@
                 <connection_api_key_hash />
                 <connection_verified_at />
                 <public_id />
-                <cashback_data />
                 <api_key
                     backend_model="Magento\Config\Model\Config\Backend\Encrypted"
                 />

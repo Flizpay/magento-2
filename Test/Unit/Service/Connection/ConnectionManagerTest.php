@@ -34,13 +34,6 @@ class ConnectionManagerTest extends TestCase
             ->expects(self::once())
             ->method("saveWebhookSecret")
             ->with("generated-secret");
-        $writer
-            ->expects(self::once())
-            ->method("replaceCashbackData")
-            ->with([
-                "first_purchase_amount" => 5.0,
-                "standard_amount" => 2.0,
-            ]);
 
         $apiClient = $this->createMock(FlizPayApiClient::class);
         $apiClient
@@ -51,13 +44,6 @@ class ConnectionManagerTest extends TestCase
             ->expects(self::once())
             ->method("generateWebhookSecret")
             ->willReturn("generated-secret");
-        $apiClient
-            ->expects(self::once())
-            ->method("fetchCashbackData")
-            ->willReturn([
-                "first_purchase_amount" => 5.0,
-                "standard_amount" => 2.0,
-            ]);
 
         $store = $this->createStub(Store::class);
         $store->method("getBaseUrl")->willReturn("https://shop.test/");
@@ -148,13 +134,6 @@ class ConnectionManagerTest extends TestCase
             ->expects(self::once())
             ->method("generateWebhookSecret")
             ->willReturn("new-secret");
-        $apiClient
-            ->expects(self::once())
-            ->method("fetchCashbackData")
-            ->willReturn([
-                "first_purchase_amount" => 5.0,
-                "standard_amount" => 2.0,
-            ]);
 
         $store = $this->createStub(Store::class);
         $store->method("getBaseUrl")->willReturn("https://shop.test/");
@@ -184,10 +163,6 @@ class ConnectionManagerTest extends TestCase
 
         $apiClient = $this->createStub(FlizPayApiClient::class);
         $apiClient->method("generateWebhookSecret")->willReturn("secret");
-        $apiClient->method("fetchCashbackData")->willReturn([
-            "first_purchase_amount" => 5.0,
-            "standard_amount" => 2.0,
-        ]);
 
         $store = $this->createStub(Store::class);
         $store->method("getBaseUrl")->willReturn("https://shop.test/");
@@ -242,43 +217,6 @@ class ConnectionManagerTest extends TestCase
                 $storeManager,
                 $this->createStub(PaymentLogger::class),
             ))->connectIfNeeded(),
-        );
-    }
-
-    public function testCashbackFailureClearsStaleDataWithoutFailingConnection(): void
-    {
-        $config = $this->createStub(ConfigInterface::class);
-        $config->method("getApiKey")->willReturn("api-key");
-        $config->method("getConnectionStatus")->willReturn("not_connected");
-
-        $writer = $this->createMock(ConnectionConfigWriter::class);
-        $writer
-            ->expects(self::once())
-            ->method("replaceCashbackData")
-            ->with(null);
-
-        $apiClient = $this->createMock(FlizPayApiClient::class);
-        $apiClient->method("generateWebhookSecret")->willReturn("secret");
-        $apiClient
-            ->method("fetchCashbackData")
-            ->willThrowException(new \RuntimeException("unavailable"));
-
-        $store = $this->createStub(Store::class);
-        $store->method("getBaseUrl")->willReturn("https://shop.test/");
-        $storeManager = $this->createStub(StoreManagerInterface::class);
-        $storeManager->method("getDefaultStoreView")->willReturn($store);
-        $publicIdResolver = $this->createStub(PublicIdResolver::class);
-
-        self::assertTrue(
-            (new ConnectionManager(
-                $config,
-                $writer,
-                $apiClient,
-                $publicIdResolver,
-                $storeManager,
-                $this->createStub(PaymentLogger::class),
-            ))
-                ->connectIfNeeded(),
         );
     }
 }

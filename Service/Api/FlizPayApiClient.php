@@ -104,38 +104,6 @@ class FlizPayApiClient
     }
 
     /**
-     * Fetch normalized cashback percentages configured for the merchant.
-     *
-     * @return array{first_purchase_amount: float, standard_amount: float}
-     * @throws LocalizedException
-     */
-    public function fetchCashbackData(): array
-    {
-        $data = $this->request("GET", "/business/cashback");
-
-        $firstPurchase = $data["cashback"]["firstPurchaseAmount"] ?? null;
-        $standard = $data["cashback"]["amount"] ?? null;
-
-        if (
-            !is_numeric($firstPurchase) ||
-            !is_numeric($standard) ||
-            !is_finite((float) $firstPurchase) ||
-            !is_finite((float) $standard) ||
-            (float) $firstPurchase < 0 ||
-            (float) $standard < 0
-        ) {
-            throw new LocalizedException(
-                __("FLIZpay returned invalid cashback configuration."),
-            );
-        }
-
-        return [
-            "first_purchase_amount" => (float) $firstPurchase,
-            "standard_amount" => (float) $standard,
-        ];
-    }
-
-    /**
      * Create one FLIZpay transaction without automatic retries.
      *
      * @param array<string, mixed> $requestBody
