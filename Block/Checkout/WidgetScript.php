@@ -14,7 +14,7 @@ declare(strict_types=1);
 
 namespace FlizPay\Payment\Block\Checkout;
 
-use FlizPay\Payment\Service\Checkout\CheckoutDataBuilder;
+use FlizPay\Payment\Service\Checkout\PublicIdResolver;
 use FlizPay\Payment\Service\Checkout\WidgetScriptUrl;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
@@ -26,14 +26,14 @@ class WidgetScript extends Template
 {
     /**
      * @param Context $context
-     * @param CheckoutDataBuilder $checkoutDataBuilder
+     * @param PublicIdResolver $publicIdResolver
      * @param WidgetScriptUrl $scriptUrl
      * @param array $data
      * @phpstan-param array<string, mixed> $data
      */
     public function __construct(
         Context $context,
-        private readonly CheckoutDataBuilder $checkoutDataBuilder,
+        private readonly PublicIdResolver $publicIdResolver,
         private readonly WidgetScriptUrl $scriptUrl,
         array $data = [],
     ) {
@@ -50,7 +50,7 @@ class WidgetScript extends Template
      */
     public function isEnabled(): bool
     {
-        return $this->checkoutDataBuilder->build()->isRenderable();
+        return $this->publicIdResolver->resolve() !== "";
     }
 
     /**

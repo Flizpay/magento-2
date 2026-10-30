@@ -31,9 +31,7 @@
                     <!-- ko if: showHeadline -->
                     <fliz-checkout
                         data-surface="title"
-                        data-bind="attr: {'data-public-id': publicId,
-                                          'data-locale': locale,
-                                          'data-amount': amount}"
+                        data-bind="attr: componentAttrs"
                     >FLIZpay</fliz-checkout>
                     <!-- /ko -->
                     <!-- ko ifnot: showHeadline -->
@@ -47,9 +45,7 @@
                 >
                     <fliz-checkout
                         data-surface="description"
-                        data-bind="attr: {'data-public-id': publicId,
-                                          'data-locale': locale,
-                                          'data-amount': amount}"
+                        data-bind="attr: componentAttrs"
                     ></fliz-checkout>
                 </span>
                 <!-- /ko -->

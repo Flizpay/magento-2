@@ -38,9 +38,12 @@ class CheckoutAssetTest extends TestCase
             'data-surface="description"',
             $template,
         );
-        self::assertStringContainsString("'data-public-id': publicId", $template);
-        self::assertStringContainsString("'data-locale': locale", $template);
-        self::assertStringContainsString("'data-amount': amount", $template);
+        // Both surfaces share one computed, so the amount stays in step.
+        self::assertSame(
+            2,
+            substr_count($template, "attr: componentAttrs"),
+            "both surfaces must bind the shared attributes",
+        );
     }
 
     public function testCheckoutTemplateKeepsTheNativeLabelAndLogo(): void
@@ -94,6 +97,8 @@ class CheckoutAssetTest extends TestCase
         );
         self::assertStringContainsString("Magento_Checkout/js/model/quote", $script);
         self::assertStringContainsString("quote.totals()", $script);
+        self::assertStringContainsString("data-public-id", $script);
+        self::assertStringContainsString("data-amount", $script);
         self::assertStringNotContainsString("cashback", $script);
     }
 

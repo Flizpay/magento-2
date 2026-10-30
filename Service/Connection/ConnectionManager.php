@@ -86,7 +86,6 @@ class ConnectionManager
 
         // Blanks the stored public id along with the rest of the connection.
         $this->configWriter->markConnecting($webhookUrl, $apiKeyHash);
-        $this->publicIdResolver->clearRetryBackoff();
 
         try {
             $this->apiClient->registerWebhook($webhookUrl);

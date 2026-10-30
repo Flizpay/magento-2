@@ -36,6 +36,8 @@ class CheckoutPreview extends Field
     /** Sample basket the preview asks the component to price, in cents. */
     private const SAMPLE_AMOUNT = 10000;
 
+    private ?CheckoutData $checkoutData = null;
+
     /**
      * Initialize the checkout-preview renderer.
      *
@@ -71,36 +73,6 @@ class CheckoutPreview extends Field
     }
 
     /**
-     * Whether the component can render, or the merchant still has to connect.
-     *
-     * @return bool
-     */
-    public function hasPublicId(): bool
-    {
-        return $this->getCheckoutData()->isRenderable();
-    }
-
-    /**
-     * Return the shop's public id.
-     *
-     * @return string
-     */
-    public function getPublicId(): string
-    {
-        return $this->getCheckoutData()->publicId;
-    }
-
-    /**
-     * Return the locale the preview renders in.
-     *
-     * @return string
-     */
-    public function getLocale(): string
-    {
-        return $this->getCheckoutData()->locale;
-    }
-
-    /**
      * Return the sample basket amount in cents.
      *
      * @return int
@@ -121,7 +93,7 @@ class CheckoutPreview extends Field
     public function getFormattedSampleAmount(): string
     {
         $formatter = new NumberFormatter(
-            $this->getLocale(),
+            $this->getCheckoutData()->locale,
             NumberFormatter::CURRENCY,
         );
         $formatted = $formatter->formatCurrency(
@@ -132,36 +104,6 @@ class CheckoutPreview extends Field
         return is_string($formatted)
             ? $formatted
             : (string) (self::SAMPLE_AMOUNT / 100);
-    }
-
-    /**
-     * Whether the offer headline replaces the payment method name.
-     *
-     * @return bool
-     */
-    public function isHeadlineEnabled(): bool
-    {
-        return $this->getCheckoutData()->showHeadline;
-    }
-
-    /**
-     * Whether the checkout logo toggle is currently enabled.
-     *
-     * @return bool
-     */
-    public function isLogoEnabled(): bool
-    {
-        return $this->getCheckoutData()->showLogo;
-    }
-
-    /**
-     * Whether the offer description toggle is currently enabled.
-     *
-     * @return bool
-     */
-    public function isDescriptionEnabled(): bool
-    {
-        return $this->getCheckoutData()->showDescription;
     }
 
     /**
@@ -208,8 +150,8 @@ class CheckoutPreview extends Field
                         "description" => $prefix . "show_description",
                     ],
                     "component" => [
-                        "publicId" => $this->getPublicId(),
-                        "locale" => $this->getLocale(),
+                        "publicId" => $this->getCheckoutData()->publicId,
+                        "locale" => $this->getCheckoutData()->locale,
                         "amount" => $this->getSampleAmount(),
                     ],
                 ],
@@ -239,12 +181,14 @@ class CheckoutPreview extends Field
     }
 
     /**
-     * Build the same component inputs the storefront checkout receives.
+     * Return the same component inputs the storefront checkout receives.
+     *
+     * Memoized: one render asks for these repeatedly.
      *
      * @return CheckoutData
      */
-    private function getCheckoutData(): CheckoutData
+    public function getCheckoutData(): CheckoutData
     {
-        return $this->checkoutDataBuilder->build();
+        return $this->checkoutData ??= $this->checkoutDataBuilder->build();
     }
 }

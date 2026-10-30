@@ -16,34 +16,24 @@ define([
 ], function (ko, Component, quote) {
   "use strict";
 
-  /** <fliz-checkout> formats integer cents as euros. */
-  var COMPONENT_CURRENCY = "EUR",
-    MAX_SAFE_CENTS = 9007199254740991;
-
   /**
    * Convert Magento's quote totals to the integer cents the component takes.
    *
-   * Other currencies send no amount at all and get the offer text without a
-   * sample saving, so an absent amount is a valid result rather than an error.
+   * <fliz-checkout> formats those cents as euros, so other currencies send no
+   * amount at all and get the offer text without a sample saving. An absent
+   * amount is therefore a valid result rather than an error.
    *
    * @param {Object|null} totals
    * @return {number|undefined}
    */
   function amountInCents(totals) {
-    if (!totals || totals.quote_currency_code !== COMPONENT_CURRENCY) {
+    if (!totals || totals.quote_currency_code !== "EUR") {
       return undefined;
     }
 
-    var total = Number(totals.grand_total),
-      cents;
+    var cents = Math.round(Number(totals.grand_total) * 100);
 
-    if (!isFinite(total) || total < 0) {
-      return undefined;
-    }
-
-    cents = Math.round(total * 100);
-
-    return cents <= MAX_SAFE_CENTS ? cents : undefined;
+    return Number.isSafeInteger(cents) && cents >= 0 ? cents : undefined;
   }
 
   return Component.extend({
@@ -63,26 +53,28 @@ define([
      * @return {Object}
      */
     initialize: function () {
-      var config;
-
       this._super();
 
-      config = window.checkoutConfig.payment.flizpay.checkout || {};
+      var config = window.checkoutConfig.payment.flizpay.checkout || {},
+        // Without a public id the element has nothing to fetch, so the plain
+        // payment method name stays.
+        publicId = config.publicId || "",
+        locale = config.locale || "";
 
-      // Without a public id the element has nothing to fetch, so the plain
-      // payment method name stays.
-      this.publicId = config.publicId || "";
-      this.locale = config.locale || "";
-      this.showHeadline =
-        this.publicId !== "" && config.showHeadline === true;
-      this.showDescription =
-        this.publicId !== "" && config.showDescription === true;
+      this.showHeadline = publicId !== "" && config.showHeadline === true;
+      this.showDescription = publicId !== "" && config.showDescription === true;
       this.showLogo = config.showLogo === true;
 
       // quote.totals() is refreshed by every total-affecting change, so the
       // amount follows quantity, coupon and shipping updates on its own.
-      this.amount = ko.computed(function () {
-        return amountInCents(quote.totals());
+      // Both surfaces share these attributes, and mutating them on a mounted
+      // element is what keeps it from refetching its offer text.
+      this.componentAttrs = ko.computed(function () {
+        return {
+          "data-public-id": publicId,
+          "data-locale": locale,
+          "data-amount": amountInCents(quote.totals()),
+        };
       });
 
       return this;

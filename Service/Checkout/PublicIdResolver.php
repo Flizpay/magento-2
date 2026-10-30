@@ -114,14 +114,4 @@ class PublicIdResolver
 
         return $publicId;
     }
-
-    /**
-     * Allow the next acquisition to run without waiting out the back-off.
-     *
-     * @return void
-     */
-    public function clearRetryBackoff(): void
-    {
-        $this->cache->remove(self::RETRY_CACHE_KEY);
-    }
 }

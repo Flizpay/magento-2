@@ -195,11 +195,7 @@ class ConnectionManagerTest extends TestCase
         $storeManager->method("getDefaultStoreView")->willReturn($store);
 
         $publicIdResolver = $this->createMock(PublicIdResolver::class);
-        $publicIdResolver->expects(self::once())->method("clearRetryBackoff");
-        $publicIdResolver
-            ->expects(self::once())
-            ->method("ensure")
-            ->with();
+        $publicIdResolver->expects(self::once())->method("ensure")->with();
 
         self::assertTrue(
             (new ConnectionManager(

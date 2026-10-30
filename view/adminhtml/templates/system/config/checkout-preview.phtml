@@ -13,12 +13,13 @@
 /** @var \FlizPay\Payment\Block\Adminhtml\System\Config\CheckoutPreview $block */
 /** @var \Magento\Framework\Escaper $escaper */
 
-$hasPublicId = $block->hasPublicId();
-$showHeadline = $block->isHeadlineEnabled();
-$showLogo = $block->isLogoEnabled();
-$showDescription = $block->isDescriptionEnabled();
-$publicId = $block->getPublicId();
-$locale = $block->getLocale();
+$checkout = $block->getCheckoutData();
+$hasPublicId = $checkout->isRenderable();
+$showHeadline = $checkout->showHeadline;
+$showLogo = $checkout->showLogo;
+$showDescription = $checkout->showDescription;
+$publicId = $checkout->publicId;
+$locale = $checkout->locale;
 $amount = (string) $block->getSampleAmount();
 ?>
 <div id="flizpay-checkout-preview" class="flizpay-checkout-preview">

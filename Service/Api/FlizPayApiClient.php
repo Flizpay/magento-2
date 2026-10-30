@@ -95,8 +95,8 @@ class FlizPayApiClient
      */
     public function fetchPublicId(): ?string
     {
-        $publicId =
-            $this->request("GET", "/business/public-id")["publicId"] ?? null;
+        $data = $this->request("GET", "/business/public-id");
+        $publicId = $data["publicId"] ?? null;
 
         return is_string($publicId) && trim($publicId) !== ""
             ? trim($publicId)

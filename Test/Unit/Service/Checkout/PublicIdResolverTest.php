@@ -185,12 +185,4 @@ class PublicIdResolverTest extends TestCase
             $this->resolver($this->config(false), null, $apiClient)->ensure(),
         );
     }
-
-    public function testClearRetryBackoffRemovesTheMarker(): void
-    {
-        $cache = $this->createMock(CacheInterface::class);
-        $cache->expects(self::once())->method("remove")->with(self::RETRY_KEY);
-
-        $this->resolver(null, null, null, $cache)->clearRetryBackoff();
-    }
 }
