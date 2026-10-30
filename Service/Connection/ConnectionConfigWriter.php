@@ -16,6 +16,7 @@ namespace FlizPay\Payment\Service\Connection;
 
 use FlizPay\Payment\Api\ConfigInterface;
 use Magento\Framework\App\Cache\TypeListInterface;
+use Magento\Framework\App\Config\ReinitableConfigInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\Config\Storage\WriterInterface;
 use Magento\Framework\Encryption\EncryptorInterface;
@@ -32,12 +33,14 @@ class ConnectionConfigWriter
      * @param WriterInterface $writer
      * @param EncryptorInterface $encryptor
      * @param TypeListInterface $cacheTypeList
+     * @param ReinitableConfigInterface $scopeConfig
      */
     public function __construct(
         private readonly WriterInterface $writer,
         private readonly EncryptorInterface $encryptor,
         private readonly TypeListInterface $cacheTypeList,
         private readonly Json $json,
+        private readonly ReinitableConfigInterface $scopeConfig,
     ) {}
 
     /**
@@ -180,12 +183,14 @@ class ConnectionConfigWriter
     }
 
     /**
-     * Invalidate cached configuration after connection changes.
+     * Invalidate stored and in-memory configuration after connection changes.
      *
      * @return void
      */
     private function cleanConfigCache(): void
     {
         $this->cacheTypeList->cleanType("config");
+        // Cache eviction alone can leave same-request reads on stale values.
+        $this->scopeConfig->reinit();
     }
 }

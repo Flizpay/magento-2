@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace FlizPay\Payment\Block\Checkout;
 
+use FlizPay\Payment\Api\ConfigInterface;
 use FlizPay\Payment\Service\Checkout\PublicIdResolver;
 use FlizPay\Payment\Service\Checkout\WidgetScriptUrl;
 use Magento\Framework\View\Element\Template;
@@ -28,6 +29,7 @@ class WidgetScript extends Template
      * @param Context $context
      * @param PublicIdResolver $publicIdResolver
      * @param WidgetScriptUrl $scriptUrl
+     * @param ConfigInterface $config
      * @param array $data
      * @phpstan-param array<string, mixed> $data
      */
@@ -35,6 +37,7 @@ class WidgetScript extends Template
         Context $context,
         private readonly PublicIdResolver $publicIdResolver,
         private readonly WidgetScriptUrl $scriptUrl,
+        private readonly ConfigInterface $config,
         array $data = [],
     ) {
         parent::__construct($context, $data);
@@ -43,14 +46,16 @@ class WidgetScript extends Template
     /**
      * Whether the bundle is worth loading for this store.
      *
-     * Without a public id the elements have nothing to fetch and the checkout
-     * keeps the plain label, so the script would do nothing.
+     * Only active methods with a visible text surface and a public id need the
+     * bundle. The logo and plain fallback label work without it.
      *
      * @return bool
      */
     public function isEnabled(): bool
     {
-        return $this->publicIdResolver->resolve() !== "";
+        return $this->config->isActive() &&
+            ($this->config->isHeadlineEnabled() || $this->config->isDescriptionEnabled()) &&
+            $this->publicIdResolver->resolve() !== "";
     }
 
     /**
