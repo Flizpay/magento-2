@@ -105,18 +105,6 @@ class ConnectionManager
 
         $this->publicIdResolver->ensure();
 
-        try {
-            $this->configWriter->replaceCashbackData(
-                $this->apiClient->fetchCashbackData(),
-            );
-        } catch (\Throwable $exception) {
-            $this->logger->warning(
-                "FLIZpay cashback fetch failed during connection",
-                ["exception" => get_class($exception)],
-            );
-            $this->configWriter->replaceCashbackData(null);
-        }
-
         return true;
     }
 

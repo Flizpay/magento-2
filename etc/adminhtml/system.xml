@@ -223,30 +223,6 @@
                     <config_path>payment/flizpay/sort_order</config_path>
                     <validate>validate-number</validate>
                 </field>
-
-                <field
-                    id="heading_cashback"
-                    translate="label"
-                    sortOrder="140"
-                    showInDefault="1"
-                    showInWebsite="1"
-                >
-                    <label>Discount Information</label>
-                    <frontend_model
-                    >Magento\Config\Block\System\Config\Form\Field\Heading</frontend_model>
-                </field>
-                <field
-                    id="cashback_info"
-                    translate="label"
-                    type="text"
-                    sortOrder="150"
-                    showInDefault="1"
-                    showInWebsite="1"
-                >
-                    <label>Current Discount Rates</label>
-                    <frontend_model
-                    >FlizPay\Payment\Block\Adminhtml\System\Config\CashbackInfo</frontend_model>
-                </field>
             </group>
         </section>
 
@@ -440,30 +416,6 @@
                     >Position of FLIZpay in the checkout payment method list. Lower numbers appear first.</comment>
                     <config_path>payment/flizpay/sort_order</config_path>
                     <validate>validate-number</validate>
-                </field>
-
-                <field
-                    id="heading_cashback"
-                    translate="label"
-                    sortOrder="140"
-                    showInDefault="1"
-                    showInWebsite="1"
-                >
-                    <label>Discount Information</label>
-                    <frontend_model
-                    >Magento\Config\Block\System\Config\Form\Field\Heading</frontend_model>
-                </field>
-                <field
-                    id="cashback_info"
-                    translate="label"
-                    type="text"
-                    sortOrder="150"
-                    showInDefault="1"
-                    showInWebsite="1"
-                >
-                    <label>Current Discount Rates</label>
-                    <frontend_model
-                    >FlizPay\Payment\Block\Adminhtml\System\Config\CashbackInfo</frontend_model>
                 </field>
             </group>
         </section>

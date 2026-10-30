@@ -1,13 +1,14 @@
 # FLIZpay for Magento 2
 
 Accept FLIZpay payments in Magento Open Source and Adobe Commerce. The extension
-redirects customers to the hosted FLIZpay checkout and displays available
-cashback directly in the Magento checkout.
+redirects customers to the hosted FLIZpay checkout and shows the current
+FLIZpay offer in the Magento checkout through the hosted `<fliz-checkout>`
+component.
 
 ## Features
 
 - Hosted FLIZpay checkout for guest and registered customers
-- Customer cashback shown in checkout and recorded in Magento totals and tax
+- Customer discounts recorded in Magento totals and tax
 - Automatic webhook registration and connection verification
 - Signed webhooks as the source of truth for payment settlement
 - Encrypted API credentials and a dedicated, privacy-safe log
@@ -44,7 +45,7 @@ bin/magento cache:flush
 
 Saving the API key registers the store's secure `/flizpay/webhook` endpoint with
 FLIZpay. The payment method becomes available after the connection is verified.
-Its logo, subtitle, and cashback title can be configured per store view.
+Its logo, subtitle, and headline can be configured per store view.
 
 ## Payment Behavior
 

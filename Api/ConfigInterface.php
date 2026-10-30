@@ -116,13 +116,6 @@ interface ConfigInterface
     public function getPublicId(): string;
 
     /**
-     * Return normalized provider cashback percentages.
-     *
-     * @return array{first_purchase_amount: float, standard_amount: float}|null
-     */
-    public function getCashbackData(): ?array;
-
-    /**
      * Check whether verbose diagnostic logging is enabled.
      *
      * @param int|null $storeId

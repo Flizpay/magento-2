@@ -16,7 +16,6 @@ namespace FlizPay\Payment\Model;
 
 use FlizPay\Payment\Api\ConfigInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Store\Model\ScopeInterface;
 
 /**
@@ -31,7 +30,6 @@ class Config implements ConfigInterface
      */
     public function __construct(
         private readonly ScopeConfigInterface $scopeConfig,
-        private readonly Json $json,
     ) {}
 
     /**
@@ -126,48 +124,6 @@ class Config implements ConfigInterface
     public function getPublicId(): string
     {
         return $this->getGlobalValue("public_id");
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getCashbackData(): ?array
-    {
-        $value = $this->getGlobalValue("cashback_data");
-        $data = null;
-
-        if ($value === "") {
-            return null;
-        }
-
-        try {
-            $data = $this->json->unserialize($value);
-        } catch (\Throwable) {
-            return null;
-        }
-
-        if (!is_array($data)) {
-            return null;
-        }
-
-        $firstPurchase = $data["first_purchase_amount"] ?? null;
-        $standard = $data["standard_amount"] ?? null;
-
-        if (
-            !is_numeric($firstPurchase) ||
-            !is_numeric($standard) ||
-            !is_finite((float) $firstPurchase) ||
-            !is_finite((float) $standard) ||
-            (float) $firstPurchase < 0 ||
-            (float) $standard < 0
-        ) {
-            return null;
-        }
-
-        return [
-            "first_purchase_amount" => (float) $firstPurchase,
-            "standard_amount" => (float) $standard,
-        ];
     }
 
     /**

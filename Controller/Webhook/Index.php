@@ -15,7 +15,6 @@ declare(strict_types=1);
 namespace FlizPay\Payment\Controller\Webhook;
 
 use FlizPay\Payment\Service\Connection\ConnectionManager;
-use FlizPay\Payment\Service\Connection\ConnectionConfigWriter;
 use FlizPay\Payment\Service\Logging\PaymentLogger;
 use FlizPay\Payment\Service\Webhook\WebhookAuthenticator;
 use FlizPay\Payment\Service\Webhook\WebhookPayload;
@@ -40,7 +39,6 @@ class Index implements HttpPostActionInterface, CsrfAwareActionInterface
      * @param JsonSerializer $jsonSerializer
      * @param WebhookAuthenticator $authenticator
      * @param ConnectionManager $connectionManager
-     * @param ConnectionConfigWriter $connectionConfigWriter
      * @param WebhookProcessor $webhookProcessor
      */
     public function __construct(
@@ -49,7 +47,6 @@ class Index implements HttpPostActionInterface, CsrfAwareActionInterface
         private readonly JsonSerializer $jsonSerializer,
         private readonly WebhookAuthenticator $authenticator,
         private readonly ConnectionManager $connectionManager,
-        private readonly ConnectionConfigWriter $connectionConfigWriter,
         private readonly WebhookProcessor $webhookProcessor,
         private readonly PaymentLogger $logger,
     ) {}
@@ -98,18 +95,11 @@ class Index implements HttpPostActionInterface, CsrfAwareActionInterface
             }
 
             if (isset($payload["updateCashbackInfo"])) {
-                $this->connectionConfigWriter->replaceCashbackData([
-                    "first_purchase_amount" =>
-                        (float) ($payload["firstPurchaseAmount"] ?? 0),
-                    "standard_amount" => (float) ($payload["amount"] ?? 0),
-                ]);
-                $this->logger->debug(
-                    "FLIZpay cashback data updated via webhook",
-                );
-
+                // Legacy notification: <fliz-checkout> now owns discount data.
+                // Acknowledge it without persisting it or routing it to settlement.
                 return $result->setData([
                     "success" => true,
-                    "message" => "Cashback information updated",
+                    "message" => "Cashback information acknowledged",
                 ]);
             }
 

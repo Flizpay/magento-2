@@ -7,7 +7,6 @@ namespace FlizPay\Payment\Test\Unit\Controller\Webhook;
 use FlizPay\Payment\Controller\Webhook\Index;
 use FlizPay\Payment\Service\Connection\ConnectionManager;
 use FlizPay\Payment\Service\Logging\PaymentLogger;
-use FlizPay\Payment\Service\Connection\ConnectionConfigWriter;
 use FlizPay\Payment\Service\Webhook\WebhookAuthenticator;
 use FlizPay\Payment\Service\Webhook\WebhookProcessor;
 use Magento\Framework\App\Action\HttpGetActionInterface;
@@ -60,7 +59,6 @@ class IndexTest extends TestCase
                 $serializer,
                 $authenticator,
                 $connectionManager,
-                $this->createStub(ConnectionConfigWriter::class),
                 $this->createStub(WebhookProcessor::class),
                 $this->createStub(PaymentLogger::class),
             ))->execute(),
@@ -121,14 +119,13 @@ class IndexTest extends TestCase
                 $serializer,
                 $authenticator,
                 $connectionManager,
-                $this->createStub(ConnectionConfigWriter::class),
                 $processor,
                 $this->createStub(PaymentLogger::class),
             ))->execute(),
         );
     }
 
-    public function testSignedCashbackUpdateReplacesCachedValues(): void
+    public function testSignedLegacyCashbackUpdateIsAcknowledgedOnly(): void
     {
         $rawBody = '{"updateCashbackInfo":true,"firstPurchaseAmount":5,"amount":2.5}';
         $request = $this->createStub(Http::class);
@@ -141,7 +138,7 @@ class IndexTest extends TestCase
             ->method("setData")
             ->with([
                 "success" => true,
-                "message" => "Cashback information updated",
+                "message" => "Cashback information acknowledged",
             ])
             ->willReturnSelf();
         $jsonFactory = $this->createStub(JsonFactory::class);
@@ -158,14 +155,6 @@ class IndexTest extends TestCase
             ->method("authenticate")
             ->with($rawBody, "signature")
             ->willReturn(true);
-        $writer = $this->createMock(ConnectionConfigWriter::class);
-        $writer
-            ->expects(self::once())
-            ->method("replaceCashbackData")
-            ->with([
-                "first_purchase_amount" => 5.0,
-                "standard_amount" => 2.5,
-            ]);
         $processor = $this->createMock(WebhookProcessor::class);
         $processor->expects(self::never())->method("process");
 
@@ -177,52 +166,13 @@ class IndexTest extends TestCase
                 $serializer,
                 $authenticator,
                 $this->createStub(ConnectionManager::class),
-                $writer,
                 $processor,
                 $this->createStub(PaymentLogger::class),
             ))->execute(),
         );
     }
 
-    public function testSignedCashbackUpdateDefaultsMissingAmountsToZero(): void
-    {
-        $request = $this->createStub(Http::class);
-        $request->method("getContent")->willReturn(
-            '{"updateCashbackInfo":true}',
-        );
-        $request->method("getHeader")->willReturn("signature");
-        $result = $this->createStub(Json::class);
-        $result->method("setData")->willReturnSelf();
-        $jsonFactory = $this->createStub(JsonFactory::class);
-        $jsonFactory->method("create")->willReturn($result);
-        $serializer = $this->createStub(JsonSerializer::class);
-        $serializer->method("unserialize")->willReturn([
-            "updateCashbackInfo" => true,
-        ]);
-        $authenticator = $this->createStub(WebhookAuthenticator::class);
-        $authenticator->method("authenticate")->willReturn(true);
-        $writer = $this->createMock(ConnectionConfigWriter::class);
-        $writer
-            ->expects(self::once())
-            ->method("replaceCashbackData")
-            ->with([
-                "first_purchase_amount" => 0.0,
-                "standard_amount" => 0.0,
-            ]);
-
-        (new Index(
-            $request,
-            $jsonFactory,
-            $serializer,
-            $authenticator,
-            $this->createStub(ConnectionManager::class),
-            $writer,
-            $this->createStub(WebhookProcessor::class),
-            $this->createStub(PaymentLogger::class),
-        ))->execute();
-    }
-
-    public function testUnsignedCashbackUpdateDoesNotChangeCachedValues(): void
+    public function testUnsignedLegacyCashbackUpdateIsRejected(): void
     {
         $request = $this->createStub(Http::class);
         $request->method("getContent")->willReturn(
@@ -240,8 +190,8 @@ class IndexTest extends TestCase
         $jsonFactory->method("create")->willReturn($result);
         $authenticator = $this->createStub(WebhookAuthenticator::class);
         $authenticator->method("authenticate")->willReturn(false);
-        $writer = $this->createMock(ConnectionConfigWriter::class);
-        $writer->expects(self::never())->method("replaceCashbackData");
+        $processor = $this->createMock(WebhookProcessor::class);
+        $processor->expects(self::never())->method("process");
 
         (new Index(
             $request,
@@ -249,8 +199,7 @@ class IndexTest extends TestCase
             $this->createStub(JsonSerializer::class),
             $authenticator,
             $this->createStub(ConnectionManager::class),
-            $writer,
-            $this->createStub(WebhookProcessor::class),
+            $processor,
             $this->createStub(PaymentLogger::class),
         ))->execute();
     }
