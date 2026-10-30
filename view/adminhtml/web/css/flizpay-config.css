@@ -67,11 +67,6 @@
 
 /* Checkout preview */
 #flizpay-checkout-preview {
-    /**
-     * <fliz-checkout> is styled only through its containers below. The
-     * component sets font and color to inherit on its shadow root, so the
-     * preview's typography reaches its text.
-     */
     .flizpay-checkout-preview__hint {
         color: #666;
         font-size: 1.2rem;

@@ -28,9 +28,7 @@ use Magento\Framework\App\CacheInterface;
  */
 class PublicIdResolver
 {
-    /** Marks a recent failed acquisition so callers back off for an hour. */
     private const RETRY_CACHE_KEY = "flizpay_public_id_retry";
-
     private const RETRY_BACKOFF_SECONDS = 3600;
 
     /**
@@ -108,8 +106,6 @@ class PublicIdResolver
         }
 
         $this->configWriter->savePublicId($publicId);
-        // A stored id makes the throttle meaningless; clearing it keeps a later
-        // credential change from inheriting this attempt's back-off.
         $this->cache->remove(self::RETRY_CACHE_KEY);
 
         return $publicId;

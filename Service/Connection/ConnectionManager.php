@@ -77,14 +77,11 @@ class ConnectionManager
         $sameWebhookUrl = $this->config->getWebhookUrl() === $webhookUrl;
 
         if ($connectionCurrent && $sameApiKey && $sameWebhookUrl) {
-            // Nothing to reconnect, but an earlier acquisition may have failed.
-            // Saving settings is merchant-initiated, so retry without throttling.
             $this->publicIdResolver->ensure();
 
             return false;
         }
 
-        // Blanks the stored public id along with the rest of the connection.
         $this->configWriter->markConnecting($webhookUrl, $apiKeyHash);
 
         try {
@@ -106,7 +103,6 @@ class ConnectionManager
             );
         }
 
-        // The checkout components need this; failure only costs the offer text.
         $this->publicIdResolver->ensure();
 
         try {
@@ -114,7 +110,6 @@ class ConnectionManager
                 $this->apiClient->fetchCashbackData(),
             );
         } catch (\Throwable $exception) {
-            // Cashback is optional, but stale provider rates must not be shown.
             $this->logger->warning(
                 "FLIZpay cashback fetch failed during connection",
                 ["exception" => get_class($exception)],
@@ -144,7 +139,7 @@ class ConnectionManager
     private function buildWebhookUrl(): string
     {
         $store = $this->storeManager->getDefaultStoreView();
-        if (!$store instanceof Store) {
+        if (!($store instanceof Store)) {
             throw new LocalizedException(
                 __("Magento has no default store view."),
             );

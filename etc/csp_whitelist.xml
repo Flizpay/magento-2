@@ -26,22 +26,12 @@
         <policy id="script-src">
             <values>
                 <value id="flizpay_app" type="host">app.flizpay.de</value>
-                <!-- TODO: remove before shipping. Local business-web bundle. -->
-                <value
-                    id="flizpay_local_app"
-                    type="host"
-                >olegs-macbook-pro-1.tail9450f2.ts.net:4441</value>
             </values>
         </policy>
         <!-- The component resolves the shop's offer text from the FLIZpay API. -->
         <policy id="connect-src">
             <values>
                 <value id="flizpay_api" type="host">api.flizpay.de</value>
-                <!-- TODO: remove before shipping. Local backend. -->
-                <value
-                    id="flizpay_local_api"
-                    type="host"
-                >olegs-macbook-pro-1.tail9450f2.ts.net:4440</value>
             </values>
         </policy>
     </policies>

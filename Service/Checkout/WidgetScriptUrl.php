@@ -21,11 +21,7 @@ use Magento\Framework\App\DeploymentConfig;
  */
 class WidgetScriptUrl
 {
-    // TODO: restore before shipping.
-    // private const SCRIPT_URL = "https://app.flizpay.de/web-components/v1/flizpay.js";
-    private const SCRIPT_URL = "https://olegs-macbook-pro-1.tail9450f2.ts.net:4441/dist/web-components/v1/flizpay.js";
-
-    /** Set in app/etc/env.php to point at a staging build. */
+    private const SCRIPT_URL = "https://app.flizpay.de/web-components/v1/flizpay.js";
     private const OVERRIDE_PATH = "flizpay/widget_script_url";
 
     /**

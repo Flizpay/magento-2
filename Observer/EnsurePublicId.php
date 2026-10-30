@@ -44,7 +44,6 @@ class EnsurePublicId implements ObserverInterface
         try {
             $this->publicIdResolver->ensure(true);
         } catch (\Throwable $exception) {
-            // Opening the configuration page must succeed regardless.
             $this->logger->warning("FLIZpay public id top-up failed", [
                 "exception" => get_class($exception),
             ]);
