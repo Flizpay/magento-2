@@ -34,13 +34,6 @@
                 <value id="flizpay_api" type="host">api.flizpay.de</value>
             </values>
         </policy>
-        <!--
-            Placing the order POSTs a form to flizpay/payment/start, which
-            redirects to the hosted FLIZpay payment page. Browsers check the
-            redirect target of a form submission against form-action too, so
-            without this entry the navigation is cancelled without an error
-            and the shopper stays on the checkout.
-        -->
         <policy id="form-action">
             <values>
                 <value id="flizpay_payer_web" type="host">secure.flizpay.de</value>
