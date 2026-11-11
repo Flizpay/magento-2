@@ -127,8 +127,10 @@ jobs:
           cd "$RUNNER_TEMP/package"
           composer init --no-interaction --name flizpay/ci-unit \
             --description "CI sandbox that installs the module with its Magento dependencies"
-          composer config repositories.module path "$GITHUB_WORKSPACE"
+          # Composer puts each new repository first, so the checkout is added
+          # last to outrank the published release on repo.magento.com.
           composer config repositories.magento composer https://repo.magento.com/
+          composer config repositories.module path "$GITHUB_WORKSPACE"
           composer config --no-plugins allow-plugins.magento/composer-dependency-version-audit-plugin true
           composer config --no-plugins allow-plugins.magento/magento-composer-installer true
           composer config --no-plugins allow-plugins.laminas/laminas-dependency-plugin true

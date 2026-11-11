@@ -7,10 +7,12 @@ namespace FlizPay\Payment\Test\Unit\Controller\Webhook;
 use FlizPay\Payment\Controller\Webhook\Index;
 use FlizPay\Payment\Service\Connection\ConnectionManager;
 use FlizPay\Payment\Service\Logging\PaymentLogger;
+use FlizPay\Payment\Service\ModuleVersion;
 use FlizPay\Payment\Service\Webhook\WebhookAuthenticator;
 use FlizPay\Payment\Service\Webhook\WebhookProcessor;
 use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\App\Action\HttpPostActionInterface;
+use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\App\Request\Http;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
@@ -36,7 +38,13 @@ class IndexTest extends TestCase
         $result
             ->expects(self::once())
             ->method("setData")
-            ->with(["data" => ["alive" => true]])
+            ->with([
+                "data" => [
+                    "alive" => true,
+                    "pluginVersion" => "1.0.1",
+                    "platformVersion" => "2.4.8",
+                ],
+            ])
             ->willReturnSelf();
         $jsonFactory = $this->createStub(JsonFactory::class);
         $jsonFactory->method("create")->willReturn($result);
@@ -61,6 +69,8 @@ class IndexTest extends TestCase
                 $connectionManager,
                 $this->createStub(WebhookProcessor::class),
                 $this->createStub(PaymentLogger::class),
+                $this->moduleVersion(),
+                $this->productMetadata(),
             ))->execute(),
         );
     }
@@ -121,6 +131,8 @@ class IndexTest extends TestCase
                 $connectionManager,
                 $processor,
                 $this->createStub(PaymentLogger::class),
+                $this->moduleVersion(),
+                $this->productMetadata(),
             ))->execute(),
         );
     }
@@ -168,6 +180,8 @@ class IndexTest extends TestCase
                 $this->createStub(ConnectionManager::class),
                 $processor,
                 $this->createStub(PaymentLogger::class),
+                $this->moduleVersion(),
+                $this->productMetadata(),
             ))->execute(),
         );
     }
@@ -201,6 +215,24 @@ class IndexTest extends TestCase
             $this->createStub(ConnectionManager::class),
             $processor,
             $this->createStub(PaymentLogger::class),
+            $this->moduleVersion(),
+            $this->productMetadata(),
         ))->execute();
+    }
+
+    private function moduleVersion(): ModuleVersion
+    {
+        $moduleVersion = $this->createStub(ModuleVersion::class);
+        $moduleVersion->method("get")->willReturn("1.0.1");
+
+        return $moduleVersion;
+    }
+
+    private function productMetadata(): ProductMetadataInterface
+    {
+        $productMetadata = $this->createStub(ProductMetadataInterface::class);
+        $productMetadata->method("getVersion")->willReturn("2.4.8");
+
+        return $productMetadata;
     }
 }

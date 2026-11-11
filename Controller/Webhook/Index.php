@@ -16,11 +16,13 @@ namespace FlizPay\Payment\Controller\Webhook;
 
 use FlizPay\Payment\Service\Connection\ConnectionManager;
 use FlizPay\Payment\Service\Logging\PaymentLogger;
+use FlizPay\Payment\Service\ModuleVersion;
 use FlizPay\Payment\Service\Webhook\WebhookAuthenticator;
 use FlizPay\Payment\Service\Webhook\WebhookPayload;
 use FlizPay\Payment\Service\Webhook\WebhookProcessor;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\App\CsrfAwareActionInterface;
+use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\App\Request\Http;
 use Magento\Framework\App\Request\InvalidRequestException;
 use Magento\Framework\App\RequestInterface;
@@ -40,6 +42,9 @@ class Index implements HttpPostActionInterface, CsrfAwareActionInterface
      * @param WebhookAuthenticator $authenticator
      * @param ConnectionManager $connectionManager
      * @param WebhookProcessor $webhookProcessor
+     * @param PaymentLogger $logger
+     * @param ModuleVersion $moduleVersion
+     * @param ProductMetadataInterface $productMetadata
      */
     public function __construct(
         private readonly Http $request,
@@ -49,6 +54,8 @@ class Index implements HttpPostActionInterface, CsrfAwareActionInterface
         private readonly ConnectionManager $connectionManager,
         private readonly WebhookProcessor $webhookProcessor,
         private readonly PaymentLogger $logger,
+        private readonly ModuleVersion $moduleVersion,
+        private readonly ProductMetadataInterface $productMetadata,
     ) {}
 
     /**
@@ -91,7 +98,13 @@ class Index implements HttpPostActionInterface, CsrfAwareActionInterface
                     "FLIZpay connection test webhook acknowledged",
                 );
 
-                return $result->setData(["data" => ["alive" => true]]);
+                return $result->setData([
+                    "data" => [
+                        "alive" => true,
+                        "pluginVersion" => $this->moduleVersion->get(),
+                        "platformVersion" => $this->productMetadata->getVersion(),
+                    ],
+                ]);
             }
 
             if (isset($payload["updateCashbackInfo"])) {
