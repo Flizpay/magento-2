@@ -34,5 +34,10 @@
                 <value id="flizpay_api" type="host">api.flizpay.de</value>
             </values>
         </policy>
+        <policy id="form-action">
+            <values>
+                <value id="flizpay_payer_web" type="host">secure.flizpay.de</value>
+            </values>
+        </policy>
     </policies>
 </csp_whitelist>
