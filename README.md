@@ -25,12 +25,47 @@ component.
 
 ## Installation
 
-To install from [Packagist](https://packagist.org/packages/flizpay/magento2), run
-the following commands from the Magento root directory:
+FLIZpay is available from the Adobe Commerce Marketplace and from Packagist.
+The package name differs between the two, so use the commands for the source
+you install from. Run them from the Magento root directory.
+
+### Adobe Commerce Marketplace
+
+Get the extension from the
+[Adobe Commerce Marketplace](https://commercemarketplace.adobe.com/flizpay-gmbh-magento2.html),
+make sure Composer is authenticated against `repo.magento.com` with your
+Marketplace access keys, and run:
+
+```bash
+composer require flizpay-gmbh/magento2
+bin/magento module:enable FlizPay_Payment
+bin/magento setup:upgrade
+bin/magento setup:di:compile
+bin/magento cache:flush
+```
+
+### Packagist
+
+To install from [Packagist](https://packagist.org/packages/flizpay/magento2),
+run:
 
 ```bash
 composer require flizpay/magento2
 bin/magento module:enable FlizPay_Payment
+bin/magento setup:upgrade
+bin/magento setup:di:compile
+bin/magento cache:flush
+```
+
+## Updating
+
+To update to the latest version, run the following commands from the Magento
+root directory. Use the package name you installed under:
+`flizpay-gmbh/magento2` for the Adobe Commerce Marketplace or
+`flizpay/magento2` for Packagist.
+
+```bash
+composer update flizpay-gmbh/magento2
 bin/magento setup:upgrade
 bin/magento setup:di:compile
 bin/magento cache:flush
