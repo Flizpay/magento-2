@@ -8,6 +8,7 @@ use FlizPay\Payment\Api\ConfigInterface;
 use FlizPay\Payment\Service\Api\FlizPayApiClient;
 use FlizPay\Payment\Service\Api\TransactionCreationException;
 use FlizPay\Payment\Service\ModuleVersion;
+use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\HTTP\Client\Curl;
 use Magento\Framework\Serialize\Serializer\Json;
@@ -64,6 +65,7 @@ class FlizPayApiClientTest extends TestCase
             $config,
             $this->createStub(LoggerInterface::class),
             $this->moduleVersion(),
+            $this->createStub(ProductMetadataInterface::class),
         ))->registerWebhook("https://shop.test/flizpay/webhook");
     }
 
@@ -93,6 +95,7 @@ class FlizPayApiClientTest extends TestCase
                 $config,
                 $this->createStub(LoggerInterface::class),
                 $this->moduleVersion(),
+                $this->createStub(ProductMetadataInterface::class),
             ))->generateWebhookSecret(),
         );
     }
@@ -345,6 +348,7 @@ class FlizPayApiClientTest extends TestCase
             $config,
             $logger ?? $this->createStub(LoggerInterface::class),
             $this->moduleVersion(),
+            $this->createStub(ProductMetadataInterface::class),
         );
     }
 

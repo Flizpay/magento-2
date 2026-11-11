@@ -16,6 +16,7 @@ namespace FlizPay\Payment\Service\Api;
 
 use FlizPay\Payment\Api\ConfigInterface;
 use FlizPay\Payment\Service\ModuleVersion;
+use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\HTTP\Client\Curl;
 use Magento\Framework\Serialize\Serializer\Json;
@@ -35,6 +36,7 @@ class FlizPayApiClient
      * @param ConfigInterface $config
      * @param LoggerInterface $logger
      * @param ModuleVersion $moduleVersion
+     * @param ProductMetadataInterface $productMetadata
      */
     public function __construct(
         private readonly Curl $httpClient,
@@ -42,6 +44,7 @@ class FlizPayApiClient
         private readonly ConfigInterface $config,
         private readonly LoggerInterface $logger,
         private readonly ModuleVersion $moduleVersion,
+        private readonly ProductMetadataInterface $productMetadata,
     ) {}
 
     /**
@@ -198,6 +201,7 @@ class FlizPayApiClient
                         "User-Agent" =>
                             "FlizPayMagento2/" . $this->moduleVersion->get(),
                         "X-FLIZpay-Plugin-Version" => $this->moduleVersion->get(),
+                        "X-FLIZpay-Platform-Version" => $this->productMetadata->getVersion(),
                         "x-api-key" => $apiKey,
                     ],
                     $headers,
