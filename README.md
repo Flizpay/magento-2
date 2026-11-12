@@ -95,7 +95,8 @@ The current release supports:
 - One full invoice per order
 - One full offline credit memo after payment completion
 - No partial or multiple invoices or credit memos
-- No online refunds; refunds must be issued separately through FLIZpay
+- No online refunds; refunds must be returned to the customer separately, not
+  through FLIZpay
 
 ## Troubleshooting
 
