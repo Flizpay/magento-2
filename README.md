@@ -105,20 +105,6 @@ logging in the FLIZpay payment configuration to include API and webhook
 processing details. Logs exclude credentials, signatures, customer data, and
 request or response bodies.
 
-## Development
-
-Run `make` to list all available commands. Common checks are:
-
-```bash
-make check              # Validation, XML checks, linting, and unit tests
-make test-integration   # Magento integration tests
-make analyse            # PHPStan
-make phpcs              # Magento coding standards
-```
-
-Test and quality commands require a Magento installation. Set `MAGENTO_ROOT` if
-it is not available at the default `../magento-store` path.
-
 ## License
 
 This extension is dual-licensed under the
